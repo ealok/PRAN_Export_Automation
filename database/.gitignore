@@ -1,0 +1,11 @@
+/node_modules
+/public/storage
+/.idea
+/le
+/l
+le.php
+Homestead.json
+Homestead.yaml
+.env
+/public/uploads
+/vendor

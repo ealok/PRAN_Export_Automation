@@ -1,0 +1,31 @@
+#example1{
+          
+    font-size: 12px;
+}
+.table-bordered > thead > tr > th{
+
+border: 1px solid #352e2e !important;
+
+}
+tr:nth-child(2n+1) {background:#f2f0e700}
+tr:nth-child(even) {background: #D8F2D370;}
+tr:first-child{darkgreen}  (nth-child(0) would also work)
+.table > thead:first-child > tr:first-child > th {
+    border-top: 1px solid;
+    padding: 15px 0px 14px 3px;
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom-width: 0px;
+}
+.table-bordered > tbody > tr > td{
+
+    border: 1px solid #201f1f;
+    padding: 1px;
+    font-weight: bold;
+
+}
+.table-bordered > tbody > tr:hover{
+
+    background-color: rgba(101, 212, 97, 0.836);
+
+}
