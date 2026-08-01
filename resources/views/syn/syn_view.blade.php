@@ -271,11 +271,25 @@
                                 <td><input type="button" class="btn btn-sm btn-danger" value="Action" id="item_requistion"></td>
                               </tr>
                               <tr>
-                                <td scope="row">8</td>
-                                <td>{{"CI VALUE SYN BY INVOICE"}}</td>
-                                <td><input type="text" id="invoice_no" name="invoice_no"></td>
-                                <td>{{"/update/ci/total_value"}}</td>
-                                <td><input type="button" class="btn btn-sm btn-danger" value="Action" id="ci_value"></td>
+                                  <td scope="row">9</td>
+                                  <td>{{"CI VALUE SYN BY INVOICE"}}</td>
+                                  <td><input type="text" id="invoice_no" name="invoice_no"></td>
+                                  <td>{{"/update/ci/total_value"}}</td>
+                                  <td><input type="button" class="btn btn-sm btn-danger" value="Action" id="ci_value"></td>
+                              </tr>
+                              <tr>
+                                  <td scope="row">10</td>
+                                  <td>{{"CRM Order Receive"}}</td>
+                                  <td>01:35</td>
+                                  <td>{{"/crm/order_receive"}}</td>
+                                  <td><input type="button" class="btn btn-sm btn-danger" value="Action" id="crm_order_receive"></td>
+                              </tr>
+                              <tr>
+                                  <td scope="row">11</td>
+                                  <td>{{"CRM Order Update Receive"}}</td>
+                                  <td>04:07</td>
+                                  <td>{{"/crm/order_update_receive"}}</td>
+                                  <td><input type="button" class="btn btn-sm btn-danger" value="Action" id="crm_order_update_receive"></td>
                               </tr>
                             </tbody>
                           </table>
@@ -475,6 +489,30 @@
 
                 console.error("Error: " + error);
             });
+
+        });
+
+        $("#crm_order_receive").click(function(){
+          
+          var url = "{{url('/')}}"+"/crm/order_receive";
+          $.get(url, function(res) {
+
+              console.log(res);
+
+          }); 
+          
+
+        });
+
+        $("#crm_order_update_receive").click(function(){
+          
+          var url = "{{url('/')}}"+"/crm/order_update_receive";
+          $.get(url, function(res) {
+
+              console.log(res);
+
+          }); 
+          
 
         });
 

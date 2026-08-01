@@ -599,6 +599,8 @@ Route::get('/kyv/jo_order/receive','ApprovalController@kyvJobOrderReceive');
 Route::get('/kyv/jo/updated/receive','ApprovalController@kyvJobOrderUpdateReceive');
 Route::get('/kyv/do/updated/receive','ApprovalController@kyvDOUpdatedReceive');
 Route::get('/oc/updated','ApprovalController@ocUpdate');
+Route::get('/crm/order_receive','ApprovalController@crmOrderReceive');
+Route::get('/crm/order_update_receive','ApprovalController@crmOrderUpdateReceive');
 
 //@@@-End--
 

@@ -369,7 +369,6 @@ class ApprovalController extends Controller
             $joSyn->save();                  
         }
 
-
     }
 
     public function kyvJobOrderUpdateReceive(Request $request){
@@ -777,7 +776,214 @@ class ApprovalController extends Controller
 
       }
 
-  }
+    }
 
-    
+   
+
+    public function crmOrderReceive()
+    {
+        try {
+
+            $results = DB::select("CALL PROC_CRM_ORDER_RECEIVE()");
+            if (empty($results)) {
+                return ['status' => 'error', 'message' => 'No data found'];
+            }
+            
+            $payloadData = [];
+            foreach ($results as $row) {
+                $payloadData[] = [
+                    'line_id'       => !empty($row->line_id) ? $row->line_id : 0,
+                    'Contract_No'   => !empty($row->Contract_No) ? $row->Contract_No : '',
+                    'Contract_Date' => !empty($row->Contract_Date) ? $row->Contract_Date : '',
+                    'Invoice_No'    => !empty($row->Invoice_No) ? $row->Invoice_No : '',
+                    'Invoice_Date'  => !empty($row->Invoice_Date) ? $row->Invoice_Date : '',
+                    'Party_Code'    => !empty($row->Party_Code) ? $row->Party_Code : '',
+                    'Party_Name'    => !empty($row->Party_Name) ? $row->Party_Name : '',
+                    'Item_Code'     => !empty($row->Item_Code) ? $row->Item_Code : '',
+                    'Item_Name'     => !empty($row->Item_Name) ? $row->Item_Name : '',
+                    'ci_factor'     => !empty($row->ci_factor) ? $row->ci_factor : 0,
+                    'SC_Qty'        => !empty($row->SC_Qty) ? $row->SC_Qty : '0',
+                    'JO_Number'     => !empty($row->JO_Number) ? $row->JO_Number : '',
+                    'JO_Qty'        => !empty($row->JO_Qty) ? $row->JO_Qty : '0',
+                    'Rate'          => !empty($row->Rate) ? (float) $row->Rate : 0,
+                    'Status'        => !empty($row->Status) ? $row->Status : '-',
+                    'JO_Date'       => !empty($row->JO_Date) ? $row->JO_Date : '',
+                    'JO_Creator'    => !empty($row->JO_Creator) ? $row->JO_Creator : '',
+                    'SC_Creator'    => !empty($row->SC_Creator) ? $row->SC_Creator : ''
+                ];
+            }
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => 'https://crm.prangroup.com/api/job-orders/store',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 30,
+                CURLOPT_CUSTOMREQUEST  => 'POST',
+                CURLOPT_POSTFIELDS     => json_encode(count($payloadData) == 1 ? $payloadData[0] : $payloadData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                CURLOPT_HTTPHEADER     => [
+                    'ss: order_list',
+                    'yy: HJDyh876Yhdsf543GFOYSAL',
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Basic YXV0aDoxMlByYW5AMTIzNDU2JA=='
+                ],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            if (!empty($curlError)) {
+                return ['status' => 'error', 'message' => 'CURL Error: ' . $curlError];
+            }
+            
+            $decodedResponse = json_decode($response, true);
+            if($httpCode == 200 || $httpCode == 201) {
+                
+                DB::table('crm_push_logs')->insert([
+                    'push_status' => 'Y',
+                    'push_date' => date('Y-m-d H:i:s'),
+                    'push_message' => !empty($decodedResponse['message']) ? $decodedResponse['message'] : 'Data pushed successfully',
+                    'push_total' => !empty($decodedResponse['total']) ? $decodedResponse['total'] : 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'action_type'=> 'received'
+                ]);
+              
+            }
+            
+            DB::table('crm_push_logs')->insert([
+                'push_status' => 'F',
+                'push_date' => date('Y-m-d H:i:s'),
+                'push_message' => 'API Error: HTTP ' . $httpCode,
+                'push_total' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'action_type'=> 'received'
+            ]);
+            
+            return [
+                'status' => 'error',
+                'message' => 'API Error: HTTP ' . $httpCode,
+                'response' => $decodedResponse
+            ];
+            
+        } catch (\Exception $e) {
+            
+            DB::table('crm_push_logs')->insert([
+                'push_status' => 'F',
+                'push_date' => date('Y-m-d H:i:s'),
+                'push_message' => 'Exception: ' . $e->getMessage(),
+                'push_total' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'action_type'=> 'received'
+            ]);
+            
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
+    public function crmOrderUpdateReceive()
+    {
+        try {
+
+            $results = DB::select("CALL PROC_CRM_SYN_ORDER_UPDATE()");
+            if (empty($results)) {
+                return ['status' => 'error', 'message' => 'No data found'];
+            }
+
+            $payloadData = [];
+            foreach ($results as $row) {
+                $payloadData[] = [
+                    'line_id'       => !empty($row->line_id) ? $row->line_id : 0,
+                    'Contract_No'   => !empty($row->Contract_No) ? $row->Contract_No : '',
+                    'Contract_Date' => !empty($row->Contract_Date) ? $row->Contract_Date : '',
+                    'Invoice_No'    => !empty($row->Invoice_No) ? $row->Invoice_No : '',
+                    'Invoice_Date'  => !empty($row->Invoice_Date) ? $row->Invoice_Date : '',
+                    'Party_Code'    => !empty($row->Party_Code) ? $row->Party_Code : '',
+                    'Party_Name'    => !empty($row->Party_Name) ? $row->Party_Name : '',
+                    'Item_Code'     => !empty($row->Item_Code) ? $row->Item_Code : '',
+                    'Item_Name'     => !empty($row->Item_Name) ? $row->Item_Name : '',
+                    'ci_factor'     => !empty($row->ci_factor) ? $row->ci_factor : 0,
+                    'SC_Qty'        => !empty($row->SC_Qty) ? $row->SC_Qty : '0',
+                    'JO_Number'     => !empty($row->JO_Number) ? $row->JO_Number : '',
+                    'JO_Qty'        => !empty($row->JO_Qty) ? $row->JO_Qty : '0',
+                    'Rate'          => !empty($row->Rate) ? (float) $row->Rate : 0,
+                    'Status'        => !empty($row->Status) ? $row->Status : '-',
+                    'JO_Date'       => !empty($row->JO_Date) ? $row->JO_Date : '',
+                    'JO_Creator'    => !empty($row->JO_Creator) ? $row->JO_Creator : '',
+                    'SC_Creator'    => !empty($row->SC_Creator) ? $row->SC_Creator : ''
+                ];
+            }
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => 'https://crm.prangroup.com/api/job-orders/store',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 30,
+                CURLOPT_CUSTOMREQUEST  => 'POST',
+                CURLOPT_POSTFIELDS     => json_encode(count($payloadData) == 1 ? $payloadData[0] : $payloadData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                CURLOPT_HTTPHEADER     => [
+                    'ss: order_list',
+                    'yy: HJDyh876Yhdsf543GFOYSAL',
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Basic YXV0aDoxMlByYW5AMTIzNDU2JA=='
+                ],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            if (!empty($curlError)) {
+                return ['status' => 'error', 'message' => 'CURL Error: ' . $curlError];
+            }
+            
+            $decodedResponse = json_decode($response, true);
+            if($httpCode == 200 || $httpCode == 201) {
+
+                DB::table('crm_push_logs')->insert([
+                    'push_status' => 'Y',
+                    'push_date' => date('Y-m-d H:i:s'),
+                    'push_message' => !empty($decodedResponse['message']) ? $decodedResponse['message'] : 'Data pushed successfully',
+                    'push_total' => !empty($decodedResponse['total']) ? $decodedResponse['total'] : 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'action_type'=> 'updated'
+                ]);
+
+            }
+        
+            DB::table('crm_push_logs')->insert([
+                'push_status' => 'F',
+                'push_date' => date('Y-m-d H:i:s'),
+                'push_message' => 'API Error: HTTP ' . $httpCode,
+                'push_total' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'action_type'=> 'updated'
+            ]);
+            
+            return [
+                'status' => 'error',
+                'message' => 'API Error: HTTP ' . $httpCode,
+                'response' => $decodedResponse
+            ];
+            
+        } catch (\Exception $e) {
+            
+            DB::table('crm_push_logs')->insert([
+                'push_status' => 'F',
+                'push_date' => date('Y-m-d H:i:s'),
+                'push_message' => 'Exception: ' . $e->getMessage(),
+                'push_total' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'action_type'=> 'updated'
+            ]);
+            
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
 }
