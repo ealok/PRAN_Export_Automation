@@ -361,7 +361,7 @@ img{
                           "data": null,
                           render: function(data, type, row){
 
-                            return '<input type="button" data-id="'+row.id+'" class="btn btn-danger btn-sm btn-revise" value="Cancel">' 
+                            return '<input type="button" data-id="'+row.id+'" class="btn btn-danger btn-sm btn-cancel" value="Cancel">' 
                           
                           }
                       }
@@ -384,7 +384,7 @@ img{
         }
 
         // Handle click Revise button
-        $('#example tbody').on('click', '.btn-revise', function (e) {
+        $('#example tbody').on('click', '.btn-cancel', function (e) {
 
             var cancel_id=$(this).data('id');
             Swal.fire({
@@ -411,7 +411,7 @@ img{
                                 Swal.fire({
                                     position: 'top-end',
                                     icon: 'success',
-                                    title: 'Cancel Successfully Done..!!',
+                                    title: res.messages,
                                     showConfirmButton: false,
                                     timer: 1500
                                 });
@@ -423,8 +423,8 @@ img{
                             
                                 Swal.fire({
                                     position: 'top-end',
-                                    icon: 'success',
-                                    title: 'result Failed.!!',
+                                    icon: 'warning',
+                                    title: res.messages,
                                     showConfirmButton: false,
                                     timer: 1500
                                 }); 

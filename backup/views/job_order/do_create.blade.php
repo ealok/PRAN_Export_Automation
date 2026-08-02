@@ -240,7 +240,7 @@
                     <div class="col-sm-3">
                       <label for="name">Credit Limit</label>
                       <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                          <input name="text" type="text" class="form-control" id="blimit" value="99999999" readonly>
+                          <input name="text" type="text" class="form-control" id="blimit" value="" readonly>
                       </div>
                     </div>
                     <div class="col-sm-3">
@@ -265,7 +265,6 @@
                @endforeach
                <div class="col-sm-12">
               <form method="post" id="insert_form">
-                {{ csrf_field() }}
                <div class="panel-body table-responsive" style="padding: 0px">
               <table class="table table-bordered table-responsive table-condenced" id="tblMain" style="border:1px solid #222;">
                   <thead style="background: #10677b;color: antiquewhite">
@@ -284,7 +283,8 @@
                           <th style="border: 1px solid;font-size: 12px;width: 70px">SREQ</th>
                           <th style="border: 1px solid;font-size: 12px;width: 70px">Factory</th>
                           <th style="border: 1px solid;font-size: 12px;width: 70px">Rate</th>
-                          <th style="border: 1px solid;font-size: 12px;width: 70px">Action</th> 
+                          <th style="border: 1px solid;font-size: 12px;width: 70px">Action</th>
+                          <th style="border: 1px solid;font-size: 12px;width: 50px;display: none"></th> 
                       </tr>
                   </thead>
                   <tbody>
@@ -302,7 +302,7 @@
                                    <option value="">Select</option>
                                     @if($dunits->count())
                                     @foreach($dunits as $dunit)
-                                    <option value="{{$dunit->dunit_name}}" {{$jobOrderDetail->du_unit==$dunit->id ? 'selected="selected"' : '' }}>{{ $dunit->dunit_name}}
+                                    <option value="{{$dunit->id}}" {{$jobOrderDetail->du_unit==$dunit->id ? 'selected="selected"' : '' }}>{{ $dunit->dunit_name}}
                                     </option>
                                     @endforeach
                                     @endif
@@ -316,7 +316,7 @@
                                   <option value="">Select</option>
                                   @if($runits->count())
                                   @foreach($runits as $runit)
-                                  <option value="{{$runit->runit_name}}" {{$jobOrderDetail->ru_unit==$runit->id ? 'selected="selected"' : '' }}>{{ $runit->runit_name}}
+                                  <option value="{{$runit->id}}" {{$jobOrderDetail->ru_unit==$runit->id ? 'selected="selected"' : '' }}>{{ $runit->runit_name}}
                                   </option>
                                   @endforeach
                                   @endif
@@ -327,6 +327,7 @@
                             <td class="ellipsis">{{$jobOrderDetail->cncl}}</td>
                             <td class="ellipsis">{{round($jobOrderDetail->rate,6)}}<?php $total_rate+=$jobOrderDetail->rate*$jobOrderDetail->orqt;?></td>
                             <td class="ellipsis"><input type="checkbox" class="sub_chk" data-id="{{$jobOrderDetail->id}}"></td>
+                            <td class="ellipsis" style="font-size:11px;display: none"><input type="hidden" value="{{$jobOrderDetail->id}}"></td>
                         </tr>
                        @endforeach
                   </tbody>
@@ -337,8 +338,7 @@
                   <input type="button" class="btn btn-info btn-danger btn-sm" id="check_balance" value="Check Balance">
                   <input type="hidden" value="{{$total_rate}}" id="total_rate">
                   <span id="total_balance_style">TOTAL DO AMOUNT(USD) : {{round($total_rate,2)}}</span>
-              </div>
-            </form>   
+               </div> 
             </div>
         </div>
         <label for="name" style="position: absolute;top: -21px;left: 40px;width: 252px;height: 23px;text-align: center;padding: 11px 15px 30px 18px;background: darkorange;color: black;border-radius: 20px;">Create DO</label>
@@ -347,7 +347,7 @@
 </div>
 <script>document.title = 'Create | DO';</script>
 <script type="text/javascript">
- 
+
    $('#do_button').prop("disabled",true);
 
    $(document).ready(function () {
@@ -379,7 +379,8 @@
                 url: "{{url('/check/do_balance')}}?party_code=" +party_code+"&total_balance="+total_balance+"&jo_id="+jo_id,
                 success: function (data) {
 
-                  $('#do_button').prop("disabled",true);
+                  console.log(data);
+                    
                     if(data.status=="success"){
 
                         $('#bundelivered').val(data.undelivered);
@@ -621,41 +622,36 @@
   function createDo(){
      
     event.preventDefault();
-    var jo_id=$('#job_order_id').val();
-    $.ajax({
+    create();
+    // var jo_id=$('#job_order_id').val();
+    // $.ajax({
           
-       type: "GET",
-       url: '/check_dashboard/status',
-       data:{'event': 3, 'jo_id': jo_id},
-       success: function (res) {
+    //    type: "GET",
+    //    url: '/check_dashboard/status',
+    //    data:{'event': 3, 'jo_id': jo_id},
+    //    success: function (res) {
 
-         if(res.status==1){
+    //      if(res.status==1){
              
-           create();
+    //        create();
 
-         }else{
+    //      }else{
           
-            Swal.fire({
-              icon: 'warning',
-              text: 'Please Task Fahat Vai DO Approval..!',
-            }); 
+    //         Swal.fire({
+    //           icon: 'warning',
+    //           text: 'Please Task Fahat Vai DO Approval..!',
+    //         }); 
              
-         }
+    //      }
 
-       }
+    //    }
 
-    });
-
+    // });
 
   }
 
   function create(){
    
-      $.ajaxSetup({
-          headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          }
-      });
       var party_code=document.getElementById('importer_code').value;
       var shipping_mark=document.getElementById('shipping_mark').value;
       var p_floor_id=document.getElementById('p_floor_id').value;
@@ -690,6 +686,7 @@
       }else{
         
         document.getElementById('do_button').disabled = 'true'; //@@@@disable button
+        var unit_data = $("#insert_form").serializeArray();
         var info_details = new Array();
         $("#tblMain TBODY TR").each(function () {
             var row = $(this);
@@ -699,18 +696,18 @@
             dist_info.self_life = row.find("TD").eq(2).html();
             dist_info.exp_date = row.find("TD").eq(3).html();
             dist_info.qty = row.find("TD").eq(4).html();
-            dist_info.du_unit=row.find("TD:eq(5) select").val()
             dist_info.sales_contact_qty = row.find("TD").eq(6).html();
             dist_info.orqt = row.find("TD").eq(7).html();
             dist_info.smqt = row.find("TD").eq(8).html();
-            dist_info.ru_unit=row.find("TD:eq(9) select").val()
             dist_info.codding_matter = row.find("TD").eq(10).html();
             dist_info.sreq = row.find("TD").eq(11).html();
             dist_info.cncl = row.find("TD").eq(12).html();
             dist_info.rate = row.find("TD").eq(13).html();
+            const hiddenInput = row.find("TD").eq(15).find('input[type="hidden"]').val();
+            dist_info.lineId = (hiddenInput && hiddenInput !== '0' && hiddenInput !== '') ? hiddenInput : null;
             info_details.push(dist_info);
         });
-          
+   
         if(job_order_id) {
 
             $.ajax({
@@ -730,10 +727,13 @@
                     'delivery_date':delivery_date,
                     'mfg_date':mfg_date,
                     'party_code':party_code,
+                    'unit_data':unit_data,
                     'info_details':info_details,
                     '_token': $('input[name=_token]').val()},
               success: function (data) {
 
+                  console.log(data);
+                  
                   if(data=="ok"){
 
                     Swal.fire({ 
@@ -741,7 +741,6 @@
                         title: 'Success! DO Create Successfully..!!',
 
                     }) 
-                    document.getElementById('do_button').disabled = 'false';
 
                   }else if(data=="Fail"){
 
@@ -750,7 +749,6 @@
                         title: 'Alert! Do Create Fail..!!',
 
                     })   
-                    document.getElementById('do_button').disabled = 'false';
 
                   }else if(data=="not_do"){
 
@@ -759,7 +757,7 @@
                       title: 'Alert! This Depo DO Not Possible..!!',
 
                     });
-                                         
+                     
                   }else if(data=="Approval"){
 
                     Swal.fire({ 
@@ -767,16 +765,17 @@
                       title: 'Alert! Your Rate Approval Not Done..!!',
 
                     });   
-                    
+
                   }
-                                  
+                
+                  
               }
 
             });
         
-         }
+        }
 
-      } 
+     } 
 
   }
 </script>

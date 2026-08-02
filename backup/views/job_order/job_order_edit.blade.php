@@ -141,7 +141,7 @@
                     </div>
                 </div>
                 <div class="col-sm-3">
-                  <label for="name">Depo</label>
+                  <label for="name">Depot</label>
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                        <select name="depo_id" id="depo_id" data-live-search="true" class="form-control select2 selectpicker" required autofocus type="select"  value="1" disabled="true">
                              <option value="">Select</option>
@@ -178,7 +178,7 @@
                 <div class="col-sm-3">
                   <label for="name">Delivery Date</label>
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                       <input name="dated" type="text" id="delivery_date" class="form-control datepicker" value="{{$jobOrderMasterResult->delivery_date}}">
+                       <input name="dated" type="text" id="delivery_date" class="form-control datepicker" value="{{$jobOrderMasterResult->delivery_date}}" placeholder="Select Delivery Date" readonly>
                     </div>
                 </div>
                 <div class="col-sm-3">
@@ -190,13 +190,13 @@
                     <div class="col-sm-3">
                       <label for="name">Batch No</label>
                       <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                          <input name="text" type="text" class="form-control" id="batch_number" value="{{$jobOrderMasterResult->batch_number}}">
+                          <input name="text" type="text" class="form-control" id="batch_number" value="{{$jobOrderMasterResult->batch_number}}" placeholder="Enter batch number">
                         </div>
                    </div>
                    <div class="col-sm-3">
                   <label for="name">IMP BY</label>
                   <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                      <input name="text" type="text" class="form-control" id="imp_by" value="{{$jobOrderMasterResult->imp_by}}">
+                      <input name="text" type="text" class="form-control" id="imp_by" value="{{$jobOrderMasterResult->imp_by}}" placeholder="Enter imp by if required">
                       @if ($errors->has('imp_by'))
                         <span class="help-block"><strong>{{ $errors->first('imp_by') }}</strong></span>
                       @endif
@@ -205,7 +205,7 @@
                <div class="col-sm-3">
                     <label for="name">Distributed By</label>
                     <div class="form-group {{ $errors->has('distributed_by') ? 'has-error' : '' }}">
-                      <input name="distributed_by" type="text" class="form-control" id="distributed_by" value="@if(!empty($jobOrderMasterResult->distributed_by)){{$jobOrderMasterResult->distributed_by}}@endif">
+                      <input name="distributed_by" type="text" class="form-control" id="distributed_by" value="@if(!empty($jobOrderMasterResult->distributed_by)){{$jobOrderMasterResult->distributed_by}}@endif" placeholder="Enter distributed by is required">
                       @if ($errors->has('distributed_by'))
                         <span class="help-block"><strong>{{ $errors->first('distributed_by') }}</strong></span>
                       @endif

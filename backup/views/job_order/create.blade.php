@@ -142,7 +142,7 @@
                     </div>
                 </div>
                 <div class="col-sm-3">
-                  <label for="name">Depo</label>
+                  <label for="name">Depot</label>
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                        <select name="depo_id" id="depo_id" data-live-search="true" class="form-control select2 selectpicker input-sm" required autofocus type="select"  value="1">
                              <option value="">Select</option>
@@ -200,7 +200,7 @@
                 <div class="col-sm-3">
                   <label for="name">Delivery Date</label>
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                       <input name="dated" type="text" id="delivery_date" class="form-control datepicker input-sm" value="@if(!empty($delivery_date)){{$delivery_date}}@endif">
+                       <input name="dated" type="text" id="delivery_date" class="form-control datepicker input-sm" value="" placeholder="Select Delivery Date" readonly>
                         @if ($errors->has('name'))
                             <span class="help-block"><strong>{{ $errors->first('name') }}</strong></span>
                         @endif
@@ -209,7 +209,7 @@
                 <div class="col-sm-3">
                   <label for="name">MFG Date</label>
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <input type="text" class="form-control input-sm" name="" value="@if(!empty($mfg_date)){{$mfg_date}}@endif" id="mfg_date" readonly>
+                        <input type="text" class="form-control input-sm" name="" value="@if(!empty($mfg_date)){{$mfg_date}}@endif" id="mfg_date" readonly placeholder="Mfg Date Auto Select">
                         @if ($errors->has('name'))
                             <span class="help-block"><strong>{{ $errors->first('name') }}</strong></span>
                         @endif
@@ -218,7 +218,7 @@
                 <div class="col-sm-3">
                   <label for="name">Batch No</label>
                   <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                      <input name="text" type="text" class="form-control input-sm" id="batch_number" value="@if(!empty($batch_number)){{$batch_number}}@endif">
+                      <input name="text" type="text" class="form-control input-sm" id="batch_number" value="@if(!empty($batch_number)){{$batch_number}}@endif" placeholder="Enter Batch Number">
                       @if ($errors->has('name'))
                         <span class="help-block"><strong>{{ $errors->first('name') }}</strong></span>
                       @endif
@@ -227,7 +227,7 @@
                <div class="col-sm-3">
                   <label for="name">IMP BY</label>
                   <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                      <input name="text" type="text" class="form-control input-sm" id="imp_by" value="@if(!empty($imp_by)){{$imp_by}}@endif">
+                      <input name="text" type="text" class="form-control input-sm" id="imp_by" value="@if(!empty($imp_by)){{$imp_by}}@endif" placeholder="Enter imp by is required">
                       @if ($errors->has('imp_by'))
                         <span class="help-block"><strong>{{ $errors->first('imp_by') }}</strong></span>
                       @endif
@@ -236,7 +236,7 @@
                <div class="col-sm-3">
                   <label for="name">Distributed By</label>
                   <div class="form-group {{ $errors->has('distributed_by') ? 'has-error' : '' }}">
-                      <input name="distributed_by" type="text" class="form-control input-sm" id="distributed_by" value="@if(!empty($distributed_by)){{$distributed_by}}@endif">
+                      <input name="distributed_by" type="text" class="form-control input-sm" id="distributed_by" value="@if(!empty($distributed_by)){{$distributed_by}}@endif" placeholder="Enter distributed by is required">
                       @if ($errors->has('distributed_by'))
                         <span class="help-block"><strong>{{ $errors->first('distributed_by') }}</strong></span>
                       @endif
@@ -270,6 +270,7 @@
                         <th style="border: 1px solid;font-size: 12px;width: 20px;position: relative;"><span style="position: absolute;top: 27px;left: 8px">Factory</span></th>
                         <th style="border: 1px solid;font-size: 12px;width: 70px">Rate</th>
                         <th style="border: 1px solid;font-size: 12px;width: 50px">Action</th>
+                        <th style="display: none"></th>
                       </tr>
                   </thead>
                   <tbody>
@@ -306,7 +307,6 @@
                             <td class="ellipsis" style="font-size:11px">{{$sale_contract_detail->factory}}</td>
                             <td class="ellipsis"  style="font-size:11px">
                                 <?php 
-
                                     if(!empty($sale_contract_detail->ci_factor)){
                                       
                                       echo $number=Round($sale_contract_detail->rate/$sale_contract_detail->ci_factor,6);
@@ -316,19 +316,17 @@
                                       echo "0";
 
                                     }
-                                    
-
-
                                 ?>
                             </td>
-                            <td class="ellipsis" ><input type="checkbox" value="one"></td>
+                            <td class="ellipsis"><input type="checkbox" value="one"></td>
+                            <td class="ellipsis" style="display: none"><input type="hidden" value="{{$sale_contract_detail->line_id}}"></td>
                         </tr>
                        @endforeach
                        @endif
                   </tbody>
                   <tr style="background: #10677b;">
-                           <th colspan="13"></th>
-                           <th><input type="checkbox" id="selectAll"/>&nbsp;All</th>
+                    <th colspan="13"></th>
+                    <th><input type="checkbox" id="selectAll"/>&nbsp;All</th>
                   </tr> 
               </table>
                 </div>
@@ -999,6 +997,7 @@ $('#insert_form').on('submit', function(event){
             dist_info.sreq = row.find("TD").eq(10).html();
             dist_info.cncl = row.find("TD").eq(11).html();
             dist_info.rate = row.find("TD").eq(12).html();
+            dist_info.line_id = row.find("TD").eq(14).find('input[type="hidden"]').val();
             info_details.push(dist_info);
         });
 

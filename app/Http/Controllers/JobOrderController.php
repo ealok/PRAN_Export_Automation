@@ -1543,8 +1543,8 @@ class JobOrderController extends Controller
                
         $id = decrypt($request->job_order_id);
         $date=date('Y-m-d');
-        \DB::table('job_order_masters')->where('id', $id)->update(['status' => "3"]);
-        \DB::table('job_order_details')->where('master_id',$id)->update(array('item_status' =>'N','inactive_date'=>$date,'inactive_by'=>Auth::user()->id,'syn_status_date'=>$date));
+        DB::table('job_order_masters')->where('id', $id)->update(['status' => "3"]);
+        DB::table('job_order_details')->where('master_id',$id)->update(array('item_status' =>'N','inactive_date'=>$date,'inactive_by'=>Auth::user()->id,'syn_status_date'=>$date));
         $user=User::where('id',Auth::user()->id)->first(['email','name','head_id']);
         $jo_master=JobOrderMaster::where('id', $id)->first(['job_order_number','sale_contract_id']);
         $sale_contract=SaleContract::where('id',$jo_master->sale_contract_id)->first(['invoice_no']); 
@@ -1940,6 +1940,9 @@ class JobOrderController extends Controller
             ));
             
             $response = curl_exec($curl);
+            return response()->json([
+                'response' => $response
+            ]);
             curl_close($curl);
             if(isset($response)){
     
@@ -2122,7 +2125,7 @@ class JobOrderController extends Controller
         $array['CURRENCY']=$request->currency_rate;
         $array['IUSER']=$staff_id['0'];
         $warehouseId=Depot::where('id', $request->depo_id)->pluck('d_code');
-        for ($i=0; $i<count($request->info_details); $i++) { 
+        for($i=0; $i<count($request->info_details); $i++) { 
 
             $orqt=preg_replace("<<br>>", "", $request->info_details[$i]['orqt']); 
             $smqt=preg_replace("<<br>>", "",$request->info_details[$i]['smqt']);
@@ -3097,6 +3100,7 @@ class JobOrderController extends Controller
                     'item_status'=>'N'
                 ]);
 
+            $this->pushCrmData($request->cancel_id);    
             if($result) {
 
                 return response()->json([
@@ -3115,7 +3119,6 @@ class JobOrderController extends Controller
 
         }
          
-
     }
 
     public function joRevise(){

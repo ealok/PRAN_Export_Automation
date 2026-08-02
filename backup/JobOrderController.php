@@ -85,7 +85,7 @@ class JobOrderController extends Controller
             'sale_contract_details.ctn as qty','notify_parties.shipping_mark','notify_party_items.shelf_life as self_line',
             'notify_party_items.coding_matter as coding_mater','notify_party_items.special_requirement as special_requirment','notify_party_items.fob_value as fob_value',
             'sale_contract_details.rate_per_ctn_for_acc as rate','ci_items.ci_factor','sale_contract_details.pcs_in_ctn','sale_contracts.sales_contract_no',
-            'production_floors.p_code','production_floors.short_name as factory','sale_contract_details.sample_qty')
+            'production_floors.p_code','production_floors.short_name as factory','sale_contract_details.sample_qty','sale_contract_details.id as line_id')
             ->join('sale_contract_details','sale_contract_details.sale_contract_id','=','sale_contracts.id')
             ->join('ci_items','ci_items.id','=','sale_contract_details.ci_item_id')
             ->join('notify_party_items','notify_party_items.ci_item_id','=','sale_contract_details.ci_item_id')
@@ -95,10 +95,8 @@ class JobOrderController extends Controller
             ->where('notify_party_items.notify_party_id', $party_id)
             ->get(); 
                
-        $pf_ids=PFP::where('user_id',Auth::user()->id)->where('status',1)->select('pfp_id')->get()->toArray();
-        $do_ids=ODP::where('user_id',Auth::user()->id)->where('status',1)->select('odp_id')->get()->toArray();
-        $productionFloors=ProductionFloor::whereIn('id',$pf_ids)->get(); 
-        $depots=Depot::whereIn('id',$do_ids)->get(); 
+        $productionFloors=ProductionFloor::where('status',1)->get(); 
+        $depots=Depot::where('status',1)->get(); 
         $dunits=Dunit::all();
         $runits=Runit::all();
         $invoice_no=SaleContract::where('id', $sale_contact_id)->pluck('invoice_no');    
@@ -224,10 +222,8 @@ class JobOrderController extends Controller
         $productionFloorId=$result->p_floor_id;
         $dunits=Dunit::all();
         $runits=Runit::all();
-        $pf_ids=PFP::where('user_id',Auth::user()->id)->where('status',1)->select('pfp_id')->get()->toArray();
-        $do_ids=ODP::where('user_id',Auth::user()->id)->where('status',1)->select('odp_id')->get()->toArray();
-        $productionFloors=ProductionFloor::whereIn('id',$pf_ids)->get(); 
-        $depots=Depot::whereIn('id',$do_ids)->get(); 
+        $productionFloors=ProductionFloor::where('status',1)->get(); 
+        $depots=Depot::where('status',1)->get(); 
         $sales_contract_details=SaleContract::findorfail($result->sale_contract_id);
         $sc_number=$sales_contract_details->sales_contract_no;
         $invoice_no=SaleContract::where('id', $result->sale_contract_id)->pluck('invoice_no'); 
@@ -582,7 +578,7 @@ class JobOrderController extends Controller
 
         }
 
-        for ($i=0; $i<count($request->info_details); $i++) { 
+        for($i=0; $i<count($request->info_details); $i++) { 
 
             if($cncl[$i]==""){
                 
@@ -591,26 +587,20 @@ class JobOrderController extends Controller
             }
 
         }
-        
-        //@@@@@@@@@@@----End---------------------------------------
-        //@@@@@@@@@@@@@@-----Combine Value-------------------------
 
-        for ($i=0; $i<count($request->info_details); $i++) { 
+        for($i=0; $i<count($request->info_details); $i++) { 
 
-             $temp_array[] = array_merge($request->info_details[$i], $r_unit[$i]);
+            $temp_array[] = array_merge($request->info_details[$i], $r_unit[$i]);
 
         }
 
-        for ($i=0; $i<count($request->info_details); $i++) { 
+        for($i=0; $i<count($request->info_details); $i++) { 
 
              $dist_info_details[] = array_merge($temp_array[$i], $d_unit[$i]);
 
         }
-        
-        // @@@@@@@@@@@@@@@@--End----- 
 
-         
-         //@@@--------Validation Check--------------
+        //@@@--------Validation Check--------------
 
         $orQty=array(); 
         $smQty=array();
@@ -622,7 +612,7 @@ class JobOrderController extends Controller
             $ciItem=CiItem::where('ci_item_code',$dist_info_details[$i]['item_code'])->first(['id']);
             array_push($item_ids,$ciItem->id);
         }
-        
+
         for ($i=0; $i <count($orQty) ; $i++) { 
           
             if ($orQty[$i]=='0') {
@@ -633,7 +623,7 @@ class JobOrderController extends Controller
 
         } 
          
-        for ($i=0; $i <count($smQty) ; $i++) { 
+        for($i=0; $i <count($smQty) ; $i++) { 
           
             if ($smQty[$i]=='') {
               
@@ -697,6 +687,7 @@ class JobOrderController extends Controller
             $party_item_id=CiItem::where('ci_item_code', $dist_info_details[$i]['item_code'])->pluck('id'); 
             $jobOrderDetails=new JobOrderDetails();
             $jobOrderDetails->master_id=$jobOrderMaster->id;
+            $jobOrderDetails->sc_line_id = isset($dist_info_details[$i]['line_id']) ? $dist_info_details[$i]['line_id'] : null;
             $jobOrderDetails->item_id=$party_item_id['0'];  
             $jobOrderDetails->self_life=$dist_info_details[$i]['self_life'];
             $jobOrderDetails->exp_date=$this->getExpDateFormate($importer_id['0'],$request->mfg_date, $dist_info_details[$i]['self_life']);
@@ -1966,10 +1957,8 @@ class JobOrderController extends Controller
        
         $dunits=Dunit::all();
         $runits=Runit::all();
-        $pf_ids=PFP::where('user_id',Auth::user()->id)->where('status',1)->select('pfp_id')->get()->toArray();
-        $do_ids=ODP::where('user_id',Auth::user()->id)->where('status',1)->select('odp_id')->get()->toArray();
-        $productionFloors=ProductionFloor::whereIn('id',$pf_ids)->get(); 
-        $depots=Depot::whereIn('id',$do_ids)->get(); 
+        $productionFloors=ProductionFloor::where('status',1)->get(); 
+        $depots=Depot::where('status',1)->get(); 
         $jobOrderMaster=JobOrderMaster::where('id',$id)->first(['sale_contract_id']);
         $salesContacts=SaleContract::where('id',$jobOrderMaster->sale_contract_id)->first(['id','invoice_no']);
         return view('job_order.do_create')
@@ -1988,7 +1977,6 @@ class JobOrderController extends Controller
 
     public function getJobOrderRequestItem(Request $request){
             
- 
         $party_id=NotifyParty::where('code', $request->party_code)->pluck('id');
         ini_set('max_execution_time', -1); 
         $mfgDate=$this->getMfgDateFormate($party_id['0'],$request->mfg_date);
@@ -2025,6 +2013,7 @@ class JobOrderController extends Controller
             $jobOrderDetails=new DoDetails(); 
             $party_item_id=CiItem::where('ci_item_code', $request->info_details[$i]['item_code'])->pluck('id');
             $jobOrderDetails->master_id=$doMaster->id;
+            $jobOrderDetails->jo_line_id=$request->info_details[$i]['lineId'];
             $jobOrderDetails->item_id=$party_item_id['0'];  
             $jobOrderDetails->self_life=$request->info_details[$i]['self_life'];
             $jobOrderDetails->exp_date=$request->info_details[$i]['exp_date'];
@@ -2183,25 +2172,35 @@ class JobOrderController extends Controller
 
     // }
 
-    public function jobOrderAddItemEditOption(Request $request){
-         
-        $sale_contract=JobOrderMaster::where('job_order_number', $request->job_number)->first(['sale_contract_id']);
-        $salesContactItems=\DB::select("SELECT
-            ci_items.id AS item_id,
-            sale_contracts.sales_contract_no,
-            ci_items.ci_item_code,
-            ci_items.ci_item_name
-        FROM
-            sale_contracts
-        JOIN sale_contract_details ON sale_contracts.id = sale_contract_details.sale_contract_id
-        JOIN ci_items ON ci_items.id = sale_contract_details.ci_item_id
-        WHERE
-            sale_contracts.id = '$sale_contract->sale_contract_id' AND sale_contract_details.rate_status='Y'");
+    public function jobOrderAddItemEditOption(Request $request)
+    {
+        $jobOrderMaster = JobOrderMaster::where('job_order_number', $request->job_number)->first();
+        
+        $salesContactItems = !empty($jobOrderMaster) ? DB::select("
+            SELECT
+                ci_items.id AS item_id,
+                sale_contracts.sales_contract_no,
+                ci_items.ci_item_code,
+                ci_items.ci_item_name
+            FROM
+                sale_contracts
+            JOIN sale_contract_details ON sale_contracts.id = sale_contract_details.sale_contract_id
+            JOIN ci_items ON ci_items.id = sale_contract_details.ci_item_id
+            WHERE sale_contracts.id = ?
+            AND (sale_contract_details.rate_status = 'Y' OR sale_contract_details.rate_status IS NULL)
+        ", [$jobOrderMaster->sale_contract_id]) : [];
 
-        $jobOrder=JobOrderMaster::where('job_order_number',$request->job_number)->first(['wh_id']); 
-        $depo=Depot::where('id',$jobOrder->wh_id)->get();
-        return $array=array($salesContactItems, $request->job_number, $depo, $sale_contract->sale_contract_id);
-
+        $currentDepoId = !empty($jobOrderMaster) ? $jobOrderMaster->wh_id : null;
+        
+        $depo = !empty($currentDepoId) ? Depot::where('id', $currentDepoId)->get() : [];
+        
+        return response()->json([
+            'items' => $salesContactItems,
+            'job_number' => $request->job_number,
+            'depos' => $depo,
+            'sale_contract_id' => !empty($jobOrderMaster) ? $jobOrderMaster->sale_contract_id : null,
+            'current_depo_id' => $currentDepoId
+        ]);
     }
 
      public function jobOrderRateMatching(Request $request){ 

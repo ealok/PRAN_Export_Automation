@@ -372,112 +372,111 @@
         var party_code=$('#importer_code').val();
         var total_balance=$("#total_rate").val();
         var jo_id=$('#job_order_id').val();
-        if(party_code){
+        $('#do_button').prop("disabled",false);
+        // if(party_code){
           
-          $.ajax({
-                type: "GET",
-                url: "{{url('/check/do_balance')}}?party_code=" +party_code+"&total_balance="+total_balance+"&jo_id="+jo_id,
-                success: function (data) {
+        //   $.ajax({
+        //         type: "GET",
+        //         url: "{{url('/check/do_balance')}}?party_code=" +party_code+"&total_balance="+total_balance+"&jo_id="+jo_id,
+        //         success: function (data) {
 
-                  console.log(data);
-                    
-                    if(data.status=="success"){
+        //             if(data.status=="success"){
 
-                        $('#bundelivered').val(data.undelivered);
-                        $('#blimit').val(data.credit_limit);
-                        $('#bbalance').val(data.blance);
-                        $('#brate').val(data.rate);
-                        if(data.check_status=="Y"){
+        //                 $('#bundelivered').val(data.undelivered);
+        //                 $('#blimit').val(data.credit_limit);
+        //                 $('#bbalance').val(data.blance);
+        //                 $('#brate').val(data.rate);
+        //                 if(data.check_status=="Y"){
                           
-                          Swal.fire({ 
+        //                   Swal.fire({ 
 
-                              title: 'Check Successfully Done..!!',
+        //                       title: 'Check Successfully Done..!!',
 
-                          })
+        //                   })
 
-                          $('#do_button').prop("disabled",false);
+        //                   $('#do_button').prop("disabled",false);
 
-                          return true;
+        //                   return true;
 
-                        }else if(data.check_status=="N"){
+        //                 }else if(data.check_status=="N"){
 
-                          Swal.fire({  
-                              title: 'Balance-Circuit Breaker !! <br><br> Credit limit & Balance is not sufficent for new DO.<br>Please check Party Ledger.</br></br>Do you want to send mail for credit DO approval ??',  
-                              showDenyButton: true,  showCancelButton: true,  
-                              confirmButtonText: `Yes`,  
-                              denyButtonText: `Don't save`,
-                            }).then((result) => {  
+        //                   Swal.fire({  
+        //                       title: 'Balance-Circuit Breaker !! <br><br> Credit limit & Balance is not sufficent for new DO.<br>Please check Party Ledger.</br></br>Do you want to send mail for credit DO approval ??',  
+        //                       showDenyButton: true,  showCancelButton: true,  
+        //                       confirmButtonText: `Yes`,  
+        //                       denyButtonText: `Don't save`,
+        //                     }).then((result) => {  
                                
-                                if(result.value==true){
+        //                         if(result.value==true){
                                    
-                                  var credit_limit=$('#blimit').val();
-                                  var undelivered=$('#bundelivered').val();
-                                  var balance=$('#bbalance').val();
-                                  var rate=$('#brate').val();
-                                  if(jo_id){
+        //                           var credit_limit=$('#blimit').val();
+        //                           var undelivered=$('#bundelivered').val();
+        //                           var balance=$('#bbalance').val();
+        //                           var rate=$('#brate').val();
+        //                           if(jo_id){
                                      
-                                      $.ajax({
+        //                               $.ajax({
                                         
-                                          type: "GET",
-                                          url: "/balance_breaker/approval/mail",
-                                          data: {'jo_id':jo_id,
-                                               'credit_limit':credit_limit,
-                                               'undelivered':undelivered,
-                                               'balance':balance,
-                                               'rate':rate,
-                                               '_token': $('input[name=_token]').val()
-                                              },
-                                          success: function (data) {
+        //                                   type: "GET",
+        //                                   url: "/balance_breaker/approval/mail",
+        //                                   data: {'jo_id':jo_id,
+        //                                        'credit_limit':credit_limit,
+        //                                        'undelivered':undelivered,
+        //                                        'balance':balance,
+        //                                        'rate':rate,
+        //                                        '_token': $('input[name=_token]').val()
+        //                                       },
+        //                                   success: function (data) {
 
 
-                                             console.log(data);
+        //                                      console.log(data);
                                              
-                                             if(data.status=='Success'){
+        //                                      if(data.status=='Success'){
                                                
-                                                Swal.fire('Mail Send Successfully.', '', 'success')
+        //                                         Swal.fire('Mail Send Successfully.', '', 'success')
 
-                                             }else if(data.status=='Approve'){
+        //                                      }else if(data.status=='Approve'){
 
-                                                Swal.fire('Already Approved.', '', 'warning')
+        //                                         Swal.fire('Already Approved.', '', 'warning')
 
-                                             }else if(data.status=='Sent'){
+        //                                      }else if(data.status=='Sent'){
                                                
-                                                Swal.fire('Already Approval Mail Sent.', '', 'warning')
+        //                                         Swal.fire('Already Approval Mail Sent.', '', 'warning')
 
-                                             } 
+        //                                      } 
                                               
-                                          }
+        //                                   }
 
-                                      });
+        //                               });
                                     
-                                  }else{
+        //                           }else{
                                      
-                                     Swal.fire('Somethig went wrong', '', 'info')  
+        //                              Swal.fire('Somethig went wrong', '', 'info')  
 
-                                  }   
+        //                           }   
                                      
-                                }
+        //                         }
 
-                            });
+        //                     });
                           
-                        }
+        //                 }
 
-                    }else{
+        //             }else{
                       
-                      Swal.fire({ 
+        //               Swal.fire({ 
 
-                          title: 'Alert!! <br> Something Went Wrong..!!',
+        //                   title: 'Alert!! <br> Something Went Wrong..!!',
 
-                      })
+        //               })
 
-                      return false;
+        //               return false;
 
-                    }
+        //             }
 
-                }
-          });
+        //         }
+        //   });
    
-        }
+        // }
 
     });
 
