@@ -4,8 +4,6 @@ use Illuminate\Http\Request;
 use Session;
 use Auth;
 use App\CarryingMode;
-
-
 class CarryingModeController extends Controller{
 
 
@@ -13,7 +11,6 @@ class CarryingModeController extends Controller{
        $this->middleware('auth');
     }
     
-
     public function index(){
         $carrying_modes = CarryingMode::orderBy('id','Desc')->paginate(20);
         return view("carrying_mode.carrying_mode_list",compact("carrying_modes"));

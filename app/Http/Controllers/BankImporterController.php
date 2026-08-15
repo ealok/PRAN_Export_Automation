@@ -15,7 +15,7 @@ class BankImporterController extends Controller{
     
 
     public function index(){
-        $bank_importers = BankImporter::orderBy('id','Desc')->paginate(20);
+        $bank_importers = BankImporter::orderBy('id','Desc')->orderBy('id','Desc')->get();
         return view("bank_importer.bank_importer_list",compact("bank_importers"));
     }
 

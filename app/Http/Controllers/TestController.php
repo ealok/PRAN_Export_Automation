@@ -2269,11 +2269,8 @@ class TestController extends Controller
         $dparty_id= base64_decode($request->query('partyId'));
         $sale_contract = SaleContract::find($id); 
         if(CNF::where('sale_contract_id', $id)->count()>0){
-
             $cnf=CNF::where('sale_contract_id', $id)->first();
-
         }else{
-
             $cnf=null;
         }
         $sale_contract_details =SaleContractDetail::where('sale_contract_id',$id)->orderBy('id','asc')->get(); 
@@ -2364,12 +2361,10 @@ class TestController extends Controller
             $scId = base64_decode($request->scid);
             $sale_contract = SaleContract::findOrFail($scId);
             if($sale_contract->approver_id != null) {
-
                 return response()->json([
                     'code'    => 409,
                     'message' => "Already Posted"
                 ]);
-
             }
 
             $sale_contract->desk_approver_id = NULL;

@@ -28,15 +28,13 @@ class NotifyPartyController extends Controller{
 
     public function index(){
        
-       
-
         $role_id=Auth::user()->role_id;
         if($role_id==1){
-            $notify_parties=NotifyParty::all();
+            $notify_parties=NotifyParty::orderBy('id','Desc')->get();
             return view("notify_party.notify_party_list",compact("notify_parties"));
         }else{
             $userAreas=UserArea::where('user_id',Auth::user()->id)->pluck('area_id');
-            $notify_parties = NotifyParty::whereIn('area_id',$userAreas)->get(); 
+            $notify_parties = NotifyParty::whereIn('area_id',$userAreas)->orderBy('id','Desc')->get();
             return view("notify_party.notify_party_list",compact("notify_parties"));
         }
 

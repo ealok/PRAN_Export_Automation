@@ -103,29 +103,20 @@ class JobOrderController extends Controller
                 jod.item_status as Status,
                 DATE_FORMAT(master2.created_at, '%d-%m-%Y') AS JO_Date,
                 u.name AS JO_Creator,
-                uc.name AS SC_Creator
+                uc.name AS SC_Creator,
+                c.sb_no as Bill_Of_Entry_No
             FROM job_order_masters master2
-            INNER JOIN job_order_details jod
-                ON master2.id = jod.master_id
-                AND jod.item_status = 'Y'
-            INNER JOIN sale_contracts contract
-                ON master2.sale_contract_id = contract.id
-                AND contract.inactive = 'N'
-                AND master2.status != 3
-            INNER JOIN notify_parties n
-                ON contract.notify_pary_id = n.id
-            INNER JOIN users uc
-                ON uc.id = contract.creator_id
-            INNER JOIN ci_items ci
-                ON ci.id = jod.item_id
-            LEFT JOIN sale_contract_details sod
-                ON contract.id = sod.sale_contract_id
-                AND jod.item_id = sod.ci_item_id
-            LEFT JOIN users u
-                ON u.id = master2.user_id
+            INNER JOIN job_order_details jod ON master2.id = jod.master_id AND jod.item_status = 'Y'
+            INNER JOIN sale_contracts contract ON master2.sale_contract_id = contract.id AND contract.inactive = 'N' AND master2.status != 3
+            INNER JOIN cnf c on contract.id = c.sale_contract_id
+            INNER JOIN notify_parties n ON contract.notify_pary_id = n.id
+            INNER JOIN users uc ON uc.id = contract.creator_id
+            INNER JOIN ci_items ci ON ci.id = jod.item_id
+            LEFT JOIN sale_contract_details sod ON contract.id = sod.sale_contract_id AND jod.item_id = sod.ci_item_id
+            LEFT JOIN users u ON u.id = master2.user_id
             WHERE 1=1
                 AND master2.status != 3
-                AND DATE(contract.dated) >= CURDATE() - INTERVAL 30 DAY
+                AND DATE(contract.dated) >= CURDATE() - INTERVAL 90 DAY
             ORDER BY contract.dated DESC, contract.sales_contract_no, master2.job_order_number");
         $execution_time = microtime(true) - $start_time; 
         return response()->json([

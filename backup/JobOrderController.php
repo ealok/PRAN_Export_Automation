@@ -425,6 +425,7 @@ class JobOrderController extends Controller
 
         }
         $this->updateKyvData($request->edit_id);
+        $this->pushCrmData($request->edit_id);
         return "Success";  
 
 
@@ -738,7 +739,7 @@ class JobOrderController extends Controller
 
                 $message->from($from_mail,'Job-Order-Mail@prangroup.com');
                 $message->to('mis94@mis.prangroup.com');
-                // $message->cc(['export@prangroup.com','mis4@mis.prangroup.com','mis10@mis.prangroup.com']); 
+                $message->cc(['export@prangroup.com','mis4@mis.prangroup.com','mis10@mis.prangroup.com']); 
                 $message->subject('Trading JO Creation Mail, Invoice No. '.$data['sale_contract']);  
                 
             });
@@ -764,10 +765,10 @@ class JobOrderController extends Controller
                 $sending_mail_list=array_merge($email_array, $desk_array); 
 
             }
-            
-            
-            $this->updateDashboardHistory($request->sale_contact_id,1);
+             
+            //$this->updateDashboardHistory($request->sale_contact_id,1);
             $this->updateKyvData($jobOrderMaster->id);
+            $this->pushCrmData($jobOrderMaster->id);
             if(count($sending_mail_list)>0){
                 
                 $data = array(
@@ -793,7 +794,6 @@ class JobOrderController extends Controller
                 });
 
             }
-            
 
         }
 
@@ -802,6 +802,86 @@ class JobOrderController extends Controller
     }
 
 
+    private function pushCrmData($jo_id)
+    {
+        try {
+
+            $results = DB::select("CALL PROC_CRM_ORDER_PUSH(?)", [$jo_id]);
+            if (empty($results)) {
+                return ['status' => 'error', 'message' => 'No data found'];
+            }
+            $payloadData = [];
+            foreach ($results as $row) {
+                $payloadData[] = [
+                    'line_id'       => !empty($row->line_id) ? $row->line_id : 0,
+                    'Contract_No'   => !empty($row->Contract_No) ? $row->Contract_No : '',
+                    'Contract_Date' => !empty($row->Contract_Date) ? $row->Contract_Date : '',
+                    'Invoice_No'    => !empty($row->Invoice_No) ? $row->Invoice_No : '',
+                    'Invoice_Date'  => !empty($row->Invoice_Date) ? $row->Invoice_Date : '',
+                    'Party_Code'    => !empty($row->Party_Code) ? $row->Party_Code : '',
+                    'Party_Name'    => !empty($row->Party_Name) ? $row->Party_Name : '',
+                    'Item_Code'     => !empty($row->Item_Code) ? $row->Item_Code : '',
+                    'Item_Name'     => !empty($row->Item_Name) ? $row->Item_Name : '',
+                    'ci_factor'     => !empty($row->ci_factor) ? $row->ci_factor : 0,
+                    'SC_Qty'        => !empty($row->SC_Qty) ? $row->SC_Qty : '0',
+                    'JO_Number'     => !empty($row->JO_Number) ? $row->JO_Number : '',
+                    'JO_Qty'        => !empty($row->JO_Qty) ? $row->JO_Qty : '0',
+                    'Rate'          => !empty($row->Rate) ? (float) $row->Rate : 0,
+                    'Status'        => !empty($row->Status) ? $row->Status : '-',
+                    'JO_Date'       => !empty($row->JO_Date) ? $row->JO_Date : '',
+                    'JO_Creator'    => !empty($row->JO_Creator) ? $row->JO_Creator : '',
+                    'SC_Creator'    => !empty($row->SC_Creator) ? $row->SC_Creator : ''
+                ];
+            }
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL            => 'https://crm.prangroup.com/api/job-orders/store',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 30,
+                CURLOPT_CUSTOMREQUEST  => 'POST',
+                CURLOPT_POSTFIELDS     => json_encode(count($payloadData) == 1 ? $payloadData[0] : $payloadData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                CURLOPT_HTTPHEADER     => [
+                    'ss: order_list',
+                    'yy: HJDyh876Yhdsf543GFOYSAL',
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Basic YXV0aDoxMlByYW5AMTIzNDU2JA=='
+                ],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            if(!empty($curlError)) {
+                return ['status' => 'error', 'message' => 'CURL Error: ' . $curlError];
+            }
+            $decodedResponse = json_decode($response, true);
+            if($httpCode == 200 || $httpCode == 201) {
+                DB::table('job_order_masters')
+                    ->where('id', $jo_id)
+                    ->update([
+                        'push_status' => 'Y',
+                        'push_date' => date('Y-m-d H:i:s'), 
+                        'push_message' => !empty($decodedResponse['message']) ? $decodedResponse['message'] : 'Data pushed successfully',
+                        'push_total' => !empty($decodedResponse['total']) ? $decodedResponse['total'] : 0,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+            }
+
+            return [
+                'status' => 'error',
+                'message' => 'API Error: HTTP ' . $httpCode,
+                'response' => $decodedResponse
+            ];
+            
+        } catch (\Exception $e) {
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
 
     private function updateKyvData($jo_id){
         
@@ -1463,8 +1543,8 @@ class JobOrderController extends Controller
                
         $id = decrypt($request->job_order_id);
         $date=date('Y-m-d');
-        \DB::table('job_order_masters')->where('id', $id)->update(['status' => "3"]);
-        \DB::table('job_order_details')->where('master_id',$id)->update(array('item_status' =>'N','inactive_date'=>$date,'inactive_by'=>Auth::user()->id,'syn_status_date'=>$date));
+        DB::table('job_order_masters')->where('id', $id)->update(['status' => "3"]);
+        DB::table('job_order_details')->where('master_id',$id)->update(array('item_status' =>'N','inactive_date'=>$date,'inactive_by'=>Auth::user()->id,'syn_status_date'=>$date));
         $user=User::where('id',Auth::user()->id)->first(['email','name','head_id']);
         $jo_master=JobOrderMaster::where('id', $id)->first(['job_order_number','sale_contract_id']);
         $sale_contract=SaleContract::where('id',$jo_master->sale_contract_id)->first(['invoice_no']); 
@@ -1488,16 +1568,9 @@ class JobOrderController extends Controller
                 'sending_email_array'=>$sending_mail_list
             );
 
-            // Mail::send('jo_cancel_mail', $data, function($message) use ($data){
-            //     //$message->to($data['sending_email_array'])
-            //     $message->to("mis94@mis.prangroup.com");
-            //     ->subject('Subject: Job Order Cancel Mail');
-            //     $message->from('Job-Order-Mail@prangroup.com');
-            // });
-        
         }
 
-        \DB::table('job_order_details')
+        DB::table('job_order_details')
             ->where('master_id', $id)
             ->update([
                 'inactive_date'=>date('Y-m-d'),
@@ -1506,7 +1579,8 @@ class JobOrderController extends Controller
                 'item_status'=>'N'
             ]);
 
-        $this->updateKyvData($id);    
+        $this->updateKyvData($id);
+        $this->pushCrmData($id);    
         return response()->json([
             'success' => true,
             'message' => 'Job order cancelled successfully'
@@ -1866,6 +1940,9 @@ class JobOrderController extends Controller
             ));
             
             $response = curl_exec($curl);
+            return response()->json([
+                'response' => $response
+            ]);
             curl_close($curl);
             if(isset($response)){
     
@@ -2048,7 +2125,7 @@ class JobOrderController extends Controller
         $array['CURRENCY']=$request->currency_rate;
         $array['IUSER']=$staff_id['0'];
         $warehouseId=Depot::where('id', $request->depo_id)->pluck('d_code');
-        for ($i=0; $i<count($request->info_details); $i++) { 
+        for($i=0; $i<count($request->info_details); $i++) { 
 
             $orqt=preg_replace("<<br>>", "", $request->info_details[$i]['orqt']); 
             $smqt=preg_replace("<<br>>", "",$request->info_details[$i]['smqt']);
@@ -2401,7 +2478,7 @@ class JobOrderController extends Controller
                         COALESCE(sale_contract_details.rate_percent,0) as rate_percent,
                         (case when sale_contract_details.rate_status='E' then 'Ed'
                         when sale_contract_details.rate_status ='M' then 'Md'
-                        when sale_contract_details.rate_status ='S' then 'Samia'
+                        when sale_contract_details.rate_status ='S' then 'Management'
                         when sale_contract_details.rate_status ='Y' then 'Y'
                         else '' end) as rate_status
                     FROM
@@ -3023,6 +3100,7 @@ class JobOrderController extends Controller
                     'item_status'=>'N'
                 ]);
 
+            $this->pushCrmData($request->cancel_id);    
             if($result) {
 
                 return response()->json([
@@ -3041,7 +3119,6 @@ class JobOrderController extends Controller
 
         }
          
-
     }
 
     public function joRevise(){

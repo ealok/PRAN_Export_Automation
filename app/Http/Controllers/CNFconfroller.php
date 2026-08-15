@@ -58,8 +58,6 @@ class CNFconfroller extends Controller
     public function store(Request $request)
     {
         
-
-        // return $request->all();
         // if(CNF::where('sale_contract_id', $request->invoice_id)->count()==0){
             CtDepot::where('id',$request->depot_id)->value('name');
             $cnf=new CNF();
@@ -77,7 +75,21 @@ class CNFconfroller extends Controller
             $cnf->iuid=Auth::user()->id;
             $cnf->save();
             if($cnf->id) {
-                
+
+                $invoiceNo=SaleContract::where('id',$request->invoice_id)->value('invoice_no');
+                $apiResponse = $this->syncBillOfEntryToCRM($invoiceNo,$request->sb_no);
+                if($apiResponse) {
+                    $responseData = json_decode($apiResponse, true);
+                    if($responseData) {
+                        $cnfRecord = CNF::find($cnf->id);
+                        $cnfRecord->crm_sync_status = $responseData['status'] ? $responseData['status']:'failed';
+                        $cnfRecord->crm_sync_message = $responseData['message'] ? $responseData['message']:'failed';
+                        $cnfRecord->crm_sync_date = date('Y-m-d');
+                        $cnfRecord->crm_sync_by = Auth::user()->id;
+                        $cnfRecord->save();
+                    }
+                }
+
                 $cnf=CNF::where('id',$cnf->id)->first(['job_no']);
                 return response()->json([
                     'message' => "Information Updated Successfully..!!",
@@ -97,6 +109,41 @@ class CNFconfroller extends Controller
 
         // }
        
+    }
+
+    private function syncBillOfEntryToCRM($invoiceNo, $sbnNo)
+    {
+        $postData = [
+            'Invoice_No' => $invoiceNo,
+            'Bill_Of_Entry_No' => $sbnNo,
+        ];
+        $username = 'auth'; 
+        $password = '12Pran@123456$';
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://crm.prangroup.com/api/job-orders/bill-of-entry',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($postData),
+            CURLOPT_HTTPHEADER => [
+                'ss: order_list',
+                'yy: HJDyh876Yhdsf543GFOYSAL',
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'Authorization: Basic ' . base64_encode($username . ':' . $password)
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
+        curl_close($curl);
+        return $response;
     }
 
     public function jsonGetCnfList(Request $request){
@@ -225,8 +272,23 @@ class CNFconfroller extends Controller
             "invoice_value"=>$request->invoice_value,
             "iuid"=>Auth::user()->id,
         ]);
-        
-        if($result) {
+
+        if($result){
+
+            $cnfRecord = CNF::find($request->edit_id);
+            $invoiceNo = SaleContract::where('id', $cnfRecord->sale_contract_id)->value('invoice_no');
+            $apiResponse = $this->syncBillOfEntryToCRM($invoiceNo,$request->sb_no);
+            if($apiResponse) {
+                $responseData = json_decode($apiResponse, true);
+                if($responseData) {
+                    $cnfRecord = CNF::find($request->edit_id);
+                    $cnfRecord->crm_sync_status = $responseData['status'] ? $responseData['status']:'failed';
+                    $cnfRecord->crm_sync_message = $responseData['message'] ? $responseData['message']:'failed';
+                    $cnfRecord->crm_sync_date = date('Y-m-d');
+                    $cnfRecord->crm_sync_by = Auth::user()->id;
+                    $cnfRecord->save();
+                }
+            }
 
             return response()->json([
                 'message' => "Updated Successfully Done",

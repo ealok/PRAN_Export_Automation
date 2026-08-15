@@ -508,7 +508,7 @@ Route::get('/delete/notify_party_item','NotifyPartyItemController@deletePartyIte
 Route::get('/json/get/ci_item_List','NotifyPartyItemController@getCiActiveItemList');
 Route::get('/manage/party_items','NotifyPartyItemController@managePartyItems');
 Route::post('/upload/party_items','NotifyPartyItemController@uploadPartyItems');
-Route::resource("/notify_party_user", "NotifyPartyUserController");
+Route::resource("notify_party_user", "NotifyPartyUserController");
 Route::post("/json/get/party_user/list","NotifyPartyUserController@getPartyUserList");
 Route::post("/activate/notify/party_user","NotifyPartyUserController@activateNotifyPartyUser");
 Route::post("/delete/notify/party_user","NotifyPartyUserController@deleteNotifyPartyUser");
@@ -573,10 +573,14 @@ Route::get('/json/PendigAllJobOrderListMd','ApprovalController@jsonPendingJOBLis
 Route::get('/ed/approval_list','ApprovalViewController@pedingJobOrderEd');
 Route::get('/md/approval_list','ApprovalViewController@pedingJobOrderMD');
 Route::get('/management/approval_list','ApprovalViewController@managementApproval');
+Route::get('/get-pending-approvals', 'ApprovalViewController@getPendingApprovals');
 
 Route::get('/approval_pending/sc_list','ApprovalController@approvalPendingScList');
 Route::get('/approve/pending/job_order_ed','ApprovalController@approvePendingJobOrderEd');
 Route::get('/approve/pending/job_order_md','ApprovalController@approvePendingJobOrderMd');
+Route::post('/approve/pending/invoice','ApprovalController@approvePendingInvoice');
+Route::post('/reject/invoice','ApprovalController@rejectApprovalInvoice');
+Route::post('/bulk/approve/invoices','ApprovalController@bulkApproveInvoices');
 Route::get('/balance_breaker/approval/mail','PendingDOApprovalController@balanceBreakerApprovalMail');
 Route::get('/pending/do/approval_list','PendingDOApprovalController@showListDOPending');
 Route::get('/approve/pending/do_list','PendingDOApprovalController@approvePendingDoList');
@@ -768,10 +772,13 @@ Route::post('/json_get/gp_details/data','ReportController@getGpDetailsDate');
 Route::post('/json_get/invoice/gp_details','ReportController@jsonGetGpDetails');
 Route::get('/sc_jo/details','ReportController@scVsJoReport');
 Route::post('/json_get/sc_vs_jo/data','ReportController@jsonGetScVsJOData');
+Route::get('/export-sc-vs-jo-report','ReportController@exportReportScVsJOReport');
+
 // Route::get('/sc_jo/details','ReportController@scVsJoReport');
 // Route::post('/json_get/sc_vs_jo/data','ReportController@jsonGetScVsJOData');
 Route::get('/sc_jo_do/report','ReportController@scVsJoVsDoReport');
 Route::post('/json_get/sc_vs_jo_do/data','ReportController@jsonGetScVsJOVsDoData');
+Route::get('/export-sc-jo-do-report','ReportController@exportReportScVsJOVsDoReport');
 
 
 // Route

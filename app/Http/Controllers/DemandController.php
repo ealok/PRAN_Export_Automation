@@ -153,7 +153,7 @@ class DemandController extends Controller
          
         $notify_party = NotifyParty::where('id', $po_master->PARTY_ID)->first(['code', 'name']);
         $createBy = User::where('id', $po_master->IUID)->first();
-        $cc_mail = Auth::user()->email;  // Retrieve the authenticated user's email
+        $cc_mail = Auth::user()->email;
         $data = array(
             'results' => $results,
             'customer' => $notify_party,
@@ -162,7 +162,7 @@ class DemandController extends Controller
             'subject' => "GT New Order Notification",
             'ordr_type' => $po_master->ORDER_TYPE == 1 ? 'PRAN order' : 'Global trading',
             'to_array' => $users,
-            'cc_mail' => $cc_mail  // Correct cc_mail to use the email
+            'cc_mail' => $cc_mail
         );
         
         $from_mail = env('MAIL_FROM_ADDRESS');
@@ -170,7 +170,7 @@ class DemandController extends Controller
             Mail::send('gt_order_mail_template', $data, function($message) use ($from_mail, $data) {
                 $message->from($from_mail, 'GT-Order-Notification@prangroup.com');
                 $message->to($data['to_array']);
-                $message->cc($data['cc_mail']);  // Pass the correct email as cc
+                $message->cc($data['cc_mail']);
                 $message->subject($data['subject']);
             });
             return 'Mail sent successfully';
@@ -953,7 +953,6 @@ class DemandController extends Controller
             $message->cc(['mis@prangroup.com','mis4@mis.prangroup.com','mis10@mis.prangroup.com','mis94@mis.prangroup.com']); 
             $message->subject('New Order Notification, PO No: '.$data['po_no']);
         }); 
-
 
     }
 

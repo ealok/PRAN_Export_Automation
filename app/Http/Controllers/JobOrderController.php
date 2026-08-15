@@ -1551,11 +1551,8 @@ class JobOrderController extends Controller
         $email_array=User::where('location_id',$jo_master->p_floor_id)->pluck('email')->toArray();
         $desk_array=array();
         if($user->head_id){
-           
             $desk_array=User::where('head_id',$user->head_id)->where('active',1)->pluck('email')->toArray();  
-
         }
-
         $sending_mail_list=array_merge($email_array,$desk_array);
         if(count($sending_mail_list)>0){
              
@@ -2085,7 +2082,7 @@ class JobOrderController extends Controller
         $doMaster->user_id=Auth::user()->id;
         $doMaster->currency_rate=$request->currency_rate;
         $doMaster->save();
-        for ($i=0; $i<count($request->info_details); $i++) { 
+        for($i=0; $i<count($request->info_details); $i++) { 
 
             $jobOrderDetails=new DoDetails(); 
             $party_item_id=CiItem::where('ci_item_code', $request->info_details[$i]['item_code'])->pluck('id');
@@ -2098,6 +2095,7 @@ class JobOrderController extends Controller
             $jobOrderDetails->sale_contact_qty=$request->info_details[$i]['sales_contact_qty'];
             $jobOrderDetails->du_unit=1;
             $jobOrderDetails->orqt=$request->info_details[$i]['orqt'];
+            $jobOrderDetails->do_qty=$request->info_details[$i]['orqt'];
             $jobOrderDetails->smqt=$request->info_details[$i]['smqt'];
             $jobOrderDetails->ru_unit=1;
             $jobOrderDetails->coding_matter=$request->info_details[$i]['codding_matter'];
@@ -2105,10 +2103,10 @@ class JobOrderController extends Controller
             $jobOrderDetails->cncl=$request->info_details[$i]['cncl'];
             $jobOrderDetails->rate=$request->info_details[$i]['rate'];
             $jobOrderDetails->save();
-            $existingDoQtySum = JobOrderDetails::where('item_id', $party_item_id['0'])->where('master_id',$request->job_order_id)->value('do_qty');
-            JobOrderDetails::where('master_id',$request->job_order_id)->where('item_id',$party_item_id[0])->update([
-                'do_qty'=>$existingDoQtySum + $request->info_details[$i]['orqt']
-            ]); 
+            // $existingDoQtySum = JobOrderDetails::where('item_id', $party_item_id['0'])->where('master_id',$request->job_order_id)->value('do_qty');
+            // JobOrderDetails::where('master_id',$request->job_order_id)->where('item_id',$party_item_id[0])->update([
+            //     'do_qty'=>$existingDoQtySum + $request->info_details[$i]['orqt']
+            // ]); 
 
         }
 
@@ -2310,7 +2308,7 @@ class JobOrderController extends Controller
 
     private function checkItemRateMatching($request){
          
-        $second_approval=NotifyParty::where('id',SaleContract::where('id',$request->id)->value('notify_pary_id'))->value('second_approval');
+        $first_approval=NotifyParty::where('id',SaleContract::where('id',$request->id)->value('notify_pary_id'))->value('first_approval');
         for ($i=0; $i<count($request->matching_info); $i++) { 
                  
           $request->matching_info[$i]['rate'];  
@@ -2367,10 +2365,10 @@ class JobOrderController extends Controller
                         $percent=0;
                         if($val->XX > 0){
                             
-                            $percent=round((($item_rate-$val->XX)/$item_rate)*100,3);
+                            echo $percent=round((($item_rate-$val->XX)/$item_rate)*100,3);
                             if($percent>$allowPercent->min_percent && $percent<=$allowPercent->max_percent){
 
-                                if($second_approval==316){
+                                if($first_approval==316){
                                     $status='S';
                                 }else{
                                     $status='E'; 
@@ -2478,7 +2476,7 @@ class JobOrderController extends Controller
                         COALESCE(sale_contract_details.rate_percent,0) as rate_percent,
                         (case when sale_contract_details.rate_status='E' then 'Ed'
                         when sale_contract_details.rate_status ='M' then 'Md'
-                        when sale_contract_details.rate_status ='S' then 'Samia'
+                        when sale_contract_details.rate_status ='S' then 'Management'
                         when sale_contract_details.rate_status ='Y' then 'Y'
                         else '' end) as rate_status
                     FROM
@@ -2538,12 +2536,10 @@ class JobOrderController extends Controller
             ->where('rate_status','M')
             ->get();
 
-        // $rateMatchingOtherStatus=SaleContractDetail::where('sale_contract_id',$request->id)
-        //     ->where('rate_status','S')
-        //     ->get();             
+        $rateMatchingOtherStatus=SaleContractDetail::where('sale_contract_id',$request->id)
+            ->where('rate_status','S')
+            ->get();             
         
-         
-
         $checkingMatchingItemStatus=DB::select("SELECT
             (CASE WHEN count1 = count2 THEN 'Y' ELSE 'N' END) as status FROM(
             SELECT (SELECT COUNT(sale_contract_details.id) 
@@ -2559,35 +2555,35 @@ class JobOrderController extends Controller
 
         $checkMatchingItemStatus=$checkingMatchingItemStatus[0]->status;
         $mailStaus=SaleContract::where('id', $request->id)->first(['mail_status']);
-        
         if($checkMatchingItemStatus=='Y'){
             
-          return "Am";  //Ns=Not matching 
+           return "Am";   //already rate verified
 
-        }
-        elseif(!is_null($mailStaus->mail_status)){
+        }elseif(!is_null($mailStaus->mail_status)){
 
            return 'As';  //As=already send
 
-        }elseif(count($rateMatchingMdStatus)>0) {
+        }elseif(count($rateMatchingOtherStatus)>0){
+           
+            //$this->sendManagementMail($request->id,$rateMatchingMdStatus,$item_ids,$wh);
+           $this->sendMailToMdSir($request->id,$rateMatchingMdStatus,$item_ids,$wh);
+           return 'S';  //Management mail send
+ 
+        }
+        elseif(count($rateMatchingMdStatus)>0) {
               
            $this->sendMailToMdSir($request->id,$rateMatchingMdStatus,$item_ids,$wh);
-           return 'Md';
+           return 'Md';  //MD Approval mail send 
 
         }elseif(count($rateMatchingEDStatus)>0){
            
-           
            $this->sendMailToEdSir($request->id,$rateMatchingEDStatus,$item_ids,$wh);
-           return 'Ed';
+           return 'Ed'; //ED Approval mail send 
 
-        }elseif(count($rateMatchingOtherStatus)>0){
-           
-            $this->sendMailToMdSir($request->id,$rateMatchingMdStatus,$item_ids,$wh);
-            return 'Md';
- 
         }else{
 
-            return 'success';
+           return 'success';
+           
         }
 
     }
@@ -2683,6 +2679,8 @@ class JobOrderController extends Controller
             $message->cc(['mis@prangroup.com','mis94@mis.prangroup.com','mis10@prangroup.com']);
             $message->subject($data['subject']);
         }); 
+
+        // PRAN-QBC-46-2026
 
     }
     
@@ -2878,7 +2876,7 @@ class JobOrderController extends Controller
         Mail::send('management_mail', $data, function($message) use ($from_mail,$data){
           $message->from($from_mail,'ExportJOBOrderCostNotification@prangroup.com');
           $message->to('Samia@prangroup.com');
-          //$message->to('mis94@mis.prangroup.com');
+          $message->cc('mis94@mis.prangroup.com');
           $message->subject($data['subject2']);
         });
        

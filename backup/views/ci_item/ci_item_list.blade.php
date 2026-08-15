@@ -174,25 +174,22 @@
     font-weight: bold;
   }
   .box.box-primary {
-  
     border-top-color: #FFFFFF;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-  
   }
   #img_toggle_id{
-  
     height: 40px;
     position: absolute;
     top: -3px;
     left: 845px;
-  
   }
   .box-header.with-border {
-  
     border-bottom: none;
-  
   }
-  
+  .row-status-inactive td {
+    background-color: #cc0924 !important;
+    color: #f0e0e0;
+   }
   .box {
     position: relative;
     border-radius: 3px;
@@ -217,14 +214,6 @@
   }
   
   </style>
-<section class="content-header" style="padding-top: 0px;">
-    <h1>CiItem<small></small></h1>
-    <ol class="breadcrumb">
-      <li><a href="{{url('/home')}}"><i class="fa fa-dashboard"></i>Home</a></li>
-      <li class="active"><a href="{{url('/ci_item')}}"><i class="fa fa-dashboard"></i>ci_item</a></li>
-    </ol>
-    <br>
-</section>
 <div class="row">
   <div class="col-md-12">
   @if(Session::has('success'))
@@ -240,12 +229,13 @@
   <div>
   <div class="col-md-12">
       <div class="box box-primary">
-        <div class="box-header with-border">CiItem<button class="btn btn-xs btn-success pull-right btn-flat create-btn-id">Create CiItem</a>
+        <div class="box-header with-border"><button class="btn btn-xs btn-success pull-right btn-flat create-btn-id">Create Item</a>
         </div>
         <div class="panel-body table-responsive">
           <table id="example1" class="table table-bordered table-responsive table-condenced ">
               <thead>
                   <tr>
+                      <th style="display: none">ID</th>
                       <th>Item_code</th>
                       <th>Desk_name</th>
                       <th>CI_name</th>
@@ -253,7 +243,6 @@
                       <th>Factor</th>
                       <th>Ci_factor</th>
                       <th>D_Weight</th>
-                      <th>G_weight</th>
                       <th>Ci_rate</th>
                       <th>Hs_code</th>
                       <th>BU</th>
@@ -595,7 +584,7 @@
   </div>
 </div><!---End Modal-->
 
-<script>document.title = 'CiItem';</script>
+<script>document.title = 'Export | Items';</script>
 <script type="text/javascript">
      
     $('#create_button_id').prop("disabled", true);  //Reset Create Button 
@@ -661,9 +650,15 @@
             $('#createModal').modal('show');
 
         });
-
+        
         $('#example1').dataTable().fnDestroy(); 
+        const statusClasses = {
+            0: 'row-status-inactive',
+            1: 'row-status-active',
+            2: 'row-status-pending'
+        };
         var table=$('#example1').DataTable({
+            "order": [[0, "desc"]],
             "ajax": {
                 "url": "/get/ci_itemList",
                 "type": "GET",
@@ -682,6 +677,7 @@
                 }
             },
             "columns": [
+                { "data": "id", "visible": false }, 
                 { "data": "ci_item_code"},
                 { "data": "ci_item_name"},
                 { "data": "duplicate_name"},
@@ -689,7 +685,6 @@
                 { "data": "factor"},
                 { "data": "ci_factor"},
                 { "data": "d_net_weight"},
-                { "data": "d_gross_weight"},
                 { "data": "ci_item_rate"},
                 { "data": "hs_code"},
                 { "data": "bu"},
@@ -707,6 +702,13 @@
             "language": {
 
                 "emptyTable": "No records available"
+            },
+            "rowCallback": function(row, data) {
+                
+                if(data.is_api === 'Y' || data.is_api == null) {
+                    $(row).addClass('row-status-inactive');
+                    $('td', row).css('background-color', '#ffcccc');
+                }                   
             },
             "dataSrc": function (json) {
 

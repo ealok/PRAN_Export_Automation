@@ -40,7 +40,7 @@ class CiItemController extends Controller{
     }
     
     public function index(){
-
+        
         $ci_items = CiItem::All();
         $itemTypes=Itemtype::all();
         $bus=Bu::all();

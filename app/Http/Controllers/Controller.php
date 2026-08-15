@@ -1,21 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Menu;
+use App\MenuSetup;
 use App\Permission;
 use App\UserPermission;
 use App\UserRole;
-use App\MenuSetup;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    
     protected $permission;
     protected $canView = false;
     protected $canCreate = false;
@@ -23,16 +24,16 @@ class Controller extends BaseController
     protected $canUpdate = false;
     protected $canDelete = false;
     protected $viewPermissions;
+    
     public function __construct()
     {
-    
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             
-            $action_url = $request->path();        
-            $menu = MenuSetup::where('menu_url', '/' . $action_url)->first();
-            if($menu){
-
+            $action_url = $request->path();
+            $normalized_url = $this->normalizeUrl($action_url);
+            $menu = MenuSetup::where('menu_url', '/' . $normalized_url)->first();
+            if ($menu) {
                 $userId = Auth::user()->id;
                 $userRoles = UserRole::where('user_id', $userId)
                     ->where('is_active', 1)
@@ -41,27 +42,23 @@ class Controller extends BaseController
 
                 $rolePermission = Permission::whereIn('role_id', $userRoles)
                     ->where('menu_id', $menu->id)
-                    ->first();
+                    ->first();  
 
                 $userPermission = UserPermission::where('user_id', $userId)
                     ->where('menu_id', $menu->id)
                     ->first();      
                 
-                // Merge permissions (user custom overrides role)
                 $finalVsbl = $this->getFinalPermission($rolePermission, $userPermission, 'wsmu_vsbl');
                 $finalCrat = $this->getFinalPermission($rolePermission, $userPermission, 'wsmu_crat');
                 $finalRead = $this->getFinalPermission($rolePermission, $userPermission, 'wsmu_read');
                 $finalUpdt = $this->getFinalPermission($rolePermission, $userPermission, 'wsmu_updt');
                 $finalDelt = $this->getFinalPermission($rolePermission, $userPermission, 'wsmu_delt');
                 
-                // Set permission flags
                 $this->canView = ($finalVsbl == '1');
                 $this->canCreate = ($finalCrat == '1');
                 $this->canRead = ($finalRead == '1');
                 $this->canUpdate = ($finalUpdt == '1');
                 $this->canDelete = ($finalDelt == '1');
-                
-                // Store full permission object
                 $this->permission = (object)[
                     'wsmu_vsbl' => $finalVsbl,
                     'wsmu_crat' => $finalCrat,
@@ -71,49 +68,42 @@ class Controller extends BaseController
                 ];
                 
             } else {
-                // No menu found, allow all actions
-                $this->canView = true;
-                $this->canCreate = true;
-                $this->canRead = true;
-                $this->canUpdate = true;
-                $this->canDelete = true;
+                $this->canView = false;
+                $this->canCreate = false;
+                $this->canRead = false;
+                $this->canUpdate = false;
+                $this->canDelete = false;
             }
             
-            // NEW: Create view permissions object
             $this->viewPermissions = (object)[
                 'can_view' => $this->canView,
                 'can_create' => $this->canCreate,
                 'can_read' => $this->canRead,
                 'can_update' => $this->canUpdate,
-                'can_delete' => $this->canDelete
+                'can_delete' => $this->canDelete,
             ];
 
             view()->share('viewPermissions', $this->viewPermissions);
             return $next($request);
-
         });
     }
     
-    /**
-     * Get final permission (user custom overrides role)
-     */
+    private function normalizeUrl($url)
+    {
+        return explode('/', $url)[0];
+    }
+    
     private function getFinalPermission($rolePermission, $userPermission, $field)
     {
-        // Check user custom permission first (highest priority)
-        if ($userPermission && $userPermission->$field !== null) {
-            return $userPermission->$field;
+        if($userPermission && $userPermission->$field !== null) {
+            return ($userPermission->$field == 'Y' || $userPermission->$field == '1') ? '1' : '0';
         }
-        // Fallback to role permission
-        if ($rolePermission) {
-            return $rolePermission->$field;
+        if($rolePermission) {
+            return ($rolePermission->$field == 'Y' || $rolePermission->$field == '1') ? '1' : '0';
         }
-        // Default to '0' (no permission)
         return '0';
     }
     
-    /**
-     * Check permission and abort if not allowed (auto abort)
-     */
     protected function canView()
     {
         if (!$this->canView) {
@@ -154,9 +144,6 @@ class Controller extends BaseController
         return true;
     }
     
-    /**
-     * Check permission and return boolean (without abort)
-     */
     protected function hasViewPermission()
     {
         return $this->canView;
@@ -182,9 +169,6 @@ class Controller extends BaseController
         return $this->canDelete;
     }
     
-    /**
-     * Get all permissions as array
-     */
     protected function getAllPermissions()
     {
         return [
@@ -196,17 +180,11 @@ class Controller extends BaseController
         ];
     }
     
-    /**
-     * Get permission object
-     */
     protected function getPermission()
     {
         return $this->permission;
     }
     
-    /**
-     * NEW: Get view permissions object
-     */
     protected function getViewPermissions()
     {
         return $this->viewPermissions;

@@ -16,7 +16,7 @@ class ImporterController extends Controller{
 
     public function index(){
 
-        $importers = Importer::orderBy('id','Desc')->paginate(20);
+        $importers = Importer::orderBy('id','Desc')->orderBy('id','Desc')->get();
         return view("importer.importer_list",compact("importers"));
         
     }

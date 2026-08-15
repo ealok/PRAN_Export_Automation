@@ -142,9 +142,8 @@ class ApprovalController extends Controller
         Mail::send('Jo_approval_done_template', $data, function($message) use ($from_mail,$data){
 
           $message->from($from_mail,'JO Approval Mail');
-          $message->to($data['receiver_email']); // to 
-          //$message->to('mis94@mis.prangroup.com');
-          $message->cc(['mis@prangroup.com','mis4@mis.prangroup.com','mis10@mis.prangroup.com']); // CC mail address
+          $message->to($data['receiver_email']);
+          $message->cc(['mis@prangroup.com','mis4@mis.prangroup.com','mis10@mis.prangroup.com']);
           $message->subject($data['subject']);
 
         });
@@ -156,6 +155,208 @@ class ApprovalController extends Controller
       }
 
       return "success";
+
+    }
+
+    public function approvePendingInvoice(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $invoices=DB::table("sale_contracts")->where('id',$id)->get();
+            $jobOrderMaster = SaleContract::findOrFail($id);
+            $invoiceNo = $jobOrderMaster->invoice_no;
+            $jobOrderMaster->md_approve = 1;
+            $jobOrderMaster->md_approve_id = Auth::user()->id;
+            $jobOrderMaster->show_status = "";
+            $jobOrderMaster->matching_status = 1;
+            $jobOrderMaster->mail_status = NULL;
+            $jobOrderMaster->save();
+            DB::table('sale_contract_details')
+                ->where('sale_contract_id', $id)
+                ->whereIn('rate_status', ['M', 'E', 'S'])
+                ->update(['rate_status' => 'Y']);
+
+            $creatorId = SaleContract::where('id', $id)
+                ->pluck('creator_id')
+                ->toArray();
+
+            $emailArray = [];
+            if($creatorId) {
+                $emailArray = User::where('id', $creatorId)
+                    ->whereNotNull('email')
+                    ->where('email', '!=', '')
+                    ->pluck('email')
+                    ->toArray();
+            }
+            
+            $data = [
+                'from_email' => 'reportbi@prangroup.com',
+                'subject' => "JO Price Approval Done",
+                'results' =>  $invoices,
+                'receiver_email' => $emailArray,
+                'approve_by' => 'Management'
+            ];
+            
+            
+            try {
+                $from_mail = env('MAIL_FROM_ADDRESS');
+                Mail::send('Jo_approval_done_template', $data, function($message) use ($from_mail, $data) {
+                    $message->from($from_mail, 'JO Approval Mail');
+                    $message->to($data['receiver_email']);
+                    $message->cc(['mis@prangroup.com', 'mis4@mis.prangroup.com', 'mis10@mis.prangroup.com']);
+                    $message->subject($data['subject']);
+                });
+            } catch (Exception $e) {
+                
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice ' . $invoiceNo . ' approved successfully.'
+            ]);
+            
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to approve invoice. ' . $e->getMessage()
+            ], 500);
+            
+        }
+    }
+
+    public function rejectApprovalInvoice(Request $request){
+        
+         $reject_note=$request->reject_note;
+         try {
+            $id = $request->id;
+            $invoices=DB::table("sale_contracts")->where('id',$id)->get();
+            $jobOrderMaster = SaleContract::findOrFail($id);
+            $invoiceNo = $jobOrderMaster->invoice_no;
+            $jobOrderMaster->md_approve = 1;
+            $jobOrderMaster->md_approve_id = Auth::user()->id;
+            $jobOrderMaster->show_status = "";
+            $jobOrderMaster->matching_status = 1;
+            $jobOrderMaster->mail_status = NULL;
+            $jobOrderMaster->save();
+            DB::table('sale_contract_details')
+                ->where('sale_contract_id', $id)
+                ->whereIn('rate_status', ['M', 'E', 'S'])
+                ->update(['rate_status' => 'Y']);
+ 
+            $creatorId = SaleContract::where('id', $id)->value('creator_id');
+            $emailArray = [];
+            if($creatorId) {
+                $emailArray = User::where('id', $creatorId)
+                    ->whereNotNull('email')
+                    ->where('email', '!=', '')
+                    ->pluck('email')
+                    ->toArray();
+            }
+
+            $data = [
+                'from_email' => 'reportbi@prangroup.com',
+                'subject' => "JO Price Approval Done",
+                'results' => $invoices,
+                'receiver_email' => $emailArray,
+                'approve_by' => 'Management',
+                'rejected_note' => $request->reject_note
+            ];
+            
+            try {
+                $from_mail = env('MAIL_FROM_ADDRESS');
+                Mail::send('Jo_approval_rejected_template', $data, function($message) use ($from_mail, $data) {
+                    $message->from($from_mail, 'JO Approval Mail');
+                    $message->to($data['receiver_email']);
+                    $message->cc(['mis@prangroup.com', 'mis4@mis.prangroup.com', 'mis10@mis.prangroup.com']);
+                    $message->subject($data['subject']);
+                });
+            } catch (Exception $e) {
+                
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice ' . $invoiceNo . 'Rejected successfully.'
+            ]);
+            
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to Reject invoice. ' . $e->getMessage()
+            ], 500);
+            
+        }
+
+    }
+
+    public function bulkApproveInvoices(Request $request){
+
+        $ids=explode(",",$request->ids);
+        $invoices=\DB::table("sale_contracts")->whereIn('id',$ids)->select('invoice_no')->get();
+        $creator_ids=SaleContract::whereIn('id',$ids)->groupBy('creator_id')->select('creator_id')->get()->toArray();
+        $head_ides=User::whereIn('id',$creator_ids)->select('head_id')->get()->toArray();
+        $creatorIds = SaleContract::whereIn('id', $ids)
+            ->whereNotNull('creator_id')
+            ->where('creator_id', '!=', 0)
+            ->pluck('creator_id')
+            ->unique()
+            ->toArray();
+
+        $emailArray = User::whereIn('id', $creatorIds)
+          ->whereNotNull('email')
+          ->where('email', '!=', '')
+          ->pluck('email')
+          ->toArray();
+
+        $data = array(
+          'from_email' => 'reportbi@prangroup.com',
+          'subject' => "JO Price Approval Done",
+          'results' => $invoices,
+          'receiver_email' => $emailArray,
+          'approve_by' =>'MD'
+        );
+
+        for($i=0;$i<count($ids);$i++) {
+        
+          $jobOrderMaster=SaleContract::findorfail($ids[$i]);
+          $jobOrderMaster->md_approve=1;
+          $jobOrderMaster->md_approve_id=Auth::user()->id;
+          $jobOrderMaster->show_status="";
+          $jobOrderMaster->matching_status=1;
+          $jobOrderMaster->mail_status=NULL;
+          $jobOrderMaster->save();
+          $update_id=$ids[$i];
+          \DB::select("UPDATE sale_contract_details
+            SET rate_status='Y'
+            WHERE `sale_contract_id`='$update_id' AND (rate_status='M' OR rate_status='E' OR rate_status='S')");
+
+        }
+
+        try {
+          
+          $from_mail=env('MAIL_FROM_ADDRESS');
+          Mail::send('Jo_approval_done_template', $data, function($message) use ($from_mail,$data){
+            $message->from($from_mail,'JO Approval Mail');
+            $message->to($data['receiver_email']);
+            $message->cc(['mis@prangroup.com','mis4@mis.prangroup.com','mis10@mis.prangroup.com']);
+            $message->subject($data['subject']);
+          });
+
+          return response()->json([
+            'success' => true,
+            'message' => 'Invoice approved successfully.'
+          ]);
+          
+        } catch(Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to approve the invoice.'
+            ], 500);
+
+        }
 
     }
 

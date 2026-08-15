@@ -1047,7 +1047,7 @@
                   <option value="">Select Party</option>
                   @foreach($notify_parties as $notify_party)
                     <option value="{{$notify_party->id}}">
-                      {{$notify_party->code}} / {{$notify_party->name}}
+                      {{$notify_party->code}} / {{$notify_party->name}} / {{$notify_party->ref_name}}
                     </option>
                   @endforeach        
                 </select>

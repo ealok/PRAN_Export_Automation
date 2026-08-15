@@ -384,7 +384,7 @@
 <script>document.title = 'Job Ordr Process';</script>
 <script type="text/javascript">
  
- $(document).ready(function(){
+  $(document).ready(function(){
       setTimeout(function() { 
 
           $('.sr-only').click();
@@ -494,7 +494,7 @@
                         Swal.fire({
                           icon: "success",
                           title: "success",
-                          text: "Successfully sent to Samia Madam..!!"
+                          text: "Successfully sent to Management..!!"
                         });   
 
                       }
@@ -584,7 +584,7 @@
                 Swal.fire({
                   icon: "warning",
                   title: "Oops...",
-                  text: "Items are not Verified, Need Samia madam approval..!!!"
+                  text: "Items are not Verified, Need Management approval..!!!"
                 }); 
 
               }

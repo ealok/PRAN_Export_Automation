@@ -815,7 +815,7 @@
             <div class="modal-content">
                 <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> Update Item</h4>
+                    <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> Update CI Item</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -911,6 +911,7 @@
         </form>
     </div>
 </div>
+
 <script>document.title = 'Export | Items';</script>
 <script type="text/javascript">
      
@@ -927,9 +928,11 @@
 
     // ===== FILTER FUNCTION =====
     let currentFilter = 'all';
-    function filterTable(filter) {
 
-        currentFilter = filter;        
+    function filterTable(filter) {
+        currentFilter = filter;
+        
+        // Update card active state
         $('.summary-card').removeClass('active');
         $(`.summary-card[data-filter="${filter}"]`).addClass('active');
         

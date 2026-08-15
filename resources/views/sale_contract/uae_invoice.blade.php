@@ -170,21 +170,32 @@ SWIFT CODE: EBILAEAD
                                
                            ?>
                            <tr style="text-align:right;">
-                               <td colspan="1" style="text-align:left;font-weight: bold;">{{$sale_contract_detail->duplicate_name}}</td>
-                               <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->p_net_weight}}</td>
-                               <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->ci_factor}}</td>
-                               <td colspan="1" style="font-weight: bold;">{{$obj->get_first_hs_code($sale_contract->id,$sale_contract_detail->ci_item_name)}}</td>
-                               <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->ctn}} <?php $total_ctn+=$sale_contract_detail->ctn ;?></td>
-                               <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->pcs_in_ctn}} <?php $total_pcs_in_ctn+=$sale_contract_detail->pcs_in_ctn; ?> </td>
-                               <td colspan="1" style="font-weight: bold;">{{'$'}}<?php echo round($carton_fright_pl_rate * 1.087,2) ?></td>
-                               <td colspan="1" style="font-weight: bold;">{{'$'}}
-                                  <?php
-                                        
-                                        echo number_format($carton_fright_pl_rate*$sale_contract_detail->ctn,2);
-                                        $total_sum=$total_sum+round($carton_fright_pl_rate * 1.087 * $sale_contract_detail->ctn,2);
-   
-                                    ?>
-                               </td>
+                              <td colspan="1" style="text-align:left;font-weight: bold;">{{$sale_contract_detail->duplicate_name}}</td>
+                              <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->p_net_weight}}</td>
+                              <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->ci_factor}}</td>
+                              <td colspan="1" style="font-weight: bold;">{{$obj->get_first_hs_code($sale_contract->id,$sale_contract_detail->ci_item_name)}}</td>
+                              <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->ctn}} <?php $total_ctn+=$sale_contract_detail->ctn ;?></td>
+                              <td colspan="1" style="font-weight: bold;">{{$sale_contract_detail->pcs_in_ctn}} <?php $total_pcs_in_ctn+=$sale_contract_detail->pcs_in_ctn; ?> </td>
+                              <td colspan="1" style="font-weight: bold;">{{'$'}}
+                                 <?php
+                                    $profitRate = (!empty($sale_contract_detail->bl_date) &&
+                                                   strtotime($sale_contract_detail->bl_date) < strtotime('2026-07-01'))
+                                                   ? 1.08
+                                                   : 1.06;
+                                    echo round($carton_fright_pl_rate * $profitRate, 2);
+                                 ?>
+                              </td>
+                              <td colspan="1" style="font-weight: bold;">{{'$'}}
+                                 <?php
+                                    $profitRate = (!empty($sale_contract_detail->bl_date) && 
+                                                   strtotime($sale_contract_detail->bl_date) < strtotime('2026-07-01'))
+                                                   ? 1.08 
+                                                   : 1.06;                                                  
+                                    $amount = $carton_fright_pl_rate * $sale_contract_detail->ctn * $profitRate;
+                                    echo number_format($amount, 2);
+                                    $total_sum += round($amount, 2);
+                                 ?>
+                              </td>
                            </tr>
                       @endforeach  
                      <tr style="text-align:right;">

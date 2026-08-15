@@ -23,22 +23,19 @@ class AppServiceProvider extends ServiceProvider
             if (!$userMenusGrouped) {
                 try {
                     if (Auth::check()) {
-                        $userId = Auth::user()->id;
                         
-                        // Get user roles from user_roles table
+                        $userId = Auth::user()->id;
                         $userRoles = UserRole::where('user_id', $userId)
                             ->where('is_active', 1)
                             ->pluck('role_id')
                             ->toArray();
                         
-                        // If no roles found, try from users table (fallback)
                         if (empty($userRoles)) {
                             $userRoles = User::where('id', $userId)
                                 ->pluck('role_id')
                                 ->toArray();
                         }
                         
-                        // Get all root menus with children
                         $allMenus = DB::table('menus as t1')
                             ->leftJoin('menus as m2', 't1.id', '=', 'm2.root_id')
                             ->select(

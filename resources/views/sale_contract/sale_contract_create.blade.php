@@ -1055,13 +1055,10 @@
 </div>        
 <script>document.title = 'SalesContract | Create';</script>
 <script type="text/javascript">
-    
-    setTimeout(function() { 
-          $('.sr-only').click();
-    }, 0.0001);
-
     $(document).ready(function() {
-
+        setTimeout(function() { 
+            $('.sr-only').click();
+        }, 0.0001);
         $('#invoice_no').on('keyup paste change', function() {
             var value = $(this).val();
             value = value.replace(/\s/g, '');

@@ -782,7 +782,6 @@
                         <th>JO Date</th>
                         <th>JO Creator</th>
                         <th>Contract Creator</th>
-                        <th>JO Status</th>
                     </tr>
                 </thead>
                 <tbody id="reportBody">
@@ -1153,10 +1152,8 @@ function renderTableData(data) {
     var sl = 0;
     $.each(data, function(index, row) {
         sl++;
-        
         var joStatus = row.JO_Status || 'No JO';
         var statusClass = joStatus === 'JO Exists' ? 'badge-jo-exists' : 'badge-no-jo';
-
         var rowHtml = '<tr>' +
             '<td>' + sl + '</td>' +
             '<td title="' + (row.Contract_No || '-') + '">' + (row.Contract_No || '-') + '</td>' +
@@ -1174,7 +1171,6 @@ function renderTableData(data) {
             '<td>' + (row.JO_Date || '-') + '</td>' +
             '<td title="' + (row.JO_Creator || '-') + '">' + (row.JO_Creator || '-') + '</td>' +
             '<td title="' + (row.Contract_Creator || '-') + '">' + (row.Contract_Creator || '-') + '</td>' +
-            '<td><span class="' + statusClass + '">' + joStatus + '</span></td>' +
             '</tr>';
         
         tbody.append(rowHtml);

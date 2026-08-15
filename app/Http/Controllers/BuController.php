@@ -1,18 +1,29 @@
 <?php
-
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Bu;
 use Session;
 class BuController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {        
+    {     
+
+        // if(!$this->hasViewPermission()) {
+
+        //     return view('limited_access');
+            
+        // } 
         $bus=Bu::orderBy('id','Desc')->paginate(10);
         return view('bu.bu_list',compact('bus'));
     }
@@ -23,7 +34,13 @@ class BuController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
+    {  
+        
+        // if(!$this->hasCreatePermission()) {
+
+        //     return view('limited_access');
+            
+        // } 
         return view('bu.bu_create');
     }
 

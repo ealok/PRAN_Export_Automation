@@ -274,7 +274,7 @@ img{
                     <select name="party_id" id="party_id" data-live-search="true" class="form-control select2 selectpicker" required autofocus type="select"  value="1">
                          <option value="">Select</option>
                          @foreach($notifyParties as $party)
-                            <option value="{{$party->id}}">{{$party->code}}-{{$party->name}}</option>
+                            <option value="{{$party->id}}">{{$party->code}} / {{$party->name}} /{{$party->name}}</option>
                          @endforeach
                     </select>
                 </div>

@@ -2041,12 +2041,10 @@
 </div>
 <script>document.title = 'Sales Contract | Edit';</script>
 <script>
-setTimeout(function() { 
-  $('.sr-only').click();
-}, 0.0001);    
-
 $(document).ready(function() {
-
+    setTimeout(function() { 
+  $('.sr-only').click();
+}, 0.0001);   
      $('#invoice_no').on('keyup paste change', function() {
         var value = $(this).val();
         var sc_id = $('#sc_id').val(); // Edit à¦¹à¦²à§‡ ID à¦¥à¦¾à¦•à¦¬à§‡, Create à¦¹à¦²à§‡ empty
@@ -2058,21 +2056,21 @@ $(document).ready(function() {
         if (value.length > 3) {
             $.ajax({
                 type: "GET",
-                url: "/check/invoice/number/exist/ornot",
+                url: "/check/invoice/number/exist_ornot/on_edit",
                 data: {
                     invoice_no: value,
                     id: sc_id || null  // ðŸ‘ˆ sc_id à¦ªà¦¾à¦ à¦¾à¦¨
                 },
                 success: function (data) {
-                    if (data == '1') {
+                    if(data == '1') {
                         if (sc_id) {
-                            $('#mobile_number_error').html("âš ï¸ Already Exists in another contract!");
+                            $('#mobile_number_error').html("Already Used!");
                         } else {
-                            $('#mobile_number_error').html("âš ï¸ Already Exists!");
+                            $('#mobile_number_error').html("Already Used!");
                         }
                         $('#nextButton').prop("disabled", true);
                     } else {
-                        $('#mobile_number_error').html("âœ… Available");
+                        $('#mobile_number_error').html("");
                         $('#nextButton').prop("disabled", false);
                     }
                 },

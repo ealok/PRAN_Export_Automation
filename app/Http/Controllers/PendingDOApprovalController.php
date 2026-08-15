@@ -14,7 +14,7 @@ use Mail;
 class PendingDOApprovalController extends Controller
 {   
     public function __construct(){
-
+        
         $this->middleware('auth');
 
     }

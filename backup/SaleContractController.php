@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Route;
 use Session;
 use Auth;
 use App\SaleContract;
@@ -254,7 +255,7 @@ class SaleContractController extends Controller{
                 join importers imp on imp.id=sc.importer_id
                 where sc.invoice_no like '%$request->invoice_no%' and sc.inactive='N'
                 order by sc.id desc
-                limit 10");
+                limit 5");
         return response()->json([
             'results'=>$results,
             'code'=>200
@@ -783,7 +784,7 @@ class SaleContractController extends Controller{
             ]);
 
         }    
- 
+
         $terms = $request->terms_and_condition;
         if(strpos($terms, 'EXPIRY OF THIS SALES CONTRACT') !== false) {
             $terms = preg_replace('/^.*EXPIRY OF THIS SALES CONTRACT.*(\r?\n)?/mi', '', $terms);
@@ -4473,9 +4474,8 @@ private function decimalToWordConvert($num){
          $factory_address="";
 
         }
-
         $sale_contract_details = SaleContract::where('sale_contracts.id',$id)
-                ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','ci_items.duplicate_name','ci_items.ci_item_rate','ci_items.ci_item_code','sale_contract_details.rate_per_ctn','sale_contracts.ci_note','sale_contracts.bl_date',
+                ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','ci_items.duplicate_name','ci_items.ci_item_rate','ci_items.ci_item_code','sale_contract_details.rate_per_ctn','sale_contracts.ci_note',
                 DB::Raw('SUM(sale_contract_details.ctn) AS ctn'),
                 DB::Raw('SUM(sale_contract_details.pcs_in_ctn) AS pcs_in_ctn'),
                 DB::Raw('SUM(sale_contract_details.total_amount) AS total_amount'),
@@ -4487,7 +4487,6 @@ private function decimalToWordConvert($num){
             ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor')
             ->orderBy('sale_contract_details.id')
             ->get();
-
         $total_net_weight = SaleContractDetail::where('sale_contract_id',$id)->sum('net_weight_kg');
         return view("sale_contract.uae_invoice",compact("sale_contract"))
         ->with('sale_contract_details',$sale_contract_details)
@@ -5942,17 +5941,23 @@ private function decimalToWordConvert($num){
 
     public function CIMakeUnposted($sc_id,$party_id){
          
-        $results=SaleContract::where('id',$sc_id)->update(["approver_id" => "","approved_at"=>""]);
+        $results=SaleContract::where('id',$sc_id)
+                ->update(["approver_id" => "","approved_at"=>""]);
+
         if($results==true){
+           
             Session::flash('party_id', $party_id);
             Session::flash('sale_contract_no', $sc_id);
             Session::flash("success", "CI Doc Unposted Succcessfully...!!");
             return redirect()->back();
+
         }else{
+
             Session::flash('party_id', $party_id);
             Session::flash('sale_contract_no', $sc_id);
             Session::flash("success", "CI Doc Unposted Failed...!!");
             return redirect()->back();
+
         }        
 
     }
@@ -6112,14 +6117,12 @@ private function decimalToWordConvert($num){
         $s="rydzbh@cloud24mail.com";
         $t="mis4@prangroup.com";
         $u="palmis@pal.prangroup.com";
-        $v='Samia@prangroup.com';
         foreach($results as $key => $value) {
 
             if($value->email==$a || $value->email==$b || $value->email==$c || $value->email==$d || $value->email==$e || 
                 $value->email==$f || $value->email==$g || $value->email==$h || $value->email==$i || $value->email==$j || 
                 $value->email==$k || $value->email==$m || $value->email==$n || $value->email==$o || $value->email==$p ||
-                $value->email==$q || $value->email==$r || $value->email==$s || $value->email==$t || $value->email==$u || 
-                $value->email==$v){
+                $value->email==$q || $value->email==$r || $value->email==$s || $value->email==$t || $value->email==$u){
              
             }else{
                 
@@ -6408,10 +6411,9 @@ private function decimalToWordConvert($num){
         $n="export146@prangroup.com";
         $o="mis4@prangroup.com";
         $p="palmis@pal.prangroup.com";
-        $q='Samia@prangroup.com';
         foreach($results as $key => $value) {
 
-            if($value->email==$a || $value->email==$b || $value->email==$c || $value->email==$d || $value->email==$e || $value->email==$f || $value->email==$g || $value->email==$h || $value->email==$i || $value->email==$j || $value->email==$k || $value->email==$m || $value->email==$n || $value->email==$o || $value->email==$p || $value->email==$q){
+            if($value->email==$a || $value->email==$b || $value->email==$c || $value->email==$d || $value->email==$e || $value->email==$f || $value->email==$g || $value->email==$h || $value->email==$i || $value->email==$j || $value->email==$k || $value->email==$m || $value->email==$n || $value->email==$o || $value->email==$p){
              
             }else{
 
@@ -8983,50 +8985,6 @@ private function decimalToWordConvert($num){
             ], 500);
         }
     }
-
-    // public function deleteSalesContactItem(Request $request)
-    // {
-    //     try {
-
-    //         $ids = explode(",", $request->ids);
-    //         $saleContractId = $request->sale_contract_no;
-    //         $deletedCount = DB::table("sale_contract_details")->whereIn('id', $ids)->delete();
-    //         $result = DB::selectOne("
-    //             SELECT
-    //                 COALESCE(SUM(ctn), 0) as ctn,
-    //                 COALESCE(SUM(total_amount_acc), 0) AS total_amount_acc,
-    //                 COALESCE(SUM(total_amount_party), 0) AS total_amount_party,
-    //                 COALESCE(SUM(total_amount), 0) AS total_amount,
-    //                 COALESCE(SUM(total_cbm), 0) AS total_cbm,
-    //                 COALESCE(SUM(gross_weight_kg), 0) AS gross_weight_kg,
-    //                 COALESCE(SUM(pcs_in_ctn), 0) AS pcs_in_ctn
-    //             FROM sale_contract_details
-    //             WHERE sale_contract_id = ?
-    //         ", [$saleContractId]);
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => $deletedCount . ' item(s) deleted successfully.',
-    //             'totals' => [
-    //                 'total_ctn' => (float) ($result->ctn ?? 0),
-    //                 'total_amount_acc' => (float) ($result->total_amount_acc ?? 0),
-    //                 'total_amount_party' => (float) ($result->total_amount_party ?? 0),
-    //                 'total_amount' => (float) ($result->total_amount ?? 0),
-    //                 'total_cbm' => (float) ($result->total_cbm ?? 0),
-    //                 'total_gross_weight_kg' => (float) ($result->gross_weight_kg ?? 0),
-    //                 'pcs_in_carton' => (float) ($result->pcs_in_ctn ?? 0)
-    //             ],
-    //             'deleted_count' => $deletedCount
-    //         ]);
-
-    //     } catch (\Exception $e) {
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Error: ' . $e->getMessage()
-    //         ], 500);
-
-    //     }
-    // }
     
     public function checkInvoiceNumberExistOrNot(Request $request){
 

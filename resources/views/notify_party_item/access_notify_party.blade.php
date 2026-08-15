@@ -1363,8 +1363,9 @@ function getItemDetails(itemId) {
     });
 }
 
-// ===== CLEAR FORM =====
+// ===== CLEAR ADD MODAL FORM =====
 function clearAddModalForm() {
+    // ===== এই ফিল্ডগুলো রিসেট হবে =====
     $('#ci_item_search').val('');
     $('#ci_item_id').val('');
     $('#desk_item_name').val('');
@@ -1373,24 +1374,23 @@ function clearAddModalForm() {
     $('#party_rate').val('');
     $('#cbm_per_ctn').val('');
     $('#gross_weight').val('');
-    $('#shelf_life').val('');
     $('#hs_code2').val('');
-    $('textarea[name="coding_matter"]').val('');
-    $('textarea[name="special_requirment"]').val('');
-    $('textarea[name="ingredient"]').val('');
-    $('#dunit_id').val('').selectpicker('refresh');
-    $('#runit_id').val('').selectpicker('refresh');
-    $('#factory_id').val('').selectpicker('refresh');
+    
+    // ===== এই ফিল্ডগুলো রিসেট হবে না (আগের ভ্যালু থাকবে) =====
+    // DUnit - রাখুন
+    // RUnit - রাখুন
+    // Coding Matter - রাখুন
+    // Special Requirement - রাখুন
+    // Factory - রাখুন
+    // Shelf Life - রাখুন
+    // Ingredient - রাখুন
+    
+    // ===== HIDDEN =====
+    $('#ci_item_id').val('');
+    
+    // ===== AUTOCOMPLETE =====
     $('#item_results').hide().empty();
 }
-
-// ===== MULTISELECT =====
-$('#ci_item_list').multiselect({
-    columns: 1,
-    placeholder: 'Select Item',
-    search: true,
-    selectAll: true
-});
 
 // ============================================================
 // DOCUMENT READY
@@ -1495,10 +1495,15 @@ $(document).ready(function() {
                         showConfirmButton: false,
                         timer: 1500
                     });
-                    var currentParty = $('#party_code').val();
+                    
+                    // ===== ফর্ম ক্লিয়ার করুন (শুধু প্রয়োজনীয় ফিল্ড) =====
                     clearAddModalForm();
-                    $('#party_code').val(currentParty).selectpicker('refresh');
-                    $("#ItemAddedModal").modal("show");
+                    
+                    var currentParty = $('#party_code').val();
+                    if(currentParty && currentParty !== '') {
+                        $('#party_code').val(currentParty).selectpicker('refresh');
+                    }
+                    
                     var table1 = $('#example1').DataTable();
                     table1.ajax.reload();
                 } else if(res.code==409){

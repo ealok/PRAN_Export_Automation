@@ -845,6 +845,7 @@ class ReportController extends Controller
             ], 500);
 
         }
+        
     }
 
     public function gpDetailsReport(Request $request){
@@ -972,6 +973,160 @@ class ReportController extends Controller
         }
     }
 
+    public function exportReportScVsJOReport(Request $request)
+    {
+        try {
+            $search = $request->input('search', '');
+            $regionId = $request->input('region_id');
+            $countryNames = $request->input('country_list', '');
+            $fromDate = $request->input('fromDate');
+            $toDate = $request->input('toDate');
+            
+            $countryNames = is_array($countryNames) ? implode(',', $countryNames) : $countryNames;
+
+            if (!empty($search)) {
+                $regionId = null;
+                $countryNames = '';
+                $fromDate = null;
+                $toDate = null;
+            } else {
+                $fromDate = $fromDate ? date('Y-m-d', strtotime($fromDate)) : null;
+                $toDate = $toDate ? date('Y-m-d', strtotime($toDate)) : null;
+            }
+
+            $results = DB::select(
+                'CALL PROC_SC_JO_Report(?, ?, ?, ?, ?)',
+                [$search, $regionId, $countryNames, $fromDate, $toDate]
+            );
+
+            if (empty($results)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No data found to export'
+                ], 404);
+            }
+
+            $objPHPExcel = new \PHPExcel();
+            $objPHPExcel->getProperties()->setCreator("PRAN Group")->setTitle("SC VS JO Report");
+
+            $sheet = $objPHPExcel->getActiveSheet();
+            $sheet->setTitle('SC VS JO Report');
+
+            $headers = [
+                'SL', 'Contract No', 'Contract Date', 'Invoice No',
+                'Party Code', 'Party Name', 'Item Code', 'Item Name',
+                'SC Qty', 'JO Number', 'JO Qty', 'FOB Rate',
+                'JO Date', 'JO Creator', 'Contract Creator', 'JO Status'
+            ];
+
+            $headerStyle = [
+                'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => 'FFFFFF']],
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+                'fill' => ['type' => \PHPExcel_Style_Fill::FILL_SOLID, 'color' => ['rgb' => '1a3c5e']],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $leftStyle = [
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_LEFT],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $centerStyle = [
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $rightStyle = [
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_RIGHT],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            foreach ($headers as $col => $header) {
+                $sheet->setCellValueByColumnAndRow($col, 1, $header);
+                $sheet->getStyleByColumnAndRow($col, 1)->applyFromArray($headerStyle);
+                $sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+            }
+
+            $row = 2;
+            $sl = 1;
+
+            foreach ($results as $data) {
+                $sheet->setCellValueByColumnAndRow(0, $row, $sl++);
+                $sheet->getStyleByColumnAndRow(0, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(1, $row, isset($data->Contract_No) ? $data->Contract_No : '');
+                $sheet->getStyleByColumnAndRow(1, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(2, $row, isset($data->Contract_Date) ? $data->Contract_Date : '');
+                $sheet->getStyleByColumnAndRow(2, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(3, $row, isset($data->Invoice_No) ? $data->Invoice_No : '');
+                $sheet->getStyleByColumnAndRow(3, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(4, $row, isset($data->Party_Code) ? $data->Party_Code : '');
+                $sheet->getStyleByColumnAndRow(4, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(5, $row, isset($data->Party_Name) ? $data->Party_Name : '');
+                $sheet->getStyleByColumnAndRow(5, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(6, $row, isset($data->CI_Item_Code) ? $data->CI_Item_Code : '');
+                $sheet->getStyleByColumnAndRow(6, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(7, $row, isset($data->CI_Item_Name) ? $data->CI_Item_Name : '');
+                $sheet->getStyleByColumnAndRow(7, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(8, $row, isset($data->SC_Qty) ? $data->SC_Qty : 0);
+                $sheet->getStyleByColumnAndRow(8, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(9, $row, isset($data->JO_Number) ? $data->JO_Number : '');
+                $sheet->getStyleByColumnAndRow(9, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(10, $row, isset($data->JO_Qty) ? $data->JO_Qty : 0);
+                $sheet->getStyleByColumnAndRow(10, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(11, $row, isset($data->FOB_Rate) ? $data->FOB_Rate : 0);
+                $sheet->getStyleByColumnAndRow(11, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(12, $row, isset($data->JO_Date) ? $data->JO_Date : '');
+                $sheet->getStyleByColumnAndRow(12, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(13, $row, isset($data->JO_Creator) ? $data->JO_Creator : '');
+                $sheet->getStyleByColumnAndRow(13, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(14, $row, isset($data->Contract_Creator) ? $data->Contract_Creator : '');
+                $sheet->getStyleByColumnAndRow(14, $row)->applyFromArray($leftStyle);
+
+                $status = isset($data->JO_Status) ? $data->JO_Status : 'No JO';
+                $sheet->setCellValueByColumnAndRow(15, $row, $status);
+                $sheet->getStyleByColumnAndRow(15, $row)->applyFromArray($centerStyle);
+                $sheet->getStyleByColumnAndRow(15, $row)->getFont()->setBold(true);
+                $sheet->getStyleByColumnAndRow(15, $row)->getFont()->setColor(
+                    new \PHPExcel_Style_Color($status == 'JO Exists' ? \PHPExcel_Style_Color::COLOR_DARKGREEN : \PHPExcel_Style_Color::COLOR_RED)
+                );
+
+                $row++;
+            }
+
+            $sheet->freezePane('A2');
+
+            $filename = 'SC_VS_JO_Report_' . date('d-m-Y') . '.xlsx';
+            
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            
+            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+            $objWriter->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    } 
+
     public function scVsJoVsDoReport(Request $request){
        
        $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
@@ -1022,6 +1177,193 @@ class ReportController extends Controller
                 'status' => 'success',
                 'data' => $results
             ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function exportReportScVsJOVsDoReport(Request $request)
+    {
+        try {
+            $search = $request->input('search', '');
+            $regionId = $request->input('region_id');
+            $countryNames = $request->input('country_list', '');
+            $fromDate = $request->input('fromDate');
+            $toDate = $request->input('toDate');
+            
+            $countryNames = is_array($countryNames) ? implode(',', $countryNames) : $countryNames;
+
+            if (!empty($search)) {
+                $regionId = null;
+                $countryNames = '';
+                $fromDate = null;
+                $toDate = null;
+            } else {
+                $fromDate = $fromDate ? date('Y-m-d', strtotime($fromDate)) : null;
+                $toDate = $toDate ? date('Y-m-d', strtotime($toDate)) : null;
+            }
+
+            $results = DB::select(
+                'CALL SC_JO_DO_Report(?, ?, ?, ?, ?)',
+                [$search, $regionId, $countryNames, $fromDate, $toDate]
+            );
+
+            if (empty($results)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No data found to export'
+                ], 404);
+            }
+
+            $objPHPExcel = new \PHPExcel();
+            $objPHPExcel->getProperties()->setCreator("PRAN Group")->setTitle("SC VS JO VS DO Report");
+
+            $sheet = $objPHPExcel->getActiveSheet();
+            $sheet->setTitle('SC VS JO VS DO Report');
+
+            $headers = [
+                'SL', 'Contract No', 'Contract Date', 'Invoice No',
+                'Party Code', 'Party Name', 'Item Code', 'Item Name',
+                'SC Qty', 'JO Number', 'JO Qty', 'FOB Rate',
+                'JO Date', 'JO Creator', 'Contract Creator',
+                'DO Number', 'DO Date', 'DO Qty', 'DO Pending',
+                'DO Status', 'JO Status'
+            ];
+
+            $headerStyle = [
+                'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => 'FFFFFF']],
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+                'fill' => ['type' => \PHPExcel_Style_Fill::FILL_SOLID, 'color' => ['rgb' => '1a3c5e']],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $leftStyle = [
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_LEFT],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $centerStyle = [
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $rightStyle = [
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_RIGHT],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $greenStyle = [
+                'font' => ['bold' => true, 'color' => ['rgb' => '008000']],
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            $redStyle = [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FF0000']],
+                'alignment' => ['horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+                'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]]
+            ];
+
+            foreach ($headers as $col => $header) {
+                $sheet->setCellValueByColumnAndRow($col, 1, $header);
+                $sheet->getStyleByColumnAndRow($col, 1)->applyFromArray($headerStyle);
+                $sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+            }
+
+            $row = 2;
+            $sl = 1;
+
+            foreach ($results as $data) {
+                $sheet->setCellValueByColumnAndRow(0, $row, $sl++);
+                $sheet->getStyleByColumnAndRow(0, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(1, $row, isset($data->Contract_No) ? $data->Contract_No : '');
+                $sheet->getStyleByColumnAndRow(1, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(2, $row, isset($data->Contract_Date) ? $data->Contract_Date : '');
+                $sheet->getStyleByColumnAndRow(2, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(3, $row, isset($data->Invoice_No) ? $data->Invoice_No : '');
+                $sheet->getStyleByColumnAndRow(3, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(4, $row, isset($data->Party_Code) ? $data->Party_Code : '');
+                $sheet->getStyleByColumnAndRow(4, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(5, $row, isset($data->Party_Name) ? $data->Party_Name : '');
+                $sheet->getStyleByColumnAndRow(5, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(6, $row, isset($data->CI_Item_Code) ? $data->CI_Item_Code : '');
+                $sheet->getStyleByColumnAndRow(6, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(7, $row, isset($data->CI_Item_Name) ? $data->CI_Item_Name : '');
+                $sheet->getStyleByColumnAndRow(7, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(8, $row, isset($data->SC_Qty) ? $data->SC_Qty : 0);
+                $sheet->getStyleByColumnAndRow(8, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(9, $row, isset($data->JO_Number) ? $data->JO_Number : '');
+                $sheet->getStyleByColumnAndRow(9, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(10, $row, isset($data->JO_Qty) ? $data->JO_Qty : 0);
+                $sheet->getStyleByColumnAndRow(10, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(11, $row, isset($data->FOB_Rate) ? $data->FOB_Rate : 0);
+                $sheet->getStyleByColumnAndRow(11, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(12, $row, isset($data->JO_Date) ? $data->JO_Date : '');
+                $sheet->getStyleByColumnAndRow(12, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(13, $row, isset($data->JO_Creator) ? $data->JO_Creator : '');
+                $sheet->getStyleByColumnAndRow(13, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(14, $row, isset($data->Contract_Creator) ? $data->Contract_Creator : '');
+                $sheet->getStyleByColumnAndRow(14, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(15, $row, isset($data->DO_Number) ? $data->DO_Number : '');
+                $sheet->getStyleByColumnAndRow(15, $row)->applyFromArray($leftStyle);
+
+                $sheet->setCellValueByColumnAndRow(16, $row, isset($data->DO_Date) ? $data->DO_Date : '');
+                $sheet->getStyleByColumnAndRow(16, $row)->applyFromArray($centerStyle);
+
+                $sheet->setCellValueByColumnAndRow(17, $row, isset($data->DO_Qty) ? $data->DO_Qty : 0);
+                $sheet->getStyleByColumnAndRow(17, $row)->applyFromArray($rightStyle);
+
+                $sheet->setCellValueByColumnAndRow(18, $row, isset($data->DO_Pending) ? $data->DO_Pending : 0);
+                $sheet->getStyleByColumnAndRow(18, $row)->applyFromArray($rightStyle);
+                $sheet->getStyleByColumnAndRow(18, $row)->getFont()->setColor(
+                    new \PHPExcel_Style_Color(\PHPExcel_Style_Color::COLOR_RED)
+                );
+
+                $doStatus = isset($data->DO_Status) ? $data->DO_Status : 'No DO';
+                $sheet->setCellValueByColumnAndRow(19, $row, $doStatus);
+                $sheet->getStyleByColumnAndRow(19, $row)->applyFromArray(
+                    $doStatus == 'DO Exists' ? $greenStyle : $redStyle
+                );
+
+                $joStatus = isset($data->JO_Status) ? $data->JO_Status : 'No JO';
+                $sheet->setCellValueByColumnAndRow(20, $row, $joStatus);
+                $sheet->getStyleByColumnAndRow(20, $row)->applyFromArray(
+                    $joStatus == 'JO Exists' ? $greenStyle : $redStyle
+                );
+
+                $row++;
+            }
+
+            $sheet->freezePane('A2');
+
+            $filename = 'SC_VS_JO_VS_DO_Report_' . date('d-m-Y') . '.xlsx';
+            
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            
+            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+            $objWriter->save('php://output');
+            exit;
 
         } catch (\Exception $e) {
             return response()->json([

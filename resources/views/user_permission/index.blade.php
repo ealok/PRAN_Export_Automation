@@ -335,6 +335,7 @@ $(document).ready(function() {
     
     // Load permissions for selected user
     function loadPermissions(userId) {
+        
         $('#permissionTableContainer').html(`
             <div class="loading-overlay">
                 <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>

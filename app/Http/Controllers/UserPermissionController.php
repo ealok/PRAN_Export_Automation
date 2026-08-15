@@ -270,7 +270,7 @@ class UserPermissionController extends Controller
                 'wsmu_updt' => $defaultUpdt,
                 'wsmu_delt' => $defaultDelt,
                 // Custom overrides
-                'has_custom' => $userPerm ? true : false,
+                'has_custom' =>  $userPerm ? true : false,
                 'custom_vsbl' => $userPerm ? $userPerm->wsmu_vsbl : null,
                 'custom_crat' => $userPerm ? $userPerm->wsmu_crat : null,
                 'custom_read' => $userPerm ? $userPerm->wsmu_read : null,
@@ -315,11 +315,8 @@ class UserPermissionController extends Controller
             ], 500);
         }
     }
-
-
     public function saveUserPermissions(Request $request)
     {
-        // Validation
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'permissions' => 'required|array'
@@ -334,10 +331,10 @@ class UserPermissionController extends Controller
         
         $userId = $request->user_id;
         $permissions = $request->permissions;
+        
         DB::beginTransaction();
         
         try {
-            // Get user's assigned roles
             $userRoles = UserRole::where('user_id', $userId)
                 ->where('is_active', 1)
                 ->pluck('role_id')
@@ -352,74 +349,114 @@ class UserPermissionController extends Controller
             
             $savedCount = 0;
             $deletedCount = 0;
+            $debugData = [];
             
             foreach ($permissions as $perm) {
                 $menuId = $perm['menu_id'];
                 
-                // Get role-based permission
                 $rolePerm = Permission::whereIn('role_id', $userRoles)
                     ->where('menu_id', $menuId)
                     ->first();
                 
-                // Role default values
                 $defaultVsbl = $rolePerm ? $rolePerm->wsmu_vsbl : '0';
                 $defaultCrat = $rolePerm ? $rolePerm->wsmu_crat : '0';
                 $defaultRead = $rolePerm ? $rolePerm->wsmu_read : '0';
                 $defaultUpdt = $rolePerm ? $rolePerm->wsmu_updt : '0';
                 $defaultDelt = $rolePerm ? $rolePerm->wsmu_delt : '0';
                 
-                // Check which permissions are different from role default
-                $customData = [];
+                $saveData = [];
+                $changes = [];
                 
+                // Check all 5 permissions
                 if ($perm['vsbl'] != $defaultVsbl) {
-                    $customData['wsmu_vsbl'] = $perm['vsbl'];
-                }
-                if ($perm['crat'] != $defaultCrat) {
-                    $customData['wsmu_crat'] = $perm['crat'];
-                }
-                if ($perm['read'] != $defaultRead) {
-                    $customData['wsmu_read'] = $perm['read'];
-                }
-                if ($perm['updt'] != $defaultUpdt) {
-                    $customData['wsmu_updt'] = $perm['updt'];
-                }
-                if ($perm['delt'] != $defaultDelt) {
-                    $customData['wsmu_delt'] = $perm['delt'];
+                    $saveData['wsmu_vsbl'] = $perm['vsbl'];
+                    $changes['vsbl'] = ['default' => $defaultVsbl, 'new' => $perm['vsbl']];
+                } else {
+                    // 🔥 NULL এর পরিবর্তে '0' সেভ করুন
+                    $saveData['wsmu_vsbl'] = '0';
                 }
                 
-                // If there are any custom permissions
-                if (!empty($customData)) {
-                    // Check if record exists
+                if ($perm['crat'] != $defaultCrat) {
+                    $saveData['wsmu_crat'] = $perm['crat'];
+                    $changes['crat'] = ['default' => $defaultCrat, 'new' => $perm['crat']];
+                } else {
+                    $saveData['wsmu_crat'] = '0';
+                }
+                
+                if ($perm['read'] != $defaultRead) {
+                    $saveData['wsmu_read'] = $perm['read'];
+                    $changes['read'] = ['default' => $defaultRead, 'new' => $perm['read']];
+                } else {
+                    $saveData['wsmu_read'] = '0';
+                }
+                
+                if ($perm['updt'] != $defaultUpdt) {
+                    $saveData['wsmu_updt'] = $perm['updt'];
+                    $changes['updt'] = ['default' => $defaultUpdt, 'new' => $perm['updt']];
+                } else {
+                    $saveData['wsmu_updt'] = '0';
+                }
+                
+                if ($perm['delt'] != $defaultDelt) {
+                    $saveData['wsmu_delt'] = $perm['delt'];
+                    $changes['delt'] = ['default' => $defaultDelt, 'new' => $perm['delt']];
+                } else {
+                    $saveData['wsmu_delt'] = '0';
+                }
+                
+                // 🔥 সব ফিল্ডের জন্য এন্ট্রি তৈরি করুন (সব ফিল্ডে '0' বা '1' থাকবে)
+                $hasChanges = !empty($changes);
+                
+                if ($hasChanges) {
                     $existing = UserPermission::where('user_id', $userId)
                         ->where('menu_id', $menuId)
                         ->first();
                     
                     if ($existing) {
-                        // Update only custom fields
-                        $existing->update($customData);
-                        $savedCount++;
+                        $existing->update($saveData);
+                        $debugData[] = [
+                            'menu_id' => $menuId,
+                            'action' => 'updated',
+                            'changes' => $changes,
+                            'save_data' => $saveData
+                        ];
                     } else {
-                        // Create new record with only custom fields
-                        $customData['user_id'] = $userId;
-                        $customData['menu_id'] = $menuId;
-                        UserPermission::create($customData);
-                        $savedCount++;
+                        $saveData['user_id'] = $userId;
+                        $saveData['menu_id'] = $menuId;
+                        UserPermission::create($saveData);
+                        $debugData[] = [
+                            'menu_id' => $menuId,
+                            'action' => 'created',
+                            'changes' => $changes,
+                            'save_data' => $saveData
+                        ];
                     }
+                    $savedCount++;
                 } else {
-                    // No custom permissions, delete if exists
+                    // No changes, delete if exists
                     $deleted = UserPermission::where('user_id', $userId)
                         ->where('menu_id', $menuId)
                         ->delete();
+                    
                     if ($deleted) {
                         $deletedCount++;
+                        $debugData[] = [
+                            'menu_id' => $menuId,
+                            'action' => 'deleted',
+                            'changes' => 'No custom permission needed'
+                        ];
+                    } else {
+                        $debugData[] = [
+                            'menu_id' => $menuId,
+                            'action' => 'no change',
+                            'changes' => 'Already matches role default'
+                        ];
                     }
                 }
             }
             
             DB::commit();
             
-           
-            // Get final count
             $customCount = UserPermission::where('user_id', $userId)->count();
             
             return response()->json([
@@ -427,17 +464,17 @@ class UserPermissionController extends Controller
                 'msg' => "Custom permissions saved successfully. {$savedCount} saved, {$deletedCount} removed. Total custom overrides: {$customCount}",
                 'saved_count' => $savedCount,
                 'deleted_count' => $deletedCount,
-                'total_custom' => $customCount
+                'total_custom' => $customCount,
+                'debug_data' => $debugData
             ]);
             
         } catch (\Exception $e) {
-
             DB::rollback();
+            
             return response()->json([
                 'status' => 'error',
                 'msg' => 'Failed to save permissions: ' . $e->getMessage()
             ], 500);
-
         }
     }
 
