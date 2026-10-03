@@ -127,7 +127,8 @@ class CiItemController extends Controller{
             $ci_item->company_id  = $bu->code;
             $ci_item->item_type_id = $request->item_type_id;
             $ci_item->bu=$bu->name;
-            $ci_item ->save();
+            $ci_item->save();
+            $this->pushToCRM(preg_replace('/\s+/', '', $request->ci_item_code), $request->hs_code, $request->ci_item_name, $request->d_net_weight, $request->p_net_weight, $request->factor, $bu->name, $bu->code, $ci_item->id, 'Y');
             return response()->json([
               'message' => "Item Create Successfully Done!",
               "code"    => 200,
@@ -155,7 +156,7 @@ class CiItemController extends Controller{
 
     public function updateCiItem(Request $request){
             
-        $bu=Bu::where('id',$request->bu_id)->first(['code']);
+        $bu=Bu::where('id',$request->bu_id)->first(['name','code']);
         $ci_item = CiItem::find($request->edit_id);
         $ci_item->ci_item_code=preg_replace('/\s+/', '', $request->ci_item_code);
         $ci_item->ci_item_name=$request->ci_item_name;
@@ -170,7 +171,9 @@ class CiItemController extends Controller{
         $ci_item->company_id=$bu->code;
         $ci_item->class_name=$request->class_name;
         $ci_item->bu=$request->bu_id;
+        $ci_item->eid=Auth::user()->id;
         $ci_item->save();
+        $this->pushToCRM(preg_replace('/\s+/', '', $request->ci_item_code), $request->hs_code, $request->ci_item_name, $request->d_net_weight, $request->p_net_weight, $request->factor, $bu->name, $bu->code, $ci_item->id, 'Y');
         if($ci_item->id) {
 
           return response()->json([
@@ -191,31 +194,74 @@ class CiItemController extends Controller{
 
     }
 
-    public function update(Request $request, $id) {
-           
-        // for ($i=2; $i < sizeof($request->itemDetails); $i++) { 
+    private function pushToCRM($item_code, $hs_code, $itemName, $ctn_net_weight, $pcs_net_weight, $dUFact, $bu_name, $bu_code, $item_id, $status)
+    {
+        $curl = curl_init();
+        $postData = json_encode([
+            "Item_Code" => $item_code,
+            "Item_Name" => strtoupper($itemName),
+            "Pcs_Net_Weight" => $pcs_net_weight,
+            "Ctn_Net_Weight" => $ctn_net_weight,
+            "Unit_Per_Ctn" => $dUFact,
+            "Ctn_Gross_Weight" => 0,
+            "Hs_Code" => $hs_code,
+            "BU_Code" => $bu_code,
+            "BU_Name" => $bu_name,
+            "category" => 'Export',
+            "status" => $status
+        ]);
 
-        //     $ci_item = CiItem::find($id);
-        //     $ci_item->ci_item_code=$request->itemDetails[$i++]['value'];
-        //     $ci_item->ci_item_name=$request->itemDetails[$i++]['value'];
-        //     $ci_item->duplicate_name=$request->itemDetails[$i++]['value'];
-        //     $ci_item->p_net_weight=$request->itemDetails[$i++]['value'];
-        //     $ci_item->factor=$request->itemDetails[$i++]['value'];
-        //     $ci_item->ci_factor=$request->itemDetails[$i++]['value'];
-        //     $ci_item->d_net_weight=$request->itemDetails[$i++]['value'];
-        //     $ci_item->d_gross_weight=$request->itemDetails[$i++]['value'];
-        //     $ci_item->ci_item_rate=$request->itemDetails[$i++]['value'];
-        //     $ci_item->hs_code=$request->itemDetails[$i++]['value'];
-        //     $ci_item->company_id=$request->itemDetails[$i++]['value'];
-        //     $ci_item->cat_name=$request->itemDetails[$i++]['value'];
-        //     $ci_item->class_name=$request->itemDetails[$i++]['value'];
-        //     $ci_item->bu=$request->bu_name;
-        //     $ci_item->save();
-        //     return response()->json(['Status'=>'success'],200);
-
-        // }
+        // @@ Basic Auth credentials
+        $username = "auth";
+        $password = "12Pran@123456$";
         
+        // @@ Generate Basic Auth token
+        $basicAuth = base64_encode($username . ':' . $password);
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'http://172.17.2.162/api/eas/master-products/upsert',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postData,
+            CURLOPT_HTTPHEADER => array(
+                'ss: master_products',
+                'yy: HJDyh876Yhdsf543GFOYSAL',
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'Authorization: Basic ' . $basicAuth,
+                'Cookie: XSRF-TOKEN=eyJpdiI6InRLQ0RGNGFRRkZ5S1pxRHdyc2dBNUE9PSIsInZhbHVlIjoiT0txcHdxNWpYbWFRa1NFY0tZSUV5WUxIazc2eGtqcWp6dkthZ1pDNnN1VWxjS3RRR1dFdW5QVXlabVZmczZSSUZaajY2aVJ1YllnRitiMFpHZmwxR3VkVmUrdkkrT2pQOHNpVUVzSzcxTnJwRkw1N1NkNGVZVStwU3J4VWE3UEYiLCJtYWMiOiJhMWExZjMxYjQ4OTAzNzE4NDljODhlNDA4MTA1NDc5YTFhYWQ0MTI5MmVmZGZmMGUzNzdjODE1NzM1MDBiOGY5IiwidGFnIjoiIn0%3D; crm_session=eyJpdiI6IjBHa21zZllsRkxqMjR1YlUraExlcnc9PSIsInZhbHVlIjoieE9Ya0luN0JaV01LV3ZyQ01weEpxb2lvYWtIUzhiMmJRcEJ0THJGZ2k0b2NGS1U3QU9qN1kwZ0hScTU5LytJSmVFWC9IT05pV1hXb2h5bERvZDNxMTR4UTVuZkhKdFBBM1cybVRmaXhVTmZSQVBqTllSOFBhSmhLaStJbXkzdGoiLCJtYWMiOiIyZmFjMGNjZWI3MmZmYmQyZjc0NGFlZGJiODBhNWZjMjYxOTk4OTRmM2QzNWVkZDYwZjI4NDJlMDA4YmQ4NzVjIiwidGFnIjoiIn0%3D'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $apiResponse = json_decode($response, true);
+        $success = (isset($apiResponse['status']) && $apiResponse['status'] === 'success') ? true : false;
+        $message = $success 
+            ? (isset($apiResponse['message']) ? $apiResponse['message'] : 'Successfully inserted/updated EAS Master Product(s)')
+            : (isset($apiResponse['message']) ? $apiResponse['message'] : 'Failed to push to CRM');
+        
+        // @@ Update database
+        DB::table('ci_items')
+            ->where('id', $item_id)
+            ->update([
+                'crm_status' => $success ? 'Success' : 'Failed',
+                'crm_message' => $message,
+                'crm_pushed_at' => $success ? date('Y-m-d H:i:s') : null
+            ]);
+        
+        // @@ Return boolean
+        return [
+            'success' => $success,
+            'message' => $message
+        ];
+
     }
+
+    public function update(Request $request, $id) {}
 
     public function show($id){
 
@@ -254,7 +300,9 @@ class CiItemController extends Controller{
         $result=CiItem::where('id',$id)->update([
           'status'=>0
         ]);
-      
+        $item=CiItem::where('id',$id)->first();
+        $bu=Bu::where('id',$item->bu_id)->first(['name','code']);
+        $this->pushToCRM($item->ci_item_code, $item->hs_code, $item->ci_item_name, $item->d_net_weight, $item->p_net_weight, $item->ci_factor, $bu->name, $bu->code, $item->id, 'N');
         if($result) {
 
           return response()->json([
@@ -279,6 +327,9 @@ class CiItemController extends Controller{
           'status'=>1
         ]);
       
+        $item=CiItem::where('id',$id)->first();
+        $bu=Bu::where('id',$item->bu_id)->first(['name','code']);
+        $this->pushToCRM($item->ci_item_code, $item->hs_code, $item->ci_item_name, $item->d_net_weight, $item->p_net_weight, $item->ci_factor, $bu->name, $bu->code, $item->id, 'Y');
         if($result) {
 
           return response()->json([

@@ -261,8 +261,6 @@ class ItemRequisitionController extends Controller
                 $runit_code = $item['RUNIT_CODE'];
                 $runit_name = $item['RUNIT_NAME'];
                 $hs_code = $item['HS_CODE'];
-                // $adminUser = $item['ADMIN_USER'];
-                // $adminName = $item['ADMIN_NAME'];
                 $mail_list = isset($item['MAIL_LIST']) ? array_unique(array_merge($item['MAIL_LIST'], $receiver_email)) : $receiver_email;
                 if(Requisition::where('requisition_number', $req_number)->count()>0){
 
@@ -384,9 +382,8 @@ class ItemRequisitionController extends Controller
                     $newItem->is_api = 1;                 
                     $newItem->save();
 
-                    DB::table('requisitions')->where('requisition_number', $req_number)->update(['status' => 'completed','api_note'=> 'Done']);
+                    DB::table('requisitions')->where('requisition_number', $req_number)->update(['status' => 'completed']);
                     DB::table('requisition_items')->where('requisition_number',$req_number)->update([
-                        'item_id'=> $newItem->id,
                         'item_code'=> $itemId,
                         'hs_code'=> $hs_code,
                         'cat_name'=> $catName,
@@ -398,14 +395,25 @@ class ItemRequisitionController extends Controller
                         'dunit_name'=> $dunit_name,
                         'runit_code'=> $runit_code,
                         'runit_name'=> $runit_name,
-                        // 'admin_user'=> $adminUser,
-                        // 'admin_name'=> $adminName,
-                        'admin_date'=> date('Y-m-d H:i:s')
                     ]);    
+
                     $this->requisitionNotificationMail($req_number, $mail_list);
                     if($newItem->id) {
                         
-                        $this->pushToCRM($itemId,$hs_code, $itemName, $className, $ctn_net_weight, $pcs_net_weight, $region,$buDetails->code, $buDetails->name, $dUFact, $gross_weight, $req_number);
+                        // $this->assignItemToNotifyParty(
+                        //     $newItem->id, 
+                        //     $itemName, 
+                        //     $dUFact, 
+                        //     $fob, 
+                        //     $cbm_per_ctn, 
+                        //     $gross_weight, 
+                        //     $region, 
+                        //     $dunit_code, 
+                        //     $dunit_name, 
+                        //     $runit_code, 
+                        //     $runit_name
+                        // );
+                        
                         return response()->json([
                             'code' => 200,
                             'status' => 'success',
@@ -456,73 +464,6 @@ class ItemRequisitionController extends Controller
                 ]
             ], 500);
         }
-    }
-
-    private function pushToCRM($itemId, $hs_code, $itemName, $className, $ctn_net_weight, $pcs_net_weight, $region, $bu_code, $bu_name, $dUFact, $gross_weight, $req_number)
-    {
-        $curl = curl_init();
-        $postData = json_encode([
-            "Item_Code" => $itemId,
-            "Item_Name" => strtoupper($itemName),
-            "Pcs_Net_Weight" => $pcs_net_weight,
-            "Ctn_Net_Weight" => $ctn_net_weight,
-            "Unit_Per_Ctn" => $dUFact,
-            "Ctn_Gross_Weight" => $gross_weight,
-            "Hs_Code" => $hs_code,
-            "BU_Code" => $bu_code,
-            "BU_Name" => $bu_name,
-            "category" => 'Export',
-            "status" => "Y"
-        ]);
-
-        // @@ Basic Auth credentials
-        $username = "auth";
-        $password = "12Pran@123456$";
-        
-        // @@ Generate Basic Auth token
-        $basicAuth = base64_encode($username . ':' . $password);
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://172.17.2.162/api/eas/master-products/upsert',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $postData,
-            CURLOPT_HTTPHEADER => array(
-                'ss: master_products',
-                'yy: HJDyh876Yhdsf543GFOYSAL',
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Basic ' . $basicAuth,
-                'Cookie: XSRF-TOKEN=eyJpdiI6InRLQ0RGNGFRRkZ5S1pxRHdyc2dBNUE9PSIsInZhbHVlIjoiT0txcHdxNWpYbWFRa1NFY0tZSUV5WUxIazc2eGtqcWp6dkthZ1pDNnN1VWxjS3RRR1dFdW5QVXlabVZmczZSSUZaajY2aVJ1YllnRitiMFpHZmwxR3VkVmUrdkkrT2pQOHNpVUVzSzcxTnJwRkw1N1NkNGVZVStwU3J4VWE3UEYiLCJtYWMiOiJhMWExZjMxYjQ4OTAzNzE4NDljODhlNDA4MTA1NDc5YTFhYWQ0MTI5MmVmZGZmMGUzNzdjODE1NzM1MDBiOGY5IiwidGFnIjoiIn0%3D; crm_session=eyJpdiI6IjBHa21zZllsRkxqMjR1YlUraExlcnc9PSIsInZhbHVlIjoieE9Ya0luN0JaV01LV3ZyQ01weEpxb2lvYWtIUzhiMmJRcEJ0THJGZ2k0b2NGS1U3QU9qN1kwZ0hScTU5LytJSmVFWC9IT05pV1hXb2h5bERvZDNxMTR4UTVuZkhKdFBBM1cybVRmaXhVTmZSQVBqTllSOFBhSmhLaStJbXkzdGoiLCJtYWMiOiIyZmFjMGNjZWI3MmZmYmQyZjc0NGFlZGJiODBhNWZjMjYxOTk4OTRmM2QzNWVkZDYwZjI4NDJlMDA4YmQ4NzVjIiwidGFnIjoiIn0%3D'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $apiResponse = json_decode($response, true);
-        $success = (isset($apiResponse['status']) && $apiResponse['status'] === 'success') ? true : false;
-        $message = $success 
-            ? (isset($apiResponse['message']) ? $apiResponse['message'] : 'Successfully inserted/updated EAS Master Product(s)')
-            : (isset($apiResponse['message']) ? $apiResponse['message'] : 'Failed to push to CRM');
-        
-        // @@ Update database
-        DB::table('requisition_items')
-            ->where('requisition_number', $req_number)
-            ->update([
-                'crm_status' => $success ? 'Success' : 'Failed',
-                'crm_message' => $message,
-                'crm_pushed_at' => $success ? date('Y-m-d H:i:s') : null
-            ]);
-        
-        // @@ Return boolean
-        return [
-            'success' => $success,
-            'message' => $message
-        ];
-        
     }
 
     // public function assignItemToNotifyParty($item_id,$itemName,$dUFact,$fob,$cbm_per_ctn,$gross_weight,$region,$dunit_code,$dunit_name,$runit_code,$runit_name){
@@ -606,107 +547,8 @@ class ItemRequisitionController extends Controller
             $message->subject($data['subject']);
         });
 
+
     }
-
-    // public function updateItemOpeningStatus(Request $request)
-    // {
-    //     try {
-
-    //         $status = $request->status;
-    //         $code = $request->code;
-    //         $data = $request->data;
-    //         if ($status !== "success" || $code != 200) {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'code' => 400,
-    //                 'message' => 'Invalid status or code'
-    //             ], 400);
-    //         }
-
-    //         if (empty($data)) {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'code' => 400,
-    //                 'message' => 'No data provided'
-    //             ], 400);
-    //         }
-            
-    //         foreach($data as $item) {
-
-    //             $requisitionId = $item['REQUISITION_ID'];
-    //             $note = $item['NOTE'];
-    //             $type = $item['TYPE'];
-    //             $user = $item['USER'];
-    //             $name = $item['NAME'];
-    //             $requisition = Requisition::where('requisition_number', $requisitionId)->first();
-    //             if(!$requisition) {
-    //                 return response()->json([
-    //                     'status' => 'failed',
-    //                     'code' => 400,
-    //                     'message' => "Requisition Number {$requisitionId} Not Match.!"
-    //                 ], 400);
-    //             }
-
-    //             Requisition::where('requisition_number', $requisitionId)->update([
-    //                 'api_note' => $note
-    //             ]);
-                
-    //             $updateData = [];
-    //             $currentTime = date('Y-m-d H:i:s');
-    //             switch($type) {
-    //                 case 'PDD':
-    //                     $updateData = [
-    //                         'pd_user' => $user,
-    //                         'pd_name' => $name,
-    //                         'pd_date' => $currentTime
-    //                     ];
-    //                     break;
-    //                 case 'OP':
-    //                     $updateData = [
-    //                         'op_user' => $user,
-    //                         'op_name' => $name,
-    //                         'op_date' => $currentTime
-    //                     ];
-    //                     break;
-    //                 case 'ADMIN':
-    //                     $updateData = [
-    //                         'admin_user' => $user,
-    //                         'admin_name' => $name,
-    //                         'admin_date' => $currentTime
-    //                     ];
-    //                     break;
-    //                 default:
-    //                     continue 2;
-    //             }
-                
-    //             if(!empty($updateData)) {
-    //                 RequisitionItem::where('requisition_number', $requisitionId)->update($updateData);
-    //             }
-    //         }
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'code' => 200,
-    //             'message' => 'Data updated successfully'
-    //         ]);
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'code' => 200,
-    //             'message' => 'Updated successfully'
-    //         ], 200);
-            
-    //     } catch (\Exception $e) {
-
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'code' => 500,
-    //             'message' => 'An error occurred: ' . $e->getMessage()
-    //         ], 500);
-
-    //     }
-
-    // }
 
     public function updateItemOpeningStatus(Request $request)
     {
@@ -765,6 +607,6 @@ class ItemRequisitionController extends Controller
 
         }
 
-    }	
+    }
         
 }

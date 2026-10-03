@@ -70,14 +70,14 @@
                 <div class="col-sm-4">
                     <div class="form-group {{ $errors->has('export_no') ? 'has-error' : '' }}" style="margin-bottom: 0px;">
                         <label for="">Our_Ref_No</label>
-                        <input name="ref_name" type="text" id="ref_name" value="" class="form-control">
+                        <input name="ref_name" type="text" id="ref_name" value="" class="form-control" placeholder="Enter Ref No">
                     </div>
                 </div> 
 
                 <div class="col-sm-4">
                     <div class="form-group" style="margin-bottom: 0px;">
                         <label for="">Date</label>
-                        <input name="date"  id="date" type="text" id=""class="form-control datepicker" placeholder="Dated"  autocomplete="off" value="">
+                        <input name="date"  id="date" type="text" id=""class="form-control datepicker" placeholder="Enter Ref Date"  autocomplete="off" value="">
                     </div>
                 </div> 
 
@@ -273,56 +273,76 @@
                   @if(!empty($itemDetails))
                   @foreach($itemDetails as $itemDetail)
                       <?php
-
-                        $results=DB::select("SELECT
-                              ci_items.p_net_weight,ci_items.duplicate_name as ci_item_name,ci_items.ci_item_code,item_groups.item_group_name,item_groups.id AS item_group_id,
-                              sale_contracts.id AS sale_contract_id,sale_contract_details.ctn,sale_contract_details.total_amount, bus.name as bu_name,bus.code,ci_items.bapa_rate,ci_items.bapa_old_date,ci_items.bapa_new_rate,ci_items.bapa_new_date,ci_items.ci_factor,sale_contract_details.ctn,sale_contract_details.rate_per_ctn,sale_contract_details.net_weight_kg
-                          FROM
-                              sale_contracts
-                          JOIN sale_contract_details ON sale_contracts.id = sale_contract_details.sale_contract_id
-                          JOIN ci_items ON ci_items.id = sale_contract_details.ci_item_id
-                          JOIN item_groups ON item_groups.id = ci_items.item_group_id
-                          JOIN bus ON bus.id=ci_items.bu_id
-                          WHERE
-                              sale_contracts.id = '$itemDetail->sale_contract_id' AND item_groups.id = '$itemDetail->item_group_id' AND item_groups.id!=236 AND bus.id='$itemDetail->bu_id'");                   
+                            $results = DB::select("SELECT
+                                ci_items.p_net_weight,
+                                ci_items.duplicate_name AS ci_item_name,
+                                ci_items.ci_item_code,
+                                item_groups.item_group_name,
+                                item_groups.id AS item_group_id,
+                                sale_contracts.id AS sale_contract_id,
+                                sale_contract_details.ctn,
+                                sale_contract_details.total_amount,
+                                case when sale_contracts.ci_rate_preference=2 then sale_contract_details.rate_per_ctn_for_acc else sale_contract_details.rate_per_ctn_for_party end as rate_per_ctn,
+                                sale_contract_details.net_weight_kg,
+                                bus.name AS bu_name,
+                                bus.code,
+                                ci_items.bapa_rate,
+                                ci_items.bapa_old_date,
+                                ci_items.bapa_new_rate,
+                                ci_items.bapa_new_date,
+                                ci_items.ci_factor
+                            FROM sale_contracts
+                            JOIN sale_contract_details
+                                ON sale_contracts.id = sale_contract_details.sale_contract_id
+                            JOIN ci_items
+                                ON ci_items.id = sale_contract_details.ci_item_id
+                            JOIN item_groups
+                                ON item_groups.id = ci_items.item_group_id
+                            JOIN bus
+                                ON bus.id = ci_items.bu_id
+                            WHERE sale_contracts.id = '$itemDetail->sale_contract_id'
+                                AND item_groups.id = '$itemDetail->item_group_id'
+                                AND item_groups.id != 236
+                                AND bus.id = '$itemDetail->bu_id'");
                       ?>
                       @foreach($results as $result)
                       <?php 
                               try { 
-                                  if($result->ci_factor!=0){
 
-                                    $per_net_weight_kg_fright=$per_unit_freight*$result->net_weight_kg;
-                                    $caton_fright=$per_net_weight_kg_fright/$result->ctn;
-                                    $carton_fright_pl_rate=round($caton_fright+$result->rate_per_ctn, 3);
-                                     
+                                if($result->ci_factor!=0){
 
-                                  }else{
+                                $per_net_weight_kg_fright=$per_unit_freight*$result->net_weight_kg;
+                                $caton_fright=$per_net_weight_kg_fright/$result->ctn;
+                                $carton_fright_pl_rate=round($caton_fright+$result->rate_per_ctn, 3);
+                                    
 
-                                    $carton_fright_pl_rate="0";
+                                }else{
 
-                                  }
+                                $carton_fright_pl_rate="0";
 
-                                  }catch (Exception $e) {
+                                }
 
-                                  } 
+                                }catch (Exception $e) {
 
-                             $total_amount=$total_amount+round($carton_fright_pl_rate*$result->ctn,2);
-                             $freight=number_format($total_amount/$result->net_weight_kg,4); 
-                             $shipment_date=date("Y-m-d", strtotime($shipped_on_board_date));
-                             $bapaOldDate=date("Y-m-d", strtotime($result->bapa_old_date));
+                                } 
 
-                             if($shipment_date<=$bapaOldDate){
-                                 
-                                $bapa_rate=$result->bapa_rate;
-                                
+                                $total_amount=$total_amount+round($carton_fright_pl_rate*$result->ctn,2);
+                                $freight=number_format($total_amount/$result->net_weight_kg,4); 
+                                $shipment_date=date("Y-m-d", strtotime($shipped_on_board_date));
+                                $bapaOldDate=date("Y-m-d", strtotime($result->bapa_old_date));
 
-                             }else{
+                                if($shipment_date<=$bapaOldDate){
+                                    
+                                    $bapa_rate=$result->bapa_rate;
+                                    
 
-                                $bapa_rate=$result->bapa_new_rate;
+                                }else{
 
-                             }
+                                    $bapa_rate=$result->bapa_new_rate;
 
-                             $crf=number_format($freight_cost/$total_net_weight,4)+$bapa_rate;
+                                }
+
+                                $crf=number_format($freight_cost/$total_net_weight,4)+$bapa_rate;
 
                         ?>
                       <tr>
@@ -405,7 +425,12 @@
                        <td><?php $total_fob=array_sum($fob_array);?></td>
                        <td></td>
                        <td>{{number_format($netWeight,2)}}</td>
-                       <td><?php echo $total_sub_total_value=array_sum($total_sub_total_value);?></td>
+                       <?php 
+                            $total_sub_total_value = isset($total_sub_total_value) ? round(array_sum($total_sub_total_value), 2) : 0;
+                        ?>
+                       <td>
+                            <input type="text" id="total_fob" name="total_fob" value="{{round($total_sub_total_value,2)}}">
+                       </td>
                        <td>{{number_format($totalFreightCost)}}</td>
                        <td>{{number_format($total_fob,2)}}</td>
                        <td><input type="text" name="total_claim_bdt" value="{{round($claimBDT,2)}}" style="border:none;background: bottom;" readonly="" id="total_claim_bdt"></td>
@@ -468,6 +493,7 @@
        var description_of_good= $('#description_of_good').val();
        var total_claim_bdt= $('#total_claim_bdt').val();
        var sale_contact_id= $('#sale_contact_id').val();
+       var total_fob= $('#total_fob').val();
        if(ref_name==""){
 
            alert("Please Enter Ref Number");
@@ -483,7 +509,8 @@
                url: "/json/save_com_inv_details",
                data: {'ref_name': ref_name,'date': date,'time_out':time_out,'bank':bank,'bank_address':bank_address,'sc_no':sc_no,
                'sc_date':sc_date,'sc_value':sc_value,'inv_no':inv_no,'inv_date':inv_date,'inv_value':inv_value,'name_of_importer':name_of_importer,'importer_address':importer_address,'quantity':quantity,'carton':carton,'exported_value':exported_value,
-               'exp_no':exp_no,'exp_date':exp_date,'exp_value':exp_value,'realise_value':realise_value,'od_sight_rate':od_sight_rate,'freight':freight,'shipment_date':shipment_date,'discharge_port':discharge_port,'insurance':insurance,'net_fob':net_fob,'non_eligible_item':non_eligible_item,'local_material':local_material,'imported':imported,'claim_usd':claim_usd,'description_of_good':description_of_good,'total_claim_bdt':total_claim_bdt,'sale_contact_id':sale_contact_id,'_token': $('input[name=_token]').val()},
+               'exp_no':exp_no,'exp_date':exp_date,'exp_value':exp_value,'realise_value':realise_value,'od_sight_rate':od_sight_rate,'freight':freight,'shipment_date':shipment_date,'discharge_port':discharge_port,'insurance':insurance,'net_fob':net_fob,'non_eligible_item':non_eligible_item,'local_material':local_material,'imported':imported,'claim_usd':claim_usd,'description_of_good':description_of_good,
+               'total_claim_bdt':total_claim_bdt,'sale_contact_id':sale_contact_id,'total_fob':total_fob,'_token': $('input[name=_token]').val()},
                success: function (value) {
 
                     console.log(value);

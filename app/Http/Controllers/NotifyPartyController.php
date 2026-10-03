@@ -16,6 +16,7 @@ use App\Area;
 use App\CostingMaster;
 use App\CostingDetails;
 use App\UserArea;
+use DB;
 class NotifyPartyController extends Controller{
 
 
@@ -76,7 +77,8 @@ class NotifyPartyController extends Controller{
                 $notify_party->first_approval=$request->partyDetails[$i++]['value'];
                 $notify_party->second_approval=$request->partyDetails[$i++]['value'];
                 $notify_party->status=1;
-                $notify_party ->save();
+                $notify_party->save();
+                $this->pushToCRM($notify_party->id);
                 return response()->json(['Status' => 'success']);
 
             }else{
@@ -91,6 +93,70 @@ class NotifyPartyController extends Controller{
         
     }
 
+    private function pushToCRM($party_id)
+    {
+        $curl = curl_init();
+        $partyInfo=NotifyParty::where('id',$party_id)->first();
+        $postData = json_encode([
+            "Code" => $partyInfo->code,
+            "Name" => $partyInfo->name,
+            "Ref_Name" => $partyInfo->ref_name,
+            "Address" => $partyInfo->address,
+            "Country" => $partyInfo->country,
+            "Region" => $partyInfo->region,
+            "Zone" => $partyInfo->zone,
+            "Status" => 1
+        ]);
+
+        // @@ Basic Auth credentials
+        $username = "auth";
+        $password = "12Pran@123456$";
+
+        // @@ Generate Basic Auth token
+        $basicAuth = base64_encode($username . ':' . $password);
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'http://172.17.2.162/api/eas/parties/upsert',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postData,
+            CURLOPT_HTTPHEADER => array(
+                'ss: master_products',
+                'yy: HJDyh876Yhdsf543GFOYSAL',
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'Authorization: Basic ' . $basicAuth,
+                'Cookie: XSRF-TOKEN=eyJpdiI6InRLQ0RGNGFRRkZ5S1pxRHdyc2dBNUE9PSIsInZhbHVlIjoiT0txcHdxNWpYbWFRa1NFY0tZSUV5WUxIazc2eGtqcWp6dkthZ1pDNnN1VWxjS3RRR1dFdW5QVXlabVZmczZSSUZaajY2aVJ1YllnRitiMFpHZmwxR3VkVmUrdkkrT2pQOHNpVUVzSzcxTnJwRkw1N1NkNGVZVStwU3J4VWE3UEYiLCJtYWMiOiJhMWExZjMxYjQ4OTAzNzE4NDljODhlNDA4MTA1NDc5YTFhYWQ0MTI5MmVmZGZmMGUzNzdjODE1NzM1MDBiOGY5IiwidGFnIjoiIn0%3D; crm_session=eyJpdiI6IjBHa21zZllsRkxqMjR1YlUraExlcnc9PSIsInZhbHVlIjoieE9Ya0luN0JaV01LV3ZyQ01weEpxb2lvYWtIUzhiMmJRcEJ0THJGZ2k0b2NGS1U3QU9qN1kwZ0hScTU5LytJSmVFWC9IT05pV1hXb2h5bERvZDNxMTR4UTVuZkhKdFBBM1cybVRmaXhVTmZSQVBqTllSOFBhSmhLaStJbXkzdGoiLCJtYWMiOiIyZmFjMGNjZWI3MmZmYmQyZjc0NGFlZGJiODBhNWZjMjYxOTk4OTRmM2QzNWVkZDYwZjI4NDJlMDA4YmQ4NzVjIiwidGFnIjoiIn0%3D'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $apiResponse = json_decode($response, true);
+        $success = (isset($apiResponse['status']) && $apiResponse['status'] === 'success') ? true : false;
+        $message = $success 
+            ? (isset($apiResponse['message']) ? $apiResponse['message'] : 'Successfully inserted/updated EAS Master Product(s)')
+            : (isset($apiResponse['message']) ? $apiResponse['message'] : 'Failed to push to CRM');
+        
+        // @@ Update database
+        DB::table('notify_parties')
+            ->where('id', $party_id)
+            ->update([
+                'crm_status' => $success ? 'Success' : 'Failed',
+                'crm_message' => $message,
+                'crm_pushed_at' => $success ? date('Y-m-d H:i:s') : null
+            ]);
+        
+        // @@ Return boolean
+        return [
+            'success' => $success,
+            'message' => $message
+        ];
+
+    }
 
 
     public function edit($id){
@@ -103,7 +169,6 @@ class NotifyPartyController extends Controller{
                ->with('dateFormates', $dateFormates)
                ->with('users', $users)
                ->with('areas',$areas);
-
         
     }
 
@@ -125,6 +190,7 @@ class NotifyPartyController extends Controller{
         $notify_party->first_approval=$request->first_approval;
         $notify_party->second_approval=$request->second_approval;
         $notify_party->save();
+        $this->pushToCRM($notify_party->id);
         return response()->json(['Status' => 'success']);
 
     }

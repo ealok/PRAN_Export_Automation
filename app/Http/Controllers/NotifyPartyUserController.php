@@ -28,13 +28,13 @@ class NotifyPartyUserController extends Controller{
         if (in_array($role_id, $access_role)) {
             $notify_parties = NotifyParty::all();
             $users = User::all();
-            $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+            $regions = Area::whereNotIn('id', [3, 7, 20])->get();
             return view("notify_party_user.notify_party_user_list", compact("notify_parties"))->with('users', $users)->with('regions',$regions);
         } else {
             $userAreas = UserArea::where('user_id', Auth::user()->id)->pluck('area_id');
             $notify_parties = NotifyParty::whereIn('area_id', $userAreas)->get();
             $users = User::all();
-            $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+            $regions = Area::whereNotIn('id', [3, 7,20])->get();
             return view("notify_party_user.notify_party_user_list", compact("notify_parties"))->with('users', $users)->with('regions',$regions);
         }
 

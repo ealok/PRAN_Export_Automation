@@ -533,7 +533,7 @@ class JobOrderController extends Controller
 
     public function saveJobOrderInformationDetails(Request $request)
     {
-
+        
         ini_set('max_execution_time', 600); 
         $my_array=array();
         $length=count($request->unit_data);
@@ -830,10 +830,11 @@ class JobOrderController extends Controller
                     'Status'        => !empty($row->Status) ? $row->Status : '-',
                     'JO_Date'       => !empty($row->JO_Date) ? $row->JO_Date : '',
                     'JO_Creator'    => !empty($row->JO_Creator) ? $row->JO_Creator : '',
-                    'SC_Creator'    => !empty($row->SC_Creator) ? $row->SC_Creator : ''
+                    'SC_Creator'    => !empty($row->SC_Creator) ? $row->SC_Creator : '',
+                    'Country'       => !empty($row->country) ? $row->country : ''
                 ];
             }
-            
+
             $ch = curl_init();
             curl_setopt_array($ch, [
                 CURLOPT_URL            => 'https://crm.prangroup.com/api/job-orders/store',
@@ -921,8 +922,6 @@ class JobOrderController extends Controller
         }
 
     }
-
-
 
     public function addNewJobOrderItem(Request $request){
         
@@ -1543,7 +1542,12 @@ class JobOrderController extends Controller
                
         $id = decrypt($request->job_order_id);
         $date=date('Y-m-d');
-        DB::table('job_order_masters')->where('id', $id)->update(['status' => "3"]);
+        DB::table('job_order_masters')->where('id', $id)->update([
+            'status'          => "3",
+            'jo_reject_status'=> 'Y',
+            'jo_reject_date'  => date('Y-m-d'),
+            'jo_reject_by'    => Auth::user()->id
+        ]);
         DB::table('job_order_details')->where('master_id',$id)->update(array('item_status' =>'N','inactive_date'=>$date,'inactive_by'=>Auth::user()->id,'syn_status_date'=>$date));
         $user=User::where('id',Auth::user()->id)->first(['email','name','head_id']);
         $jo_master=JobOrderMaster::where('id', $id)->first(['job_order_number','sale_contract_id']);
@@ -3087,8 +3091,12 @@ class JobOrderController extends Controller
           
         $result = JobOrderMaster::where('id', $request->cancel_id)->whereNull('job_order_do_number')->first();
         if($result){
-
-            JobOrderMaster::where('id', $request->cancel_id)->update(['status' => "3"]);
+            DB::table('job_order_masters')->where('id', $request->cancel_id)->update([
+                'status'          => "3",
+                'jo_reject_status'=> 'Y',
+                'jo_reject_date'  => date('Y-m-d'),
+                'jo_reject_by'    => Auth::user()->id
+            ]);
             $result=\DB::table('job_order_details')
                 ->where('master_id',$request->cancel_id)
                 ->update([

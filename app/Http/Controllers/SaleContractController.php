@@ -200,27 +200,37 @@ class SaleContractController extends Controller{
 
     public function getPartyWiseSCList(Request $request){
       
-        $results=DB::select("select
+        $results = DB::select("SELECT
                 sc.id,
                 sc.notify_pary_id as party_id,
                 sc.sales_contract_no,
                 date_format(sc.dated,'%d-%m-%Y') as sales_contract_date,
                 sc.invoice_no,
-		sc.export_no,
+                sc.export_no,
                 c.name as company,
                 b.short_name as bank,
-                case when desk_approver_id is not null then  'Desk Approved'
-                when (approver_id is not null  and desk_approver_id is not null) then 'Com Approved'
-                ELSE 'Not Approved' end as status
-            from sale_contracts sc
-            join companies c on c.id=sc.company_id
-            join banks b on b.id=sc.bank_id
-            join importers imp on imp.id=sc.importer_id
-            where sc.notify_pary_id='$request->party_id' AND sc.inactive='N'
-            order by sc.id desc");
+                CASE
+                    WHEN desk_approver_id IS NOT NULL THEN 'Desk Approved'
+                    WHEN (approver_id IS NOT NULL AND desk_approver_id IS NOT NULL) THEN 'Com Approved'
+                    ELSE 'Not Approved'
+                END as status
+            FROM sale_contracts sc
+            JOIN companies c ON c.id = sc.company_id
+            JOIN banks b ON b.id = sc.bank_id
+            JOIN importers imp ON imp.id = sc.importer_id
+            WHERE sc.notify_pary_id = ?
+            AND sc.inactive = 'N'
+            ORDER BY sc.id DESC
+        ", [$request->party_id]);
+
+        foreach ($results as $row) {
+            $row->encrypted_id = Crypt::encrypt($row->id);
+            $row->encrypted_party_id = Crypt::encrypt($row->party_id);
+        }
+
         return response()->json([
-            'results'=>$results,
-            'code'=>200
+            'results' => $results,
+            'code' => 200
         ]);
         
     }
@@ -290,6 +300,7 @@ class SaleContractController extends Controller{
                 ->with('notify_parties', $notify_parties);
 
     }
+
     public function sale_contract_ci($id){
 
         $sale_contracts = SaleContract::where('notify_pary_id',$id)->where('approver_id','!=',null)->get();
@@ -297,6 +308,36 @@ class SaleContractController extends Controller{
         
     }
 
+    public function ciMakePriceSame(Request $request){
+
+        // $sale_contracts = SaleContract::where('notify_pary_id',$id)->where('approver_id','!=',null)->get();
+        // return view("sale_contract.sci.sale_contract_desk_list",compact("sale_contracts"))->with('party_id',$id); 
+        return $request->all();
+        
+    }
+
+    public function updateRatePreference(Request $request)
+    {
+        
+        try {
+            
+            $saleContract = SaleContract::find($request->sale_contact_id);
+            $saleContract->ci_rate_preference = $request->rate_type=="accounts_rate" ? 2 : 1;
+            $saleContract->save();
+            return response()->json([
+                'code' => 200,
+                'message' => 'Rate preference Updated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Failed to update: ' . $e->getMessage()
+            ]);
+        }
+
+    }
+        
     public function create($id){
                  
         $party_id = base64_decode($id);
@@ -522,6 +563,7 @@ class SaleContractController extends Controller{
 
                 $this->manageFreight($sale_contract->id);
                 $this->manageCCQ($sale_contract->id);
+                
             // }
         
             // $apiCallingStatus = 0;
@@ -939,6 +981,7 @@ class SaleContractController extends Controller{
                 $this->manageCCQ($id);
 
             }
+            
             $this->updateCiTotalValue($sale_contract->id);
             if ($request->hasFile('formated_file')) {
 
@@ -1331,7 +1374,7 @@ class SaleContractController extends Controller{
     public function ksa_sale_contract($id){
            
         $sale_contract_details = SaleContract::where('sale_contracts.id',$id)
-                            ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','ci_items.ci_item_code','sale_contract_details.rate_per_ctn','sale_contracts.ci_note','notify_party_items.desk_item_name',
+                            ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','ci_items.ci_item_code','sale_contract_details.rate_per_ctn','sale_contracts.ci_note','sale_contract_details.desk_item_name',
                             DB::Raw('SUM(sale_contract_details.ctn) AS ctn'),
                             DB::Raw('SUM(sale_contract_details.pcs_in_ctn) AS pcs_in_ctn'),
                             DB::Raw('SUM(sale_contract_details.total_amount) AS total_amount'),
@@ -1346,7 +1389,7 @@ class SaleContractController extends Controller{
                                 $join->on('notify_party_items.ci_item_id', '=', 'ci_items.id')
                                      ->on('notify_party_items.notify_party_id', '=', 'sale_contracts.notify_pary_id');
                           })
-                         ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','ci_items.ci_item_code','sale_contract_details.rate_per_ctn','sale_contracts.ci_note','notify_party_items.desk_item_name')
+                         ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','ci_items.ci_item_code','sale_contract_details.rate_per_ctn','sale_contracts.ci_note','sale_contract_details.desk_item_name')
                          ->orderBy('sale_contract_details.id')
                          ->get();
 
@@ -1358,9 +1401,6 @@ class SaleContractController extends Controller{
                 ->with('obj',$this);
      
     }
-    
-
-
 
     // PRAN FROZEN CHOI PITHA-400 GX20 POUCH
     public function scDeskPad($id){
@@ -1617,7 +1657,7 @@ class SaleContractController extends Controller{
     public function ksa_com_inv($id){
 
 	 $sale_contract_details = SaleContract::where('sale_contracts.id',$id)
-                                ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','notify_party_items.desk_item_name',
+                                ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','sale_contract_details.desk_item_name',
                                 DB::Raw('SUM(sale_contract_details.ctn) AS ctn'),
                                 DB::Raw('SUM(sale_contract_details.pcs_in_ctn) AS pcs_in_ctn'),
                                 DB::Raw('SUM(sale_contract_details.total_amount) AS total_amount'),
@@ -1632,7 +1672,7 @@ class SaleContractController extends Controller{
                                 $join->on('notify_party_items.ci_item_id', '=', 'ci_items.id')
                                      ->on('notify_party_items.notify_party_id', '=', 'sale_contracts.notify_pary_id');
                             })
-                            ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','notify_party_items.desk_item_name')
+                            ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','sale_contract_details.desk_item_name')
                             ->orderBy('sale_contract_details.id')
                             ->get();
 
@@ -1681,7 +1721,7 @@ class SaleContractController extends Controller{
    public function ksa_com_inv_pack_weight($id){
             
         $sale_contract_details = SaleContract::where('sale_contracts.id',$id)
-                ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','ci_items.ci_item_code','notify_party_items.desk_item_name',
+                ->select('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','ci_items.ci_item_code','sale_contract_details.desk_item_name',
                     DB::Raw('SUM(sale_contract_details.ctn) AS ctn'),
                     DB::Raw('SUM(sale_contract_details.pcs_in_ctn) AS pcs_in_ctn'),
                     DB::Raw('SUM(sale_contract_details.total_amount) AS total_amount'),
@@ -1695,7 +1735,7 @@ class SaleContractController extends Controller{
                     $join->on('notify_party_items.ci_item_id', '=', 'ci_items.id')
                         ->on('notify_party_items.notify_party_id', '=', 'sale_contracts.notify_pary_id');
                 })
-                ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','notify_party_items.desk_item_name','ci_items.ci_item_code')
+                ->groupby('sale_contract_details.ci_item_name','ci_items.p_net_weight','ci_items.ci_factor','sale_contract_details.rate_per_ctn','sale_contract_details.desk_item_name','ci_items.ci_item_code')
                 ->orderBy('sale_contract_details.id')
                 ->get();
                 
@@ -2676,49 +2716,120 @@ class SaleContractController extends Controller{
 
     }
 
+    public function health_certificate_phl($id){
+
+        $sale_contract_details = SaleContractDetail::where('sale_contract_id',$id)->orderBy('id')->get();
+        $sale_contract = SaleContract::find($id);
+        $notify_party_id=$sale_contract->notify_pary_id;
+        $notify_party_address=NotifyParty::where('id',$notify_party_id)->pluck('shipping_mark');
+        $notify_party_name=NotifyParty::where('id',$notify_party_id)->pluck('name');  
+        return view("sale_contract.health_certificate_phl",compact("sale_contract"))
+              ->with('sale_contract_details',$sale_contract_details)
+              ->with('notify_party_address', $notify_party_address['0'])
+              ->with('notify_party_name',$notify_party_name['0'])
+              ->with('obj',$this);
+
+    }
+
+     public function health_certificate_phl_pad($id){
+
+
+        $sale_contract = SaleContract::find($id);
+        $insurance_charge=$sale_contract->insurance_charge;
+        $pallet_charge=$sale_contract->pallet_charge;
+        $company_id=$sale_contract->company_id;
+        $importer_id=$sale_contract->importer_id;
+        $factory_address_type_id=$sale_contract->factory_address_type;
+        $companyDetails=DB::table('companies')
+            ->where('id', $company_id)
+            ->get();
+            
+        foreach ($companyDetails as $key => $value) {
+           
+           $factory_address=$value->factory_address;
+           $factory_address_details=$value->factory_address_details;
+
+        }
+
+        if($factory_address_type_id==1){
+          
+          $factory_address=$factory_address; 
+
+        }else if($factory_address_type_id==2)
+        {
+         
+         $factory_address=$factory_address_details; 
+
+        }else{
+        
+         $factory_address="";
+
+        }
+        $sale_contract_details = SaleContractDetail::where('sale_contract_id',$id)->orderBy('id')->get(); 
+        if(!empty($insurance_charge) && !empty($pallet_charge)){
+
+            Session::flash("danger", "Insurance & Pallet Is Not Allow Same Sale Contact..!!");
+            return redirect()->back();
+        }
+
+        $signatureImg="";
+        if(UserSignature::where('user_id',Auth::user()->id)->where('company_id',$company_id)->exists()){
+
+            $singnature=UserSignature::where('user_id',Auth::user()->id)->where('company_id',$company_id)->first(['image_url']);
+            $signatureImg=$singnature->image_url;
+
+        }
+
+        return view("sale_contract.pad.desk.health_certificate_phl",compact("sale_contract"))
+               ->with('sale_contract_details',$sale_contract_details)
+               ->with('factory_address', $factory_address)
+               ->with('insurance_charge', $insurance_charge)
+               ->with('signatureImg',$signatureImg)
+               ->with('pallet_charge', $pallet_charge);
+
+    }
+
     public function ksa_health_certificate($id){
 
        $sale_contract_details = SaleContract::where('sale_contracts.id', $id)
-    ->select(
-        'sale_contract_details.ci_item_name',
-        'ci_items.p_net_weight',
-        'ci_items.duplicate_name',
-        'ci_items.ci_factor',
-        'ci_items.ci_item_rate',
-        'sale_contract_details.rate_per_ctn',
-        'ci_items.ci_item_code',
-        'notify_party_items.desk_item_name',
-        'sale_contract_details.ctn', // ? fixed here (added quotes)
-        DB::raw('SUM(sale_contract_details.pcs_in_ctn) AS pcs_in_ctn'),
-        DB::raw('SUM(sale_contract_details.total_amount) AS total_amount'),
-        DB::raw('SUM(sale_contract_details.net_weight_kg) AS net_weight_kg'),
-        DB::raw('SUM(sale_contract_details.gross_weight_kg) AS gross_weight_kg'),
-        DB::raw('SUM(sale_contract_details.ccq) AS ccq')
-    )
-    ->join('sale_contract_details', 'sale_contract_details.sale_contract_id', '=', 'sale_contracts.id')
-    ->join('ci_items', 'ci_items.id', '=', 'sale_contract_details.ci_item_id')
-    ->join('notify_party_items', function ($join) {
-        $join->on('notify_party_items.ci_item_id', '=', 'ci_items.id')
-             ->on('notify_party_items.notify_party_id', '=', 'sale_contracts.notify_pary_id');
-    })
-    ->groupBy(
-        'sale_contract_details.ci_item_name',
-        'ci_items.p_net_weight',
-        'ci_items.ci_factor',
-        'ci_items.duplicate_name',
-        'ci_items.ci_item_rate',
-        'sale_contract_details.rate_per_ctn',
-        'notify_party_items.desk_item_name',
-        'sale_contract_details.ctn' // ? added here as well since it's a non-aggregated column
-    )
-    ->orderBy('sale_contract_details.id')
-    ->get();
+            ->select(
+                'sale_contract_details.ci_item_name',
+                'ci_items.p_net_weight',
+                'ci_items.duplicate_name',
+                'ci_items.ci_factor',
+                'ci_items.ci_item_rate',
+                'sale_contract_details.rate_per_ctn',
+                'ci_items.ci_item_code',
+                'sale_contract_details.desk_item_name',
+                'sale_contract_details.ctn', // ? fixed here (added quotes)
+                DB::raw('SUM(sale_contract_details.pcs_in_ctn) AS pcs_in_ctn'),
+                DB::raw('SUM(sale_contract_details.total_amount) AS total_amount'),
+                DB::raw('SUM(sale_contract_details.net_weight_kg) AS net_weight_kg'),
+                DB::raw('SUM(sale_contract_details.gross_weight_kg) AS gross_weight_kg'),
+                DB::raw('SUM(sale_contract_details.ccq) AS ccq')
+            )
+            ->join('sale_contract_details', 'sale_contract_details.sale_contract_id', '=', 'sale_contracts.id')
+            ->join('ci_items', 'ci_items.id', '=', 'sale_contract_details.ci_item_id')
+            ->join('notify_party_items', function ($join) {
+                $join->on('notify_party_items.ci_item_id', '=', 'ci_items.id')
+                    ->on('notify_party_items.notify_party_id', '=', 'sale_contracts.notify_pary_id');
+            })
+            ->groupBy(
+                'sale_contract_details.ci_item_name',
+                'ci_items.p_net_weight',
+                'ci_items.ci_factor',
+                'ci_items.duplicate_name',
+                'ci_items.ci_item_rate',
+                'sale_contract_details.rate_per_ctn',
+                'sale_contract_details.desk_item_name',
+                'sale_contract_details.ctn' // ? added here as well since it's a non-aggregated column
+            )
+            ->orderBy('sale_contract_details.id')
+            ->get();
 
-            
         $total_net_weight = SaleContractDetail::where('sale_contract_id',$id)->sum('net_weight_kg');
         $sale_contract = SaleContract::find($id);
         $nocs_array=$this->create_nocs($sale_contract_details);
-
         return view("sale_contract.ksa.health_certificate",compact("sale_contract"))
               ->with('sale_contract_details',$sale_contract_details)
               ->with('obj',$this)
@@ -3172,8 +3283,6 @@ private function decimalToWordConvert($num){
              $total_net_weight=$value->total_net_weight_kg;
 
         }
-
-         
 
         return view("sale_contract.ci_cfr_certificate",compact("sale_contract"))
               ->with('sale_contract_details',$sale_contract_details)
@@ -7749,6 +7858,7 @@ private function decimalToWordConvert($num){
                     $comInvMaster->user_id=Auth::user()->id;
                     $claimPercent=$this->getClaimPercent($request->shipment_date);
                     $comInvMaster->claim_percent=$claimPercent;
+                    $comInvMaster->total_fob=$request->total_fob;
                     $comInvMaster->save();
                     $master_id=$comInvMaster->id;
                     $realize=$request->inv_value-$request->realise_value;
@@ -8162,7 +8272,6 @@ private function decimalToWordConvert($num){
 
             $array = get_object_vars($value->date);
             $date= date("Y-m-d",strtotime($array['date']));
-
             $insentivePercentage=InsentivePercentage::where('percentage',$value->percent)->first(['id']);
             $insentive_percentage_id=$insentivePercentage->id;
             $comInvoiceMaster=ComInvMaster::where('invoice_no',$value->invoice)->first(['id']);
@@ -8174,7 +8283,6 @@ private function decimalToWordConvert($num){
 
                         case 30:
                     
-
                            $this->getIncentive1($insentive_percentage_id,$comInvoiceMasterEditId,date("Y-m-d", strtotime($date)));
                             
                         break;
@@ -8226,24 +8334,21 @@ private function decimalToWordConvert($num){
             $main_claim_bdt_amount_total=$comInvMaster->total_claim_bdt_main;
             if($main_claim_bdt_amount_total==$edit_claim_bdt_amount_total){
                 
-                \DB::select("UPDATE com_inv_masters SET com_inv_masters.30_percent_insentive_date='$insentive_date' WHERE com_inv_masters.id=$edit_id");
-                \DB::select("UPDATE com_inv_master_details SET com_inv_master_details.30_percent_insentive_amount = com_inv_master_details.claim_bdt*0.3 WHERE com_inv_master_details.com_inv_master_id=$edit_id");
+                DB::select("UPDATE com_inv_masters SET com_inv_masters.30_percent_insentive_date='$insentive_date' WHERE com_inv_masters.id=$edit_id");
+                DB::select("UPDATE com_inv_master_details SET com_inv_master_details.30_percent_insentive_amount = com_inv_master_details.claim_bdt*0.3 WHERE com_inv_master_details.com_inv_master_id=$edit_id");
                 return "Success";               
 
             }else{
 
 
-                \DB::select("UPDATE com_inv_masters SET com_inv_masters.30_percent_insentive_date='$insentive_date' WHERE com_inv_masters.id=$edit_id");
+                DB::select("UPDATE com_inv_masters SET com_inv_masters.30_percent_insentive_date='$insentive_date' WHERE com_inv_masters.id=$edit_id");
 
                 // $new_insentive_amount_30_percent=$edit_claim_bdt_amount_total-$insentive_amount_70percent;
                 
                 // \DB::select("UPDATE com_inv_master_details SET com_inv_master_details.30_percent_insentive_amount = $new_insentive_amount_30_percent WHERE com_inv_master_details.com_inv_master_id=$edit_id");
 
                 
-
-
                 $results=\DB::table('com_inv_master_details')->select('id')->where('com_inv_master_id',$edit_id)->get();
-
                 foreach($results as $key => $value) {
                     
                     $previousClaimBDTAmount=ComInvMasterDetails::where('id', $value->id)->pluck('claim_bdt');
@@ -8265,45 +8370,27 @@ private function decimalToWordConvert($num){
         
     }
 
-    public function getIncentive2($insentive_percentage_id,$edit_id,$insentive_date){
-
-        
-        // $results=\DB::select("SELECT com_inv_master_details.70_percent_insentive_amount 
-        //     FROM com_inv_master_details WHERE com_inv_master_details.70_percent_insentive_amount IS NOT NULL AND com_inv_master_details.com_inv_master_id=$edit_id");
-
-        // if(count($results)>0){
-        
-        //     return "Fail";
-
-        // }else{ 
-
-            DB::select("UPDATE com_inv_masters SET com_inv_masters.70_percent_insentive_date='$insentive_date' WHERE com_inv_masters.id=$edit_id");
-            DB::select("UPDATE com_inv_master_details SET com_inv_master_details.70_percent_insentive_amount = com_inv_master_details.claim_bdt*0.7 WHERE com_inv_master_details.com_inv_master_id =$edit_id");
-            return "Success";
-
-        // }
-
+    public function getIncentive2($insentive_percentage_id, $edit_id, $insentive_date)
+    {
+        $existingDate = ComInvMaster::where('id', $edit_id)->value('70_percent_insentive_date');
+        if (!empty($existingDate)) {
+            return "Fail";
+        }
+        DB::select("UPDATE com_inv_masters SET com_inv_masters.70_percent_insentive_date = '$insentive_date' WHERE com_inv_masters.id = $edit_id");
+        DB::select("UPDATE com_inv_master_details SET com_inv_master_details.70_percent_insentive_amount = com_inv_master_details.claim_bdt * 0.7 WHERE com_inv_master_details.com_inv_master_id = $edit_id");
+        return "Success";
     }
 
-    public function getIncentive3($insentive_percentage_id,$edit_id,$insentive_date){
+    public function getIncentive3($insentive_percentage_id, $edit_id, $insentive_date)
+    {
+        $existingDate = ComInvMaster::where('id', $edit_id)->value('100_percent_insentive_date');
+        if (!empty($existingDate)) {
+            return "Fail";
+        }
 
-    
-        // $results=\DB::select("SELECT com_inv_master_details.100_percent_insentive_amount 
-        //     FROM com_inv_master_details WHERE com_inv_master_details.100_percent_insentive_amount IS NOT NULL AND com_inv_master_details.com_inv_master_id=$edit_id");
-
-        // if(count($results)>0){
-        
-        //     return "Fail";
-
-        // }else{
-
-        \DB::select("UPDATE com_inv_masters SET com_inv_masters.100_percent_insentive_date='$insentive_date' WHERE com_inv_masters.id=$edit_id");
-
-        \DB::select("UPDATE com_inv_master_details SET com_inv_master_details.100_percent_insentive_amount = com_inv_master_details.claim_bdt*1 WHERE com_inv_master_details.com_inv_master_id =$edit_id");
-
+        DB::select("UPDATE com_inv_masters SET com_inv_masters.100_percent_insentive_date = '$insentive_date' WHERE com_inv_masters.id = $edit_id");
+        DB::select("UPDATE com_inv_master_details SET com_inv_master_details.100_percent_insentive_amount = com_inv_master_details.claim_bdt * 1 WHERE com_inv_master_details.com_inv_master_id = $edit_id");
         return "Success";
-        // }   
-
     }
 
     private function generatePaginationAll($data){

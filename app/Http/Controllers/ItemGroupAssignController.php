@@ -22,29 +22,36 @@ class ItemGroupAssignController extends Controller
      */
     public function index()
     {
+    
+        return view('item_group_assign.assign_item_group_list');
         
+    }
 
-        $results=DB::select("SELECT
-                    ci_items.id,
-                    ci_items.duplicate_name,
-                    ci_items.ci_item_name,
-                    ci_items.ci_item_code,
-                    item_groups.item_group_name,
-                    rcpe.name AS rcpe_name,
-                    ci_item_claims.ci_item_claim_name as claim_name,
-                    ci_item_claims.ci_item_claim_percentage AS claim_percentage,
-                    CASE WHEN ci_items.item_group_id = 236 THEN 'Not Eligible' ELSE 'Eligible' END AS status
-                FROM
-                    ci_items
-                LEFT JOIN item_groups ON item_groups.id = ci_items.item_group_id
-                LEFT JOIN rcpe_masters ON rcpe_masters.id=ci_items.receipe_id
-                LEFT JOIN rcpe ON rcpe.id=rcpe_masters.rcpe_fg_id
-                LEFT JOIN assign_item_claims ON assign_item_claims.item_group_id=item_groups.id
-                LEFT JOIN ci_item_claims ON ci_item_claims.id=assign_item_claims.ci_item_claim_id
-                ORDER BY
-                    ci_items.ci_item_code ASC");
-        return view('item_group_assign.assign_item_group_list')->with('results', $results);
-        
+    public function getItemList()
+    {
+        $results = DB::select("SELECT
+            ci_items.id,
+            ci_items.duplicate_name,
+            ci_items.ci_item_name,
+            ci_items.ci_item_code,
+            item_groups.item_group_name,
+            rcpe.name AS rcpe_name,
+            ci_item_claims.ci_item_claim_name as claim_name,
+            ci_item_claims.ci_item_claim_percentage AS claim_percentage,
+            CASE WHEN ci_items.item_group_id = 236 THEN 'Not Eligible' ELSE 'Eligible' END AS status
+        FROM
+            ci_items
+        LEFT JOIN item_groups ON item_groups.id = ci_items.item_group_id
+        LEFT JOIN rcpe_masters ON rcpe_masters.id = ci_items.receipe_id
+        LEFT JOIN rcpe ON rcpe.id = rcpe_masters.rcpe_fg_id
+        LEFT JOIN assign_item_claims ON assign_item_claims.item_group_id = item_groups.id
+        LEFT JOIN ci_item_claims ON ci_item_claims.id = assign_item_claims.ci_item_claim_id
+        WHERE ci_items.bu_id!=31
+        ORDER BY ci_items.ci_item_code ASC");
+        return response()->json([
+            'success' => true,
+            'data' => $results
+        ]);
     }
 
     /**
@@ -170,7 +177,7 @@ class ItemGroupAssignController extends Controller
     {  
 
         $itemGroups=ItemGroup::all();
-        $ciItems=CiItem::all();
+        $ciItems=CiItem::where('id', $id)->get();
         $ciItemdetails=CiItem::findorfail($id);
         $ciItemRowDetails=CiItem::findorfail($id);
         $receipe_id=$ciItemRowDetails->receipe_id;

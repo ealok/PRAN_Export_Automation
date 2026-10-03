@@ -569,6 +569,14 @@
                 actionButtons += "<button class='btn btn-sm btn-info details_btn' data-scid='" + item.id + "' data-party='" + item.party_id + "' title='SC Details'><i class='fa fa-eye'></i></button>";
                 actionButtons += "<button class='btn btn-sm btn-success approve_btn' data-scid='" + item.id + "' data-party='" + item.party_id + "' title='SC Post'><i class='fa fa-check'></i></button>";
             }
+            // if Sales Contract number exists, show Order Process button
+            if(item.sales_contract_no) {
+                actionButtons += "<button class='btn btn-sm btn-primary order_process_btn' " +
+                    "data-scid='" + item.encrypted_id + "' " +
+                    "data-party='" + item.encrypted_party_id + "' " +
+                    "title='Create JO'>" +
+                    "<i class='fa fa-clipboard'></i></button>";
+            }
             const bankExport = (item.bank || 'N/A') + ' / ' + (item.export_no || 'N/A');    
             dataSet.push([
                 "<div class='text-center'>" + (index + 1) + "</div>", // Centered index number
@@ -760,6 +768,9 @@
         window.location.href = `/sales_contact/edit?partyId=${btoa(party_id)}&scid=${btoa(scid)}`;
     }
 
+    function orderProcess(sale_contact_id, party_id) {
+       window.location.href = `/jo/create/${sale_contact_id}/${party_id}`;
+    }
     // Page Visibility API implementation
     document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'visible') {
@@ -825,6 +836,12 @@
         $(document).on('click', '.create-new', function(e) {
             e.preventDefault();
             createNewSalesContract();
+        });
+
+        $(document).on('click', '.order_process_btn', function (e) {
+            e.preventDefault();
+            orderProcess($(this).data('scid'), $(this).data('party'));
+            
         });
 
         // Refresh button (optional - you can add this to your HTML)

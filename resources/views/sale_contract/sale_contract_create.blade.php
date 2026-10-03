@@ -1056,9 +1056,11 @@
 <script>document.title = 'SalesContract | Create';</script>
 <script type="text/javascript">
     $(document).ready(function() {
+
         setTimeout(function() { 
             $('.sr-only').click();
         }, 0.0001);
+
         $('#invoice_no').on('keyup paste change', function() {
             var value = $(this).val();
             value = value.replace(/\s/g, '');
@@ -1077,6 +1079,14 @@
                         }
                     }
                 });
+            }
+        });
+
+        $('#sales_contract_no').on('keyup paste change input', function() {
+            var value = $(this).val();
+            var cleaned = value.replace(/\s/g, '');
+            if (value !== cleaned) {
+                $(this).val(cleaned);
             }
         });
 

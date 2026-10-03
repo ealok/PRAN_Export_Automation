@@ -549,6 +549,9 @@
                                 <a href="{{url('/sale_contract/'.$sale_contract->id)}}/ci_packaging" class="dropdown-item">
                                     <i class="fas fa-box"></i>CI PACK
                                 </a>
+                                <a href="{{url('/sale_contract/'.$sale_contract->id)}}/health_certificate_phl" class="dropdown-item">
+                                    <i class="fas fa-box"></i>HEALTH REPORT(PHL)
+                                </a>
                             </div>
                         </div>
                     </div>

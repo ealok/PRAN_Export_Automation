@@ -436,6 +436,8 @@ Route::get('/sale_contract/{id}/truck_recipt','SaleContractController@truck_rece
 Route::get('/sale_contract/{id}/truck_recipt_india','SaleContractController@truck_recipt_india');
 Route::get('/sale_contract/{id}/truck_recipt_details','SaleContractController@truck_recipt_details');
 Route::get('/sale_contract/{id}/health_certificate','SaleContractController@health_certificate');
+Route::get('/sale_contract/{id}/health_certificate_phl','SaleContractController@health_certificate_phl');
+Route::get('/sale_contract/{id}/health_certificate_phl_pad','SaleContractController@health_certificate_phl_pad');
 Route::get('/sale_contract/{id}/custom_cer','SaleContractController@customCER');
 Route::get('/sale_contract/{id}/custom_cer_ctg','SaleContractController@customCERCtg');
 Route::get('/sale_contract/{id}/custom_cer2','SaleContractController@customCER2');
@@ -515,12 +517,15 @@ Route::post("/delete/notify/party_user","NotifyPartyUserController@deleteNotifyP
 Route::get('/notify/party/list/doc/{id}','SaleContractController@sale_contract_ci_doc_list');
 Route::get("/sale_contract_ci_list", "SaleContractController@sale_contract_ci_list");
 Route::get("/notify/party/ci/list/{id}", "SaleContractController@sale_contract_ci");
+Route::get('/update-rate-preference','SaleContractController@updateRatePreference');
+
 
 //-------------------------JOB order Controller---------------
 
 Route::resource('/job_order','JobOrderController');
 Route::get("/job_order/create/{id}","JobOrderController@create");
 Route::get('/jo/create/{id1}/{id2}','JobOrderController@create');
+
 Route::post('/save/distributor/information/details','ExportDistributorInformationController@saveExportDistInfo');
 Route::get('/getimporter/details/forjoborder','JobOrderController@getImporterDetailsForJobOrder');
 Route::get('/get/job_order/belog/tosalecontact','JobOrderController@getJobOrderItemBelogToSaleContact');
@@ -642,6 +647,7 @@ Route::get('/recipe/details/delete/{id}','MaterialReceipeController@deleteReceip
 
 Route::resource('item_group','ItemGroupController');
 Route::resource('item_group_assign','ItemGroupAssignController');
+Route::get('/get-item-list','ItemGroupAssignController@getItemList');
 Route::resource('assign_item_gorup_india','ItemGroupAssignIndiaController');
 Route::resource('ci_cvr','CIConversionRateController');
 Route::get('/jsonGetListOfCiCvr','CIConversionRateController@jsonGetListOfCVR')->middleware('auth');
@@ -756,7 +762,27 @@ Route::get('/jo_details','ReportController@jo_details');
 Route::get('/json/get/jo/invoice/details','ReportController@getJoInvoiceDetails');
 Route::get('/export-jo-invoice-details','ReportController@exportJOInvoiceDetails');
 Route::get('/jo/cancel/report','ReportController@getCancelJoData');
+
 Route::get('/freight_report','ReportController@freightReport');
+Route::get('/json/get/freight/report_date','ReportController@getFreightReportData');
+Route::get('/freight-utilization','ReportController@freightUtilizationReport');
+Route::post('/json_get/freight_utilization/data','ReportController@getFreightUtilizationReportData');
+Route::get('/sales_summary','ReportController@SalesSummary');
+Route::post('/json_get/sales_summary/report_data','ReportController@SalesSummaryReportData');
+
+Route::get('/item-opening','ReportController@itemOpeningReport');
+Route::post('/json/get-item-opening-report', 'ReportController@getItemOpeningReport');
+Route::get('/working-activity-report','ReportController@workingActivityReport');
+Route::post('/json/get/working-activity-report', 'ReportController@getWorkingActivityReport');
+Route::get('/unique_item_report','ReportController@uniqueItemReport');
+Route::post('/json_get/unique_item/report_data','ReportController@uniqueItemReportData');
+Route::get('/item_opening/performance','ReportController@itemOpeningPerformance');
+Route::get('/api/item-opening-dashboard','ReportController@getDashboardData');
+Route::get('/export/item_opening/report_data','ReportController@exportReportData');
+Route::get('/api/item-opening/items', 'RequistionController@getItemsForItemOpening');
+Route::get('/api/item-opening/item-details', 'RequistionController@getItemOpeningDetails');
+
+
 Route::get('/json/get/freight/report_date','ReportController@getFreightReportData');
 Route::get('/json/get/jo/cancel_report','ReportController@jsonGetCancelReportData');
 Route::get('/tna_report','ReportController@tnaReportView');
@@ -779,6 +805,7 @@ Route::get('/export-sc-vs-jo-report','ReportController@exportReportScVsJOReport'
 Route::get('/sc_jo_do/report','ReportController@scVsJoVsDoReport');
 Route::post('/json_get/sc_vs_jo_do/data','ReportController@jsonGetScVsJOVsDoData');
 Route::get('/export-sc-jo-do-report','ReportController@exportReportScVsJOVsDoReport');
+Route::get('/item_opening/report','ReportController@itemOpeningReport');
 
 
 // Route

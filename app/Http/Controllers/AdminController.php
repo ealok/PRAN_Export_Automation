@@ -11,6 +11,7 @@ use Session;
 use App\Role;
 use App\Desk;
 use App\DeskSetup;
+use App\UserRole;
 use DB;
 
 class AdminController extends Controller
@@ -410,6 +411,14 @@ class AdminController extends Controller
 
                 }
 
+                $regUser=new UserRole();
+                $regUser->user_id=$user->id;
+                $regUser->role_id=$request->role_id;;
+                $regUser->assigned_by=1;
+                $regUser->expires_at=NULL;
+                $regUser->is_active=1;
+                $regUser->save();
+
             }elseif($request->role_id==11){
 
                 $deskPermission=UserFeatures::where('user_id',28)->get();
@@ -422,6 +431,14 @@ class AdminController extends Controller
                     $userFeature->save();
 
                 }
+
+                $regUser=new UserRole();
+                $regUser->user_id=$user->id;
+                $regUser->role_id=$request->role_id;;
+                $regUser->assigned_by=1;
+                $regUser->expires_at=NULL;
+                $regUser->is_active=1;
+                $regUser->save();
 
             }  
           

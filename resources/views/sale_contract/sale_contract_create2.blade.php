@@ -1687,9 +1687,6 @@ setTimeout(function() {
 
 $(document).ready(function() {
 
-    // ============================================
-    // 1. DATE PICKER INITIALIZATION
-    // ============================================
     $(document).on('focus', '.datepicker', function() {
         $(this).prop('readonly', true);
     });
@@ -1860,6 +1857,14 @@ $(document).ready(function() {
                 console.error('Error checking invoice number: ', error);
             }
         });
+    });
+      
+    $('#sales_contract_no').on('keyup paste change input', function() {
+        var value = $(this).val();
+        var cleaned = value.replace(/\s/g, '');
+        if (value !== cleaned) {
+            $(this).val(cleaned);
+        }
     });
 
     // ============================================

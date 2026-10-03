@@ -462,7 +462,6 @@ $(document).ready(function() {
             return;
         }
 
-        // Define the formData object to send with the AJAX request
         var formData = {
             name: name,
             staff_id: staff_id,
@@ -474,13 +473,12 @@ $(document).ready(function() {
             login_type: login_type
         };
 
-        // AJAX request to submit the form data
         $.ajax({
-            url: '/user-reg', // Replace with your server endpoint
+            url: '/user-reg',
             type: 'POST',
             data: formData,
             headers: {
-                'X-CSRF-TOKEN': csrfToken // Add the CSRF token to the request headers
+                'X-CSRF-TOKEN': csrfToken
             },
             success: function(res) {
                
@@ -502,7 +500,7 @@ $(document).ready(function() {
                
             },
             error: function(xhr, status, error) {
-                // Handle error response
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -512,7 +510,6 @@ $(document).ready(function() {
         });
     });
     
-    // Delete user (event delegation for dynamically added rows)
     $('#usersTable').on('click', '.btn-danger', function() {
         if (confirm('Are you sure you want to delete this user?')) {
             var table = $('#usersTable').DataTable();

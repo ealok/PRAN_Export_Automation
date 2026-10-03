@@ -90,6 +90,7 @@
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/ci_com_inv_pack_weight" title="Show" ><button type="button" class="btn btn-sm btn-success btn-flat">CI INV & PWL</button></a>
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/hscode_wise_com_inv_report" title="Show" ><button type="button" class="btn btn-sm btn-success btn-flat">CI INV & PWL(HS CODE)</button></a>
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/ci_packaging" title="Show" ><button type="button" class="btn btn-sm btn-success btn-flat">CI PACK</button></a>
+                           <a href="{{url('/sale_contract/'.$sale_contract->id)}}/health_certificate_phl" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat">HEALTH REPORT(PHL)</button></a>
                      </div>
                  </div>
                  @endif

@@ -175,10 +175,10 @@
                     <div class="form-group {{ $errors->has('area') ? 'has-error' : '' }}">
                         <label for="name">Status</label><br>
                         <class="checkbox-inline">
-                            <input type="radio" name="status" value="1" name="status" id="check1" required @if($notify_party->status==0){{"checked"}}@endif>&nbsp;Active
+                            <input type="radio" name="status" value="1" name="status" id="check1" required @if($notify_party->status==1){{"checked"}}@endif>&nbsp;Active
                         </label>
                         <label class="checkbox-inline">
-                            <input type="radio" name="status" value="0" name="status" id="check2" required @if($notify_party->status==1){{"checked"}}@endif>&nbsp;Inactive
+                            <input type="radio" name="status" value="0" name="status" id="check2" required @if($notify_party->status==0){{"checked"}}@endif>&nbsp;Inactive
                         </label>
                     </div>
                     <input type="hidden" id="edit_id" value="{{$notify_party->id}}">

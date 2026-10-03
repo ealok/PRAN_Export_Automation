@@ -944,8 +944,15 @@
     // ===== UPDATE SUMMARY COUNTS =====
     function updateSummaryCounts(data) {
         var total = data.length;
-        var active = data.filter(item => item.status == 'Y' || item.status == '1' || item.is_api == null || item.is_api == 'N').length;
-        var inactive = data.filter(item => item.status == 'N' || item.status == '0' || item.is_api == 'Y').length;
+        
+        // ✅ শুধু status দেখে Active/Inactive গণনা করুন
+        var active = data.filter(item => {
+            return item.status === 'Y' || item.status === '1';
+        }).length;
+        
+        var inactive = data.filter(item => {
+            return item.status === 'N' || item.status === '0';
+        }).length;
         
         $('#totalCount').text(total);
         $('#activeCount').text(active);
@@ -1005,20 +1012,23 @@
                 "dataSrc": function (json) {
                     var data = json.data || [];
                     
-                    // Apply filter FIRST
+                    // ✅ শুধু status দেখে ফিল্টার করুন
                     var filteredData = [];
                     if (currentFilter === 'active') {
-                        filteredData = data.filter(item => item.status == 'Y' || item.status == '1' || item.is_api == null || item.is_api == 'N');
+                        filteredData = data.filter(item => {
+                            return item.status === 'Y' || item.status === '1';
+                        });
                     } else if (currentFilter === 'inactive') {
-                        filteredData = data.filter(item => item.status == 'N' || item.status == '0' || item.is_api == 'Y');
+                        filteredData = data.filter(item => {
+                            return item.status === 'N' || item.status === '0';
+                        });
                     } else {
                         filteredData = data;
                     }
                     
-                    // Update summary counts with ALL data (not filtered)
+                    // Update summary counts (সব ডেটা দিয়ে)
                     updateSummaryCounts(data);
                     
-                    // Return filtered data
                     return filteredData;
                 },
                 "error": function(xhr, error, thrown) {
@@ -1027,24 +1037,60 @@
                 }
             },
             "columns": [
-                { "data": "id", "visible": false }, 
-                { "data": "ci_item_code", "title": "Item Code" },
-                { "data": "ci_item_name", "title": "Item Name" },
-                { "data": "duplicate_name", "title": "Duplicate Name" },
-                { "data": "p_net_weight", "title": "P Net Weight" },
-                { "data": "factor", "title": "Factor" },
-                { "data": "ci_factor", "title": "CI Factor" },
-                { "data": "d_net_weight", "title": "D Net Weight" },
-                { "data": "ci_item_rate", "title": "Item Rate" },
-                { "data": "hs_code", "title": "HS Code" },
-                { "data": "bu", "title": "BU" },
-                { "data": "category", "title": "Category" },
+                { 
+                    "data": "id", 
+                    "visible": false 
+                },
+                { 
+                    "data": "ci_item_code", 
+                    "title": "Item Code" 
+                },
+                { 
+                    "data": "ci_item_name", 
+                    "title": "Item Name" 
+                },
+                { 
+                    "data": "duplicate_name", 
+                    "title": "Duplicate Name" 
+                },
+                { 
+                    "data": "p_net_weight", 
+                    "title": "P Weight" 
+                },
+                { 
+                    "data": "factor", 
+                    "title": "Factor" 
+                },
+                { 
+                    "data": "ci_factor", 
+                    "title": "CI Factor" 
+                },
+                { 
+                    "data": "d_net_weight", 
+                    "title": "D Weight" 
+                },
+                { 
+                    "data": "ci_item_rate", 
+                    "title": "Item Rate" 
+                },
+                { 
+                    "data": "hs_code", 
+                    "title": "HS Code" 
+                },
+                { 
+                    "data": "bu", 
+                    "title": "BU" 
+                },
+                { 
+                    "data": "category", 
+                    "title": "Category" 
+                },
                 { 
                     "data": "status",
                     "title": "Status",
                     "render": function(data, type, row) {
-                        // Check if item is inactive
-                        if (row.is_api === 'Y' || data == 'N' || data == '0') {
+                        // ✅ শুধু status দেখে Active/Inactive দেখান
+                        if (row.status === 'N' || row.status === '0') {
                             return '<span class="badge" style="background:#ef4444;color:white;padding:2px 10px;border-radius:50px;font-size:9px;">Inactive</span>';
                         } else {
                             return '<span class="badge" style="background:#10b981;color:white;padding:2px 10px;border-radius:50px;font-size:9px;">Active</span>';
@@ -1060,7 +1106,8 @@
                             buttons += '<button data-id="'+row.id+'" class="btn-edit" title="Edit"><i class="fa fa-pencil"></i></button> ';
                         @endif
                         @if($viewPermissions->can_delete)
-                            if (row.is_api === 'Y' || row.status == 'N' || row.status == '0') {
+                            // ✅ শুধু status দেখে Active/Inactive বাটন দেখান
+                            if (row.status === 'N' || row.status === '0') {
                                 buttons += '<button data-id="'+row.id+'" class="btn-active" title="Active"><i class="fa fa-check-circle"></i> Active</button> ';
                             } else {
                                 buttons += '<button data-id="'+row.id+'" class="btn-inactive" title="Inactive"><i class="fa fa-ban"></i> Inactive</button> ';
@@ -1087,7 +1134,8 @@
                 "zeroRecords": "No matching records found"
             },
             "rowCallback": function(row, data) {
-                if (data.is_api === 'Y' || data.status == 'N' || data.status == '0') {
+                // ✅ শুধু status দেখে Row Color নির্ধারণ
+                if (data.status === 'N' || data.status === '0') {
                     $(row).addClass('row-status-inactive');
                 } else {
                     $(row).addClass('row-status-active');
@@ -1103,7 +1151,7 @@
             "responsive": true
         });
 
-        // Check Item
+        // ===== CHECK ITEM (CREATE) =====
         $('#check_btn_id').on('click', function(e) {
             var ci_item_code = $('#ci_item_code').val();
             if(ci_item_code == ""){
@@ -1138,7 +1186,7 @@
             }
         });
 
-        // Check Item Edit Form
+        // ===== CHECK ITEM (EDIT) =====
         $('#echeck_btn_id').on('click', function(e) {
             var ci_item_code = $('#eci_item_code').val();
             if(ci_item_code == ""){
@@ -1178,7 +1226,7 @@
             }
         });
 
-        // Edit Item
+        // ===== EDIT ITEM =====
         $('#example1 tbody').on('click', '.btn-edit', function(e) {
             e.preventDefault();
             var item_id = $(this).data("id");
@@ -1230,7 +1278,7 @@
             $("#editModal").modal("show");
         });
 
-        // Load BU Create Form
+        // ===== LOAD BU (CREATE) =====
         function loadBU(data, bu_code){
             if(data){
                 var $el = $('#bu_id');
@@ -1248,7 +1296,7 @@
             }
         }
 
-        // Load BU Edit Form
+        // ===== LOAD BU (EDIT) =====
         function loadBUEdit(data, bu_code){
             if(data){
                 var $el = $('#ebu_id');
@@ -1266,7 +1314,7 @@
             }
         }
 
-        // Load BU On Edit Form
+        // ===== LOAD BU ON EDIT FORM =====
         function loadBUOnEditForm(data, bu_code){
             if(data){
                 var $el = $('#ebu_id');
@@ -1284,7 +1332,7 @@
             }
         }
 
-        // Load Category On Edit Form
+        // ===== LOAD CATEGORY ON EDIT FORM =====
         function loadCategroyOnEditForm(data, category_id){
             if(data){
                 var $el = $('#eitem_type_id');
@@ -1302,7 +1350,7 @@
             }
         }
 
-        // Item Inactive
+        // ===== ITEM INACTIVE =====
         $('#example1 tbody').on('click', '.btn-inactive', function(e) {
             var inactiveID = $(this).data("id");   
             if(inactiveID){
@@ -1345,7 +1393,7 @@
             }
         });
 
-        // Item Active
+        // ===== ITEM ACTIVE =====
         $('#example1 tbody').on('click', '.btn-active', function(e) {
             var active_id = $(this).data("id");   
             if(active_id){
@@ -1388,7 +1436,7 @@
             }
         });
 
-        // Create Form Submit
+        // ===== CREATE FORM SUBMIT =====
         $("#CreateFormId").submit(function (e) {
             e.preventDefault(); 
             $.ajax({
@@ -1425,7 +1473,7 @@
             });
         });
 
-        // Update Form Submit
+        // ===== UPDATE FORM SUBMIT =====
         $("#updateFormId").submit(function (e) {
             e.preventDefault(); 
             $.ajax({

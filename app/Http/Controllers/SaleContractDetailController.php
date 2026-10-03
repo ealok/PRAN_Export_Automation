@@ -27,8 +27,8 @@ class SaleContractDetailController extends Controller{
     
     public function store(Request $request)
     {
+
         $ci_item = CiItem::find($request->ci_item_id);   
-        
         // Validate inputs
         if ($request->cbm_per_ctn <= 0) {
             return response()->json([
@@ -48,7 +48,7 @@ class SaleContractDetailController extends Controller{
         $sale_contract_detail = new SaleContractDetail;
         $sale_contract_detail->ccq = 0;
         $sale_contract_detail->ci_item_id = $request->ci_item_id;
-        $sale_contract_detail->ci_item_name = $ci_item->ci_item_name; 
+        $sale_contract_detail->ci_item_name =$ci_item->duplicate_name; 
         $sale_contract_detail->sale_contract_id = $request->sc_id;
         $sale_contract_detail->rate_per_ctn = $ci_item->ci_item_rate;
         $sale_contract_detail->rate_per_ctn_for_party = $request->rate_per_ctn_for_party;
@@ -83,7 +83,6 @@ class SaleContractDetailController extends Controller{
         $sale_contract_detail->batch_no = $request->batch_no;
         $sale_contract_detail->desk_item_name = $request->desk_item_name;
         $sale_contract_detail->save();
-        
         $this->manageFreight($request->sc_id);
         $this->manageCCQ($request->sc_id);
         

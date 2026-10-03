@@ -62,6 +62,7 @@
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/mcci/land" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat">MCCI LAND</button></a>
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/truck_recipt" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat" id="{{$sale_contract->id}}" onclick="return checkDashboardStatus(event,this.id,1)">TRUCK RECEIPT</button></a>
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/health_certificate" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat" id="{{$sale_contract->id}}" onclick="return checkDashboardStatus(event,this.id,1)">HEALTH REPORT</button></a>
+                           <a href="{{url('/sale_contract/'.$sale_contract->id)}}/health_certificate_phl" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat" id="{{$sale_contract->id}}" onclick="return checkDashboardStatus(event,this.id,1)">HEALTH REPORT(PHL)</button></a>
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/gt_bill" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat" id="{{$sale_contract->id}}" onclick="return checkDashboardStatus(event,this.id,1)">BILL OF EXCHANGE</button></a> 
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/for_bank_lc" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat" id="{{$sale_contract->id}}" onclick="return checkDashboardStatus(event,this.id,1)">FOR BANK(LC)</button></a>
                            <a href="{{url('/sale_contract/'.$sale_contract->id)}}/app_for_arv" title="Show"><button type="button" class="btn btn-sm btn-success btn-flat" id="{{$sale_contract->id}}" onclick="return checkDashboardStatus(event,this.id,1)">APP FOR ARV</button></a>
@@ -214,8 +215,8 @@
                                <strong>DATE:{{date("d-m-Y",strtotime( $sale_contract->dated))}}</strong>
                            </td> 
                            <td colspan="4">
-                              {{-- <strong>COUNTRY OF ORIGIN: {{strtoupper($sale_contract->country->name)}}</strong><br>
-                              <strong>SALES TERM: {{$sale_contract->sales_term->name}}</strong> --}}
+                              <strong>COUNTRY OF ORIGIN: {{strtoupper($sale_contract->country->name)}}</strong><br>
+                              <strong>SALES TERM: {{$sale_contract->sales_term->name}}</strong>
                            </td>
                            <td colspan="3">
                               <strong>INVOICE NO: {{$sale_contract->invoice_no}}</strong><br>

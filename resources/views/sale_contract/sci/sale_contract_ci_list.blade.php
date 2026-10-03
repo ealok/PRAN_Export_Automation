@@ -537,7 +537,6 @@ $(document).ready(function() {
                 if (item.status === 'Desk Approved') statusHtml = "<span class='badge badge-info'>Desk Approved</span>";
                 else if (item.status === 'Com Approved') statusHtml = "<span class='badge badge-success'>Com Approved</span>";
                 else if (item.status === 'Not Approved') statusHtml = "<span class='badge badge-danger'>Not Approved</span>";
-                
                 dataSet.push([
                     index + 1,
                     item.sales_contract_no,
@@ -546,8 +545,36 @@ $(document).ready(function() {
                     item.company,
                     item.bank,
                     statusHtml,
-                    "<button class='btn btn-sm btn-primary edit_btn' data-scid='" + item.id + "' data-party='" + item.party_id + "' title='Doc Process'><i class='fa fa-file'></i></button> " +
-                    "<button class='btn btn-sm btn-info details_btn' data-scid='" + item.id + "' data-party='" + item.party_id + "' title='SC Details'><i class='fa fa-eye'></i></button>"
+
+                    "<button class='btn btn-sm btn-primary edit_btn' " +
+                        "data-scid='" + item.id + "' " +
+                        "data-party='" + item.party_id + "' " +
+                        "title='Doc Process'>" +
+                        "<i class='fa fa-file'></i>" +
+                    "</button> " +
+
+                    "<button class='btn btn-sm btn-info details_btn' " +
+                        "data-scid='" + item.id + "' " +
+                        "data-party='" + item.party_id + "' " +
+                        "title='SC Details'>" +
+                        "<i class='fa fa-eye'></i>" +
+                    "</button> " +
+
+                    // "<button class='btn btn-sm btn-info price_btn' " +
+                    //     "data-scid='" + item.id + "' " +
+                    //     "data-party='" + item.party_id + "' " +
+                    //     "title='Make Price Same'>" +
+                    //     "<i class='fa fa-money'></i>" +
+                    // "</button>" + 
+
+                    "<button class='btn btn-sm btn-warning rate_btn' " +
+                        "data-scid='" + item.id + "' " +
+                        "data-party='" + item.party_id + "' " +
+                        "data-ci-rate='" + item.ci_rate + "' " +
+                        "data-accounts-rate='" + item.accounts_rate + "' " +
+                        "title='Select Rate for Calculation'>" +
+                        "<i class='fa fa-calculator'></i> Select Rate" +
+                    "</button>"
                 ]);
             });
             table.clear().rows.add(dataSet).draw();
@@ -637,6 +664,271 @@ $(document).ready(function() {
         e.preventDefault();
         let scid = $(this).data('scid');
         window.location.href = `/sci_doc?sc_id=${btoa(scid)}`;
+    });
+
+    // Handle price_btn click
+    // $(document).on('click', '.price_btn', function(e) {
+    //     e.preventDefault();
+    //     let scid = $(this).data('scid');
+    //     Swal.fire({
+    //         title: 'Make Same?',
+    //         text: 'Account rate = Party rate?',
+    //         icon: 'question',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Yes'
+    //     }).then((result) => {
+    //         if(result.isConfirmed) {
+    //             $.ajax({
+    //                 url: '/ci_make_price_same',
+    //                 method: 'GET',
+    //                 data: { sale_contact_id: scid },
+    //                 success: function(response) {
+    //                     response.code === 200 ? Swal.fire('Done!', 'Prices made same', 'success') : '';
+    //                 },
+    //                 error: function() {
+    //                     Swal.fire('Oops!', 'Failed', 'error');
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
+
+    $(document).on('click', '.rate_btn', function(e) {
+        e.preventDefault();
+        let scid = $(this).data('scid');
+        let partyId = $(this).data('party');
+        let currentRate = $(this).data('current-rate') || 'ci_rate';
+        let ciRate = $(this).data('ci-rate') || 'N/A';
+        let accountsRate = $(this).data('accounts-rate') || 'N/A';
+        
+        Swal.fire({
+            title: 'Select Calculation Rate',
+            html: `
+                <div class="text-left" style="padding: 10px 0;">
+                    <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
+                        <i class="fa fa-info-circle"></i> Choose which rate to use for calculations
+                    </p>
+                    
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                            <span><strong>Acc Rate:</strong> ${ciRate}</span>
+                            <span><strong>Accounts Rate:</strong> ${accountsRate}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="radio" style="padding: 8px 12px; border: 2px solid ${currentRate === 'ci_rate' ? '#28a745' : '#e9ecef'}; border-radius: 6px; margin-bottom: 8px; background: ${currentRate === 'ci_rate' ? '#f0fff4' : 'transparent'};">
+                        <label style="cursor: pointer; width: 100%; display: flex; align-items: center;">
+                            <input type="radio" name="rateType" value="ci_rate" ${currentRate === 'ci_rate' ? 'checked' : ''} style="margin-right: 10px;">
+                            <div>
+                                <strong style="color: #28a745;">Party Rate</strong> 
+                                <span style="color: #6c757d; font-size: 13px; margin-left: 5px;">(Default)</span>
+                                <br>
+                                <span style="color: #6c757d; font-size: 12px;">Value: ${ciRate}</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="radio" style="padding: 8px 12px; border: 2px solid ${currentRate === 'accounts_rate' ? '#007bff' : '#e9ecef'}; border-radius: 6px; margin-bottom: 8px; background: ${currentRate === 'accounts_rate' ? '#f0f7ff' : 'transparent'};">
+                        <label style="cursor: pointer; width: 100%; display: flex; align-items: center;">
+                            <input type="radio" name="rateType" value="accounts_rate" ${currentRate === 'accounts_rate' ? 'checked' : ''} style="margin-right: 10px;">
+                            <div>
+                                <strong style="color: #007bff;">Accounts Rate</strong>
+                                <span style="color: #6c757d; font-size: 13px; margin-left: 5px;">(Optional)</span>
+                                <br>
+                                <span style="color: #6c757d; font-size: 12px;">Value: ${accountsRate}</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Save & Continue',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            preConfirm: () => {
+                const selected = document.querySelector('input[name="rateType"]:checked');
+                if (!selected) {
+                    Swal.showValidationMessage('Please select a rate type');
+                    return false;
+                }
+                return selected.value;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let rateType = result.value;
+                
+                // Show loading
+                Swal.fire({
+                    title: 'Updating...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // AJAX call to update rate preference
+                $.ajax({
+                    url: '/update_rate_preference',
+                    method: 'POST',
+                    data: {
+                        sale_contact_id: scid,
+                        party_id: partyId,
+                        rate_type: rateType
+                    },
+                    success: function(response) {
+                        if (response.code === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: `Rate preference updated to ${rateType === 'ci_rate' ? 'CI Rate' : 'Accounts Rate'}`,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            
+                            // Reload DataTable
+                            if (typeof table !== 'undefined') {
+                                table.ajax.reload(null, false);
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: response.message || 'Something went wrong'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Failed to update rate preference. Please try again.'
+                        });
+                        console.error('Error:', xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.rate_btn', function(e) {
+        e.preventDefault();
+        let scid = $(this).data('scid');
+        let partyId = $(this).data('party');
+        let currentRate = $(this).data('current-rate') || 'ci_rate';
+        let ciRate = $(this).data('ci-rate') || 'N/A';
+        let accountsRate = $(this).data('accounts-rate') || 'N/A';
+        
+        Swal.fire({
+            title: 'Select Calculation Rate',
+            html: `
+                <div class="text-left" style="padding: 10px 0;">
+                    <p style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
+                        <i class="fa fa-info-circle"></i> Choose which rate to use for calculations
+                    </p>
+                                        
+                    <div class="radio" style="padding: 8px 12px; border: 2px solid ${currentRate === 'ci_rate' ? '#28a745' : '#e9ecef'}; border-radius: 6px; margin-bottom: 8px; background: ${currentRate === 'ci_rate' ? '#f0fff4' : 'transparent'};">
+                        <label style="cursor: pointer; width: 100%; display: flex; align-items: center;">
+                            <input type="radio" name="rateType" value="ci_rate" ${currentRate === 'ci_rate' ? 'checked' : ''} style="margin-right: 10px;">
+                            <div>
+                                <strong style="color: #28a745;">Party Rate</strong> 
+                                <span style="color: #6c757d; font-size: 13px; margin-left: 5px;">(Default)</span>
+                                <br>
+                                <span style="color: #6c757d; font-size: 12px;">Value: ${ciRate}</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="radio" style="padding: 8px 12px; border: 2px solid ${currentRate === 'accounts_rate' ? '#007bff' : '#e9ecef'}; border-radius: 6px; margin-bottom: 8px; background: ${currentRate === 'accounts_rate' ? '#f0f7ff' : 'transparent'};">
+                        <label style="cursor: pointer; width: 100%; display: flex; align-items: center;">
+                            <input type="radio" name="rateType" value="accounts_rate" ${currentRate === 'accounts_rate' ? 'checked' : ''} style="margin-right: 10px;">
+                            <div>
+                                <strong style="color: #007bff;">Accounts Rate</strong>
+                                <span style="color: #6c757d; font-size: 13px; margin-left: 5px;">(Optional)</span>
+                                <br>
+                                <span style="color: #6c757d; font-size: 12px;">Value: ${accountsRate}</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Save & Continue',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            preConfirm: () => {
+                const selected = document.querySelector('input[name="rateType"]:checked');
+                if (!selected) {
+                    Swal.showValidationMessage('Please select a rate type');
+                    return false;
+                }
+                return selected.value;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let rateType = result.value;
+                
+                // Show loading
+                Swal.fire({
+                    title: 'Updating...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                $.ajax({
+                    url: '/update-rate-preference',
+                    method: 'GET',
+                    data: {
+                        sale_contact_id: scid,
+                        rate_type: rateType,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+
+                        if(response.code === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+
+                        } else {
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: response.message || 'Something went wrong'
+                            });
+
+                        }
+
+                    },
+                    error: function(xhr) {
+
+                        let errorMessage = 'Failed to update rate preference. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: errorMessage
+                        });
+                        console.error('Error:', xhr.responseText);
+                    }
+                });
+            }
+        });
     });
 
     // Load last searched invoice when page loads

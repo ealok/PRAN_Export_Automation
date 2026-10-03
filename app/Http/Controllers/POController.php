@@ -17,11 +17,18 @@ use App\NotifyPartyUser;
 class POController extends Controller
 {
 
-    public function __construct(){
+    // public function __construct(){
 
-        $this->middleware('auth');
+    //     $this->middleware('auth');
  
-     }
+    //  }
+
+     public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+
+    }
     /**
      * Display a listing of the resource.
      *
@@ -397,6 +404,12 @@ class POController extends Controller
             'user_id'=>$user_id,
             'desk_user'=>$desk_user
         ],200);
+
+    }
+
+    public function getCameraData(Request $request){
+        
+        return 10;
 
     }
 

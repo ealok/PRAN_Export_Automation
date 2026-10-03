@@ -1496,14 +1496,18 @@
                             <div class="inline-form-group">
                                 <label for="shipping_line_id">Name Of Shipping Line</label>
                                 <select name="name_of_shipping_line_id" id="name_of_shipping_line_id" data-live-search="true" class="form-control select2 selectpicker input-sm" type="select"  value="1">
-                                    <option value="">Select</option>
-                                    @foreach($shippingLines as $shippingLine)
-                                    <option value="{{$shippingLine->id}}" @if($shippingLine->id==$sale_contract->name_of_shipping_line_id){{'selected'}}@endif>{{$shippingLine->shipping_name}} / {{$shippingLine->license_number}}</option>
+                                    @foreach($shippingLines->where('type', 'Shipper') as $shippingLine)
+                                        <option value="{{ $shippingLine->id }}"
+                                            @if($shippingLine->id == $sale_contract->name_of_shipping_line_id)
+                                                selected
+                                            @endif>
+                                            {{ $shippingLine->shipping_name }} / {{ $shippingLine->license_number }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @if ($errors->has('name_of_shipping_line_id'))
                                     <span class="help-block"><strong>{{ $errors->first('name_of_shipping_line_id') }}</strong></span>
-                                @endif   
+                                @endif 
                             </div>
                         </div>
                         <div class="col-sm-3">
@@ -2169,6 +2173,14 @@
                     console.error('Error checking invoice number: ', error);
                 }
             });
+        });
+
+        $('#sales_contract_no').on('keyup paste change input', function() {
+            var value = $(this).val();
+            var cleaned = value.replace(/\s/g, '');
+            if (value !== cleaned) {
+                $(this).val(cleaned);
+            }
         });
 
         // Total Freight Cost Calculation

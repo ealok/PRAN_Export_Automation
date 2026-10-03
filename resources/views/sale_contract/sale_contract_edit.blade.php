@@ -1419,8 +1419,13 @@
                                 <label for="name_of_shipping_line_id">Name Of Shipping Line</label>
                                 <select name="name_of_shipping_line_id" id="name_of_shipping_line_id" data-live-search="true" class="form-control select2 selectpicker input-sm" type="select"  value="1">
                                     <option value="">Select</option>
-                                    @foreach($shippingLines as $shippingLine)
-                                    <option value="{{$shippingLine->id}}" @if($shippingLine->id==$sale_contract->name_of_shipping_line_id){{'selected'}}@endif>{{$shippingLine->shipping_name}} / {{$shippingLine->license_number}}</option>
+                                    @foreach($shippingLines->where('type', 'Shipper') as $shippingLine)
+                                        <option value="{{ $shippingLine->id }}"
+                                            @if($shippingLine->id == $sale_contract->name_of_shipping_line_id)
+                                                selected
+                                            @endif>
+                                            {{ $shippingLine->shipping_name }} / {{ $shippingLine->license_number }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @if ($errors->has('name_of_shipping_line_id'))
@@ -2042,10 +2047,12 @@
 <script>document.title = 'Sales Contract | Edit';</script>
 <script>
 $(document).ready(function() {
+
     setTimeout(function() { 
-  $('.sr-only').click();
-}, 0.0001);   
-     $('#invoice_no').on('keyup paste change', function() {
+      $('.sr-only').click();
+    }, 0.0001);
+
+    $('#invoice_no').on('keyup paste change', function() {
         var value = $(this).val();
         var sc_id = $('#sc_id').val(); // Edit à¦¹à¦²à§‡ ID à¦¥à¦¾à¦•à¦¬à§‡, Create à¦¹à¦²à§‡ empty
         
@@ -2084,7 +2091,15 @@ $(document).ready(function() {
         }
     });
 
-     function redirectToShowPage() {
+    $('#sales_contract_no').on('keyup paste change input', function() {
+        var value = $(this).val();
+        var cleaned = value.replace(/\s/g, '');
+        if (value !== cleaned) {
+            $(this).val(cleaned);
+        }
+    });
+
+    function redirectToShowPage() {
         const encryptedContract = $(this).data('encrypted-contract');
         const encryptedParty = $(this).data('encrypted-party');
         

@@ -648,4 +648,192 @@ class RequistionController extends Controller
 
     }
 
+    public function getItemsForItemOpening(Request $request)
+    {
+        try {
+            $search = $request->input('q', '');
+            
+            $query = DB::table('requisition_items as ri')
+                ->leftJoin('job_order_details as jod', 'jod.item_id', '=', 'ri.item_id')
+                ->leftJoin('job_order_masters as jm', 'jod.master_id', '=', 'jm.id');
+
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('ri.item_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('ri.item_code', 'LIKE', '%' . $search . '%');
+                });
+            }
+            
+            $items = $query->select(
+                'ri.id as requisition_id',
+                'ri.item_code',
+                'ri.item_name',
+                'ri.region_name',
+                DB::raw('
+                    CASE 
+                        WHEN ri.admin_date IS NOT NULL THEN "Completed"
+                        WHEN ri.op_date IS NOT NULL THEN "OP Approved"
+                        WHEN ri.pd_date IS NOT NULL THEN "PD Approved"
+                        ELSE "Requisition Created"
+                    END as status
+                '),
+                'ri.requisition_number',
+                'ri.created_at as requisition_date',
+                'ri.pd_date',
+                'ri.pd_name',
+                'ri.op_date',
+                'ri.op_name',
+                'ri.admin_date',
+                'ri.admin_name'
+            )
+            ->groupBy(
+                'ri.id',
+                'ri.item_code',
+                'ri.item_name',
+                'ri.region_name',
+                'ri.requisition_number',
+                'ri.created_at',
+                'ri.pd_date',
+                'ri.pd_name',
+                'ri.op_date',
+                'ri.op_name',
+                'ri.admin_date',
+                'ri.admin_name'
+            )
+            ->limit(20)
+            ->get();
+
+            $formattedItems = array();
+            foreach ($items as $item) {
+                // Using ternary operator instead of ??
+                $itemCode = !is_null($item->item_code) ? $item->item_code : '';
+                $itemName = !is_null($item->item_name) ? $item->item_name : 'Unknown Item';
+                $regionName = !is_null($item->region_name) ? $item->region_name : 'Unknown';
+                $status = !is_null($item->status) ? $item->status : 'Requisition Created';
+                $requisitionDate = !is_null($item->requisition_date) ? $item->requisition_date : '';
+                
+                $formattedItems[] = array(
+                    'id' => $item->requisition_id,
+                    'code' => $itemCode,
+                    'name' => $itemName,
+                    'text' => $itemName . ' (' . (!empty($itemCode) ? $itemCode : 'No Code') . ')',
+                    'region' => $regionName,
+                    'status' => $status,
+                    'requisition_number' => $item->requisition_number,
+                    'requisition_date' => $requisitionDate,
+                    'pd_date' => $item->pd_date,
+                    'pd_name' => $item->pd_name,
+                    'op_date' => $item->op_date,
+                    'op_name' => $item->op_name,
+                    'admin_date' => $item->admin_date,
+                    'admin_name' => $item->admin_name
+                );
+            }
+
+            return response()->json(array(
+                'status' => 'success',
+                'items' => $formattedItems,
+                'total' => count($formattedItems)
+            ));
+
+        } catch (\Exception $e) {
+            return response()->json(array(
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ), 500);
+        }
+    }
+
+    public function getItemOpeningDetails(Request $request)
+    {
+        try {
+            $itemId = $request->input('id');
+            
+            if (!$itemId) {
+                return response()->json(array(
+                    'status' => 'error',
+                    'message' => 'Item ID is required'
+                ), 400);
+            }
+
+            $item = DB::table('requisition_items as ri')
+                ->leftJoin('job_order_details as jod', 'jod.item_id', '=', 'ri.item_id')
+                ->leftJoin('job_order_masters as jm', 'jod.master_id', '=', 'jm.id')
+                ->where('ri.id', $itemId)
+                ->select(
+                    'ri.id as requisition_id',
+                    'ri.item_code',
+                    'ri.item_name',
+                    'ri.region_name',
+                    DB::raw('
+                        CASE 
+                            WHEN ri.admin_date IS NOT NULL THEN "Completed"
+                            WHEN ri.op_date IS NOT NULL THEN "OP Approved"
+                            WHEN ri.pd_date IS NOT NULL THEN "PD Approved"
+                            ELSE "Requisition Created"
+                        END as status
+                    '),
+                    'ri.requisition_number',
+                    'ri.created_at as requisition_date',
+                    'ri.pd_date',
+                    'ri.pd_name',
+                    'ri.op_date',
+                    'ri.op_name',
+                    'ri.admin_date',
+                    'ri.admin_name'
+                )
+                ->first();
+
+            if (!$item) {
+                return response()->json(array(
+                    'status' => 'error',
+                    'message' => 'Item not found'
+                ), 404);
+            }
+
+            // Using ternary operator instead of ??
+            $itemCode = !is_null($item->item_code) ? $item->item_code : '';
+            $itemName = !is_null($item->item_name) ? $item->item_name : 'Unknown Item';
+            $regionName = !is_null($item->region_name) ? $item->region_name : 'Unknown';
+            $status = !is_null($item->status) ? $item->status : 'Requisition Created';
+            $requisitionDate = !is_null($item->requisition_date) ? $item->requisition_date : '';
+
+            $itemData = array(
+                'id' => $item->requisition_id,
+                'code' => $itemCode,
+                'name' => $itemName,
+                'region' => $regionName,
+                'status' => $status,
+                'requisition_number' => $item->requisition_number,
+                'requisition_date' => $requisitionDate,
+                'pd' => array(
+                    'status' => !is_null($item->pd_date) ? 'Completed' : 'Pending',
+                    'date' => !is_null($item->pd_date) ? date('d-m-Y H:i:s', strtotime($item->pd_date)) : '',
+                    'user' => !is_null($item->pd_name) ? $item->pd_name : ''
+                ),
+                'op' => array(
+                    'status' => !is_null($item->op_date) ? 'Completed' : 'Pending',
+                    'date' => !is_null($item->op_date) ? date('d-m-Y H:i:s', strtotime($item->op_date)) : '',
+                    'user' => !is_null($item->op_name) ? $item->op_name : ''
+                ),
+                'admin' => array(
+                    'status' => !is_null($item->admin_date) ? 'Completed' : 'Pending',
+                    'date' => !is_null($item->admin_date) ? date('d-m-Y H:i:s', strtotime($item->admin_date)) : '',
+                    'user' => !is_null($item->admin_name) ? $item->admin_name : ''
+                )
+            );
+
+            return response()->json(array(
+                'status' => 'success',
+                'item' => $itemData
+            ));
+
+        } catch (\Exception $e) {
+            return response()->json(array(
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ), 500);
+        }
+    }
+
 }

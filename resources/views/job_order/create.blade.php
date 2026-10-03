@@ -120,7 +120,7 @@
                         <input type="" class="form-control input-sm" name="importer_code" id="importer_code" value="@if(!empty($importer_code)){{$importer_code}}@endif" readonly="">
                     </div>
                 </div>
-                 <div class="col-sm-6">
+                <div class="col-sm-6">
                   <label for="name">Importer Name</label>
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <input type="" class="form-control input-sm" name="importer_name" id="importer_name" value="@if(!empty($importer_name)){{$importer_name}}@endif" readonly="">

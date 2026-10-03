@@ -98,10 +98,12 @@ table, th, td {
                         <span style="font-size: 16px;font-weight: bold">
                            1. Freight Forwarder License Number : 
                            @if($sale_contract->frightForwarder && $sale_contract->frightForwarder->license_number)
-                                 {{ $sale_contract->frightForwarder->license_number }}
+                              {{ $sale_contract->frightForwarder->license_number }}
+                           @elseif($sale_contract->shippingLine && $sale_contract->shippingLine->license_number)
+                              {{ $sale_contract->shippingLine->license_number }}
                            @endif
                            <br>
-                           
+
                            2. Freight Forwarder Name : 
                            @if($sale_contract->frightForwarder && $sale_contract->frightForwarder->shipping_name)
                                  {{ $sale_contract->frightForwarder->shipping_name }}

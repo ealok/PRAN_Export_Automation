@@ -95,16 +95,17 @@ class JobOrderController extends Controller
                 n.name AS Party_Name,
                 ci.ci_item_code AS Item_Code,
                 COALESCE(sod.ci_item_name, 'Not in SC') AS Item_Name,
-                ci.ci_factor as ci_factor,
+                ci.ci_factor AS ci_factor,
                 ROUND(COALESCE(sod.pcs_in_ctn, 0) / ci.factor, 0) AS SC_Qty,
                 master2.job_order_number AS JO_Number,
                 ROUND(jod.orqt / ci.factor, 0) AS JO_Qty,
                 jod.rate AS Rate,
-                jod.item_status as Status,
+                jod.item_status AS Status,
                 DATE_FORMAT(master2.created_at, '%d-%m-%Y') AS JO_Date,
                 u.name AS JO_Creator,
                 uc.name AS SC_Creator,
-                c.sb_no as Bill_Of_Entry_No
+                c.sb_no AS Bill_Of_Entry_No,
+                n.country AS Country
             FROM job_order_masters master2
             INNER JOIN job_order_details jod ON master2.id = jod.master_id AND jod.item_status = 'Y'
             INNER JOIN sale_contracts contract ON master2.sale_contract_id = contract.id AND contract.inactive = 'N' AND master2.status != 3

@@ -36,12 +36,10 @@
                             <label for="item_file">Item Group</label>
                             <select name="item_group" id="item_group" data-live-search="true" class="form-control select2 selectpicker" required autofocus type="select"  value="1" >
                                 <option value="">Select</option>
-                                @if($itemGroups->count())
                                 @foreach($itemGroups as $itemGroup)
                                 <option value="{{$itemGroup->id}}" {{$ciItemdetails->item_group_id==$itemGroup->id ? 'selected="selected"' : '' }}>{{ $itemGroup->item_group_name}}
                                 </option>
                                 @endforeach
-                                @endif
                             </select>
                         </div>
                     </div>
@@ -50,12 +48,10 @@
                             <label for="item_file">Item</label>
                             <select name="ci_item_claim_id" id="ci_item_claim_id" data-live-search="true" class="form-control select2 selectpicker" required autofocus type="select"  value="1">
                               <option value="">Select Sales term</option>
-                              @if($ciItems->count())
                               @foreach($ciItems as $ciItem)
                               <option value="{{$ciItem->id}}" {{$ciItemdetails->id==$ciItem->id ? 'selected="selected"' : '' }}>{{ $ciItem->ci_item_name}}
                               </option>
                               @endforeach
-                              @endif
                             </select>
                         </div>
                     </div>

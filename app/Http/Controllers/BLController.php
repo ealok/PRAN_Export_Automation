@@ -112,8 +112,7 @@ class BLController extends Controller
                     $blCopy->remark=$request->remark;
                     $blCopy->iuser=Auth::user()->id;
                     $blCopy->save();
-
-
+                    $this->sendDraftBlApi($blCopy->id, $sales_contract->invoice_no, $responseData['file_path']);   
                     $saleContract=SaleContract::where('id',$sales_contract->id)->first(['id','po_number']);    
                     if($saleContract->po_number){
             
@@ -156,12 +155,10 @@ class BLController extends Controller
 
                     } 
                     
-
                 }
-                
+
                 $error = curl_error($curl);
                 curl_close($curl);
-                
             }
 
             if($blCopy){
@@ -180,6 +177,54 @@ class BLController extends Controller
 
         }
         
+    }
+
+
+    private function sendDraftBlApi($blCopyId, $invoice_no, $file_path)
+    {
+        $curl = curl_init();
+        $base_url='http://rqc.rflgroupbd.com:8016/storage/'.$file_path;
+        $postData = json_encode([
+            "invoice_no" => $invoice_no,
+            "preview_link" => $base_url,
+            "notes" => ""
+        ]);
+
+        //Basic Auth
+        $username = "auth";
+        $password = "12Pran@123456$";
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://crm.prangroup.com/api/job-orders/draft-bl',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $postData,
+        CURLOPT_USERPWD => $username . ':' . $password, // Add Basic Auth
+        CURLOPT_HTTPHEADER => array(
+            'ss: order_list',
+            'yy: HJDyh876Yhdsf543GFOYSAL',
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Cookie: XSRF-TOKEN=eyJpdiI6InQyRGhjQnRKT2VjZktuYXltcDVKbHc9PSIsInZhbHVlIjoiQjNsWmNlNDBHcTRBSjNBTm5DT3pYU2tMc3JESURDek05TnJ2T3JLS1czcEttajRNcDNaYS9yU2pWMW9hT1F3WEN4Tm5zYzF5eVc1UDMvdGlnNGdUOTUrWDd1a1BtZnZUTTdacGdPTzBkenRqMGMzUVg3SkNJcytudEJMc0ZwSWEiLCJtYWMiOiI4MmIzZWI2MjVkY2YyOGU5ODk2Y2VjYjQ4YTI1NTEwOGE5MjE0YjYxMWY2YWM2YmNmODNkOTIxMzg5NDU5MzEwIiwidGFnIjoiIn0%3D; crm_session=eyJpdiI6InpjK0NZdS9mR3pwWFFpUlVBRUVkUEE9PSIsInZhbHVlIjoiUUpxTDlySG9UV3NDUEpiMFVSam9kSnlwZUlydm9GcjNTVWpsRzZyWnlpL1pNVW1qYzI3VXVlT0M5TXN5MVRmdW5mS1h0VUlUUlFUTkQyZEZuRDBDZDY3ZEMwOVhwRU5OWmlHODBCUmdoS2RsWE9oVnBpYlFaV3NxTWhXanI4OFoiLCJtYWMiOiIwYWJlMTkxMTU2Y2QxZjVjZDc5MTM4NWM3YmZkNjg0MTIxNGQ1MTkxMjliNjliY2QyYmIyZDNkZGFmMTExNjE3IiwidGFnIjoiIn0%3D'
+        ),
+        ));
+    
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        $responseData = json_decode($response, true);
+        $blCopy = BlCopy::find($blCopyId);
+        if($blCopy){
+            $blCopy->api_status = $responseData['status'] ? $responseData['status'] : 'failed';
+            $blCopy->api_response = $responseData['message'] ? $responseData['message'] :  $response;
+            $blCopy->base_url = $base_url;
+            $blCopy->save();
+        }
     }
 
     public function searchBLCopy(Request $request){

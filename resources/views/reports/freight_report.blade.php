@@ -339,7 +339,7 @@ hr{
         </div>
     </div>
 </div>
-<script>document.title = 'Freight | Report';</script>
+<script>document.title = 'Report | Freight';</script>
 @endsection
 @section("child.js") 
 <script type="text/javascript">
@@ -384,9 +384,7 @@ hr{
             $('#rcv_data_table').dataTable().fnDestroy(); 
             var table = $('#rcv_data_table').DataTable({
                     dom: 'Bfrtip', 
-                    buttons: [
-                        'csv', 'excel'
-                    ], 
+                    buttons: ['csv', 'excel'], 
                     "ajax": {
                         "processing": true,
                         "serverSide": true,

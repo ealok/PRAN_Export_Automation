@@ -646,15 +646,6 @@
                         @endforeach  
                     </tbody>
                 </table>
-
-                <!-- ===== PAGINATION ===== -->
-                <div class="pagination-container">
-                    <div class="page-info">
-                        Showing {{ $company_banks->firstItem() ? $company_banks->firstItem() : 0 }} 
-                        to {{ $company_banks->lastItem() ? $company_banks->lastItem() : 0 }} 
-                        of {{ $company_banks->total() ? $company_banks->total() : 0 }} entries
-                    </div>
-                </div>
             </div>
         </div>
     </div>

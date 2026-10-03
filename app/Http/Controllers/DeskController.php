@@ -130,8 +130,7 @@ class DeskController extends Controller
             
             $dateFrom = date("Y-m-d", strtotime($fromDate));
             $dateTo = date('Y-m-d', strtotime("+1 days", strtotime($toDate))); 
-            $results = \DB::select("
-                SELECT
+            $results = \DB::select("SELECT
                     sale_contracts.sales_contract_no AS sc_no,
                     DATE_FORMAT(sale_contracts.dated, '%d-%m-%Y') AS sc_date,
                     companies.code AS company_name,
@@ -149,7 +148,7 @@ class DeskController extends Controller
                     sale_contracts.final_destination,
                     DATE_FORMAT(sale_contracts.bank_for_print_date, '%d-%m-%Y') AS bank_for_print_date,
                     SUM(detail.total_amount_party) as party_amount,
-                    SUM(detail.total_amount) as invoice_amount
+                    detail.total_ci_value as invoice_amount
                 FROM sale_contracts
                 JOIN sale_contract_details detail on sale_contracts.id = detail.sale_contract_id
                 JOIN companies ON companies.id = sale_contracts.company_id

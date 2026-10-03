@@ -44,7 +44,6 @@
     flex-wrap: wrap;
 }
 
-/* ===== CUSTOM DROPDOWN ===== */
 .custom-dropdown {
     position: relative;
     display: inline-block;
@@ -86,7 +85,6 @@
     font-size: 12px;
 }
 
-/* ===== CARD BUTTONS - Compact ===== */
 .card-btn {
     padding: 4px 12px;
     font-size: 11px;
@@ -101,10 +99,6 @@
     cursor: pointer;
     white-space: nowrap;
     line-height: 1;
-}
-
-.modal-header .close {
-  margin-top: -26px;
 }
 
 .card-btn i {
@@ -145,7 +139,6 @@
     box-shadow: 0 4px 8px rgba(236, 72, 153, 0.3);
 }
 
-/* ===== TABLE STYLES - Font Size 10px ===== */
 .table {
     font-size: 10px !important;
     width: 100%;
@@ -175,12 +168,6 @@
     text-align: center !important;
 }
 
-.table-bordered > tbody > tr > td:nth-child(3),
-.table-bordered > tbody > tr > td:nth-child(4) {
-    text-align: left !important;
-    padding-left: 5px !important;
-}
-
 .table-bordered > tbody > tr:hover {
     background-color: #eef2ff !important;
     cursor: pointer;
@@ -194,14 +181,9 @@
     background-color: #ffffff;
 }
 
-/* ===== ROW STATUS ===== */
 .row-status-inactive td {
     background-color: #fef2f2 !important;
     border-left: 3px solid #ef4444;
-}
-
-.row-status-inactive td:first-child {
-    border-left: none;
 }
 
 .row-status-active td {
@@ -209,11 +191,6 @@
     border-left: 3px solid #22c55e;
 }
 
-.row-status-active td:first-child {
-    border-left: none;
-}
-
-/* ===== STATUS BADGE ===== */
 .status-badge {
     padding: 1px 8px;
     border-radius: 50px;
@@ -244,26 +221,19 @@
     cursor: pointer;
     user-select: none;
 }
-.dropdown-menu {
-    font-size: 12px;
-    text-align: left;
-    list-style: none;
-    background-color: #fff;
-    background-clip: padding-box;
-}
+
 .form-control {
-  display: block;
-  height: 26px;
-  padding: 4px 12px;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #555;
-  background-color: #fff;
-  background-image: none;
-  border: 1px solid #ccc;
+    display: block;
+    height: 26px;
+    padding: 4px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
 }
 
-/* ===== TABLE BUTTONS ===== */
 .table .btn-edit {
     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     color: white;
@@ -304,7 +274,6 @@
     justify-content: center;
 }
 
-/* ===== BOX STYLES ===== */
 .box {
     position: relative;
     border-radius: 10px;
@@ -315,10 +284,6 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
 }
 
-.box.box-primary {
-    border-top-color: #4f46e5;
-}
-
 .panel-body {
     padding: 6px 10px;
 }
@@ -327,27 +292,6 @@
     overflow-x: auto;
 }
 
-/* ===== BREADCRUMB ===== */
-.content-header > .breadcrumb {
-    float: right;
-    background: transparent;
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size: 11px;
-    padding: 5px 5px;
-    position: absolute;
-    top: -14px;
-    right: 10px;
-    border-radius: 2px;
-}
-
-.content-header > .breadcrumb > li > a {
-    color: #4f46e5;
-    font-weight: 500;
-    text-decoration: none;
-}
-
-/* ===== SELECT2 OVERRIDE - Font Size 12px ===== */
 .select2-container .select2-selection--single {
     border: 2px solid #d1d5db !important;
     border-radius: 8px !important;
@@ -373,20 +317,12 @@
     width: 20px !important;
 }
 
-.select2-container .select2-selection--single .select2-selection__arrow b {
-    border-width: 4px 4px 0 4px !important;
-    margin-left: -4px !important;
-}
-
 .select2-dropdown {
     border: 2px solid #d1d5db !important;
     border-radius: 8px !important;
     font-size: 12px !important;
 }
-.bootstrap-select > .dropdown-toggle.bs-placeholder{
-   color: #222;
-   border: 1px solid #c9bbbb; 
-}
+
 .select2-search--dropdown .select2-search__field {
     border: 1.5px solid #d1d5db !important;
     border-radius: 6px !important;
@@ -400,16 +336,11 @@
     padding: 4px 10px !important;
 }
 
-/* ===== DATA TABLE OVERRIDE ===== */
 .dataTables_wrapper .dataTables_length select {
     border: 1.5px solid #d1d5db !important;
     border-radius: 6px !important;
     height: 28px !important;
     padding: 0 6px !important;
-    font-size: 10px !important;
-}
-
-.dataTables_wrapper .dataTables_length label {
     font-size: 10px !important;
 }
 
@@ -421,24 +352,10 @@
     font-size: 10px !important;
 }
 
-.dataTables_wrapper .dataTables_filter label {
-    font-size: 10px !important;
-}
-
 .dataTables_wrapper .dataTables_filter input:focus {
     border-color: #4f46e5 !important;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
     outline: none !important;
-}
-
-.dataTables_wrapper .dataTables_info {
-    font-size: 10px !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    padding: 2px 6px !important;
-    font-size: 10px !important;
-    border-radius: 4px !important;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
@@ -447,108 +364,385 @@
     border-color: #4f46e5 !important;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .filter-card {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 12px 14px;
-    }
-    
-    .filter-card .filter-left {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-    }
-    
-    .filter-card .filter-left label {
-        margin-bottom: 3px;
-    }
-    
-    .custom-dropdown {
-        width: 100% !important;
-        min-width: unset;
-    }
-    
-    .filter-card .filter-right {
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
-        gap: 5px;
-    }
-    
-    .filter-card .filter-right .card-btn {
-        flex: 1;
-        justify-content: center;
-        min-width: 70px;
-        padding: 4px 8px;
-        font-size: 10px;
-        height: 28px;
-    }
-    
-    .table {
-        font-size: 9px !important;
-    }
-    
-    .table > thead:first-child > tr:first-child > th {
-        font-size: 8px !important;
-        padding: 4px 2px !important;
-    }
-    
-    .table-bordered > tbody > tr > td {
-        font-size: 9px !important;
-        padding: 2px 2px !important;
-    }
+/* ===== MODAL STYLES ===== */
+.modal-body .form-group {
+    margin-bottom: 8px;
 }
 
-@media (max-width: 480px) {
-    .filter-card {
-        padding: 10px;
-    }
-    
-    .custom-dropdown select {
-        font-size: 11px;
-        height: 30px;
-        padding: 3px 26px 3px 8px;
-    }
-    
-    .filter-card .filter-right .card-btn {
-        font-size: 9px;
-        padding: 3px 6px;
-        height: 26px;
-    }
-    
-    .filter-card .filter-right .card-btn i {
-        font-size: 10px;
-    }
-    
-    .table {
-        font-size: 8px !important;
-    }
-    
-    .table > thead:first-child > tr:first-child > th {
-        font-size: 7px !important;
-        padding: 3px 2px !important;
-    }
-    
-    .table-bordered > tbody > tr > td {
-        font-size: 8px !important;
-        padding: 2px 2px !important;
-    }
-    
-    .table .btn-edit,
-    .table .btn-delete {
-        font-size: 8px !important;
-        padding: 1px 5px !important;
-    }
-    
-    .status-badge {
-        font-size: 7px !important;
-        padding: 1px 5px !important;
-    }
+.modal-body .form-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 2px;
+    display: block;
 }
 
-/* ===== SCROLLBAR ===== */
+.modal-body .form-control {
+    border-radius: 6px;
+    box-shadow: none;
+    height: 28px;
+    font-size: 12px;
+    border: 1.5px solid #d1d5db;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.modal-body .form-control:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    outline: none;
+}
+
+.modal-body textarea.form-control {
+    min-height: 45px;
+    height: auto;
+    resize: vertical;
+}
+
+.autocomplete-results {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    max-height: 220px;
+    overflow-y: auto;
+    background: white;
+    border: 1.5px solid #4f46e5;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-top: 2px;
+}
+
+.autocomplete-item {
+    padding: 5px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 12px;
+    transition: all 0.15s ease;
+}
+
+.autocomplete-item:hover { background-color: #eef2ff; }
+.autocomplete-item.selected { background-color: #c7d2fe; }
+.autocomplete-item .item-code { font-weight: 600; color: #4f46e5; }
+.autocomplete-item .item-name { color: #374151; }
+
+.file-upload-container {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 20px 15px;
+    text-align: center;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+
+.file-upload-container:hover {
+    border-color: #4f46e5;
+    background-color: #eef2ff;
+}
+
+.file-input { display: none; }
+
+.file-label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-label i {
+    font-size: 35px;
+    color: #4f46e5;
+    margin-bottom: 5px;
+}
+
+.file-label h5 {
+    color: #374151;
+    margin-bottom: 2px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.file-label p {
+    color: #6b7280;
+    margin-bottom: 0;
+    font-size: 10px;
+}
+
+.file-name {
+    margin-top: 8px;
+    font-weight: 500;
+    color: #4f46e5;
+    font-size: 11px;
+}
+
+.spinner-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 35px;
+    height: 35px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #4f46e5;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.ms-options-wrap { width: 100% !important; }
+
+.ms-options-wrap > button {
+    border: 1.5px solid #d1d5db !important;
+    border-radius: 6px !important;
+    height: 30px !important;
+    font-size: 12px !important;
+    padding: 2px 10px !important;
+    background: white !important;
+    color: #374151 !important;
+}
+
+.ms-options-wrap > button:focus {
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+
+.ms-options-wrap .ms-options {
+    border: 1.5px solid #d1d5db !important;
+    border-radius: 6px !important;
+}
+
+.copy-modal-body { padding: 18px 20px; }
+.copy-modal-body .form-group { margin-bottom: 14px; }
+.copy-modal-body .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 3px;
+    display: block;
+}
+.copy-modal-body .help-text {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 3px;
+}
+.copy-modal-body .help-text kbd {
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    border: 1px solid #d1d5db;
+}
+
+/* ===== FOOTER HISTORY STYLES ===== */
+.footer-history-item {
+    border-bottom: 1px solid #f1f5f9;
+}
+.footer-history-item:last-child {
+    border-bottom: none;
+}
+
+.footer-history-item .history-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.15s ease;
+}
+.footer-history-item .history-header:hover {
+    background: #f8fafc;
+}
+
+.footer-history-details {
+    display: none;
+    padding: 6px 10px 8px 35px;
+    background: #f8fafc;
+    border-top: 1px solid #e5e7eb;
+}
+
+.footer-expand-icon {
+    font-size: 9px;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+    width: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* ===== DETAIL ROW - VERTICAL (Item Name) ===== */
+.detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    padding: 3px 0;
+    font-size: 9px;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+.detail-row:last-child {
+    border-bottom: none;
+}
+.detail-row strong {
+    color: #334155;
+    font-weight: 600;
+    min-width: 55px;
+    display: inline-block;
+}
+.detail-row .value {
+    color: #1e293b;
+    font-weight: 500;
+}
+.detail-row input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+    accent-color: #4f46e5;
+    flex-shrink: 0;
+}
+
+/* ===== DETAIL ROW - HORIZONTAL ===== */
+.detail-row.horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding: 2px 0;
+    border-bottom: none;
+}
+
+.detail-row.horizontal .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.detail-row.horizontal .checkbox-group strong {
+    min-width: auto;
+    font-weight: 600;
+    color: #334155;
+}
+
+.detail-row.horizontal .checkbox-group .value {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.detail-row.horizontal .checkbox-group input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+    accent-color: #4f46e5;
+    flex-shrink: 0;
+}
+
+/* ===== TEXTAREA ROW STYLES (Coding Matter, Special Req, Ingredient) ===== */
+.detail-row.textarea-row {
+    padding: 4px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+.detail-row.textarea-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row.textarea-row .textarea-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+}
+
+.detail-row.textarea-row .textarea-container input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.detail-row.textarea-row .textarea-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-row.textarea-row .textarea-wrapper strong {
+    display: block;
+    font-size: 9px;
+    color: #334155;
+    margin-bottom: 2px;
+    min-width: auto;
+}
+
+.textarea-value {
+    font-size: 9px;
+    color: #1e293b;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 4px 6px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+    min-height: 30px;
+    max-height: 100px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.textarea-value::-webkit-scrollbar {
+    width: 3px;
+}
+.textarea-value::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+.textarea-value::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #e5e7eb;
+    justify-content: flex-start;
+}
+
+.footer-use-btn {
+    background: #4f46e5;
+    color: #ffffff;
+    border: none;
+    padding: 1px 12px;
+    border-radius: 3px;
+    font-size: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.footer-use-btn:hover {
+    background: #4338ca;
+    transform: scale(1.02);
+}
+
 ::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -569,7 +763,6 @@
 <!-- ===== MAIN CONTENT ===== -->
 <div class="row">
     <div class="col-md-12">
-        <!-- ===== FILTER CARD ===== -->
         <div class="filter-card">
             <div class="filter-left">
                 <label for="party_id"><i class="fa fa-users"></i> Notify Party :</label>
@@ -592,7 +785,6 @@
             </div>
         </div>
 
-        <!-- ===== TABLE ===== -->
         <div class="box box-primary" style="box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
             <div class="panel-body table-responsive">
                 <table id="example1" class="table table-bordered table-condenced" style="width:100%;">
@@ -621,27 +813,26 @@
     </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- ===== SPINNER ===== -->
-<!-- ============================================================ -->
 <div class="spinner-container" id="spinner-container">
     <div class="spinner"></div>
 </div>
 
 <!-- ============================================================ -->
-<!-- ===== ADD ITEM MODAL ===== -->
+<!-- ===== ADD ITEM MODAL (FOOTER HISTORY) ===== -->
 <!-- ============================================================ -->
 <div class="modal fade" id="ItemAddedModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <form enctype="multipart/form-data" id="addSubmitFormId">
             {{csrf_field()}} 
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa fa-plus-circle"></i> Add Party Item</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+                    <h5 class="modal-title" style="color:#fff;"><i class="fa fa-plus-circle"></i> Add Party Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:0.8;">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -759,13 +950,13 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="coding_matter"><i class="fa fa-file-text" style="color:#4f46e5;"></i> Coding Matter</label>
-                                        <textarea class="form-control" rows="2" name="coding_matter" placeholder="Enter coding matter" style="min-height:45px;"></textarea>
+                                        <textarea class="form-control" rows="4" name="coding_matter" placeholder="Enter coding matter" style="min-height:60px; resize:vertical;"></textarea>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="special_requirment"><i class="fa fa-exclamation-circle" style="color:#4f46e5;"></i> Special Requirement</label>
-                                        <textarea class="form-control" rows="2" name="special_requirment" placeholder="Enter special requirement" style="min-height:45px;"></textarea>
+                                        <textarea class="form-control" rows="4" name="special_requirment" placeholder="Enter special requirement" style="min-height:60px; resize:vertical;"></textarea>
                                     </div>
                                 </div>
                             </div>  
@@ -773,16 +964,58 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="ingredient"><i class="fa fa-flask" style="color:#4f46e5;"></i> Ingredient</label>
-                                        <textarea class="form-control" rows="2" name="ingredient" placeholder="Enter ingredients" style="min-height:45px;"></textarea>
+                                        <textarea class="form-control" rows="4" name="ingredient" placeholder="Enter ingredients" style="min-height:60px; resize:vertical;"></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="modal-body-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check"></i> Submit
+                        </button>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Submit</button>
+
+                <!-- ===== FOOTER - HISTORY ===== -->
+                <div class="modal-footer" style="padding:8px 15px; background:#f8fafc; border-top:1px solid #e5e7eb; flex-direction:column; align-items:stretch; gap:6px;">
+                    
+                    <!-- History Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fa fa-history" style="color:#4f46e5; font-size:14px;"></i>
+                            <span style="font-size:11px; font-weight:600; color:#1e293b;">HISTORY</span>
+                            <span id="historyCountBadge" style="font-size:9px; background:#eef2ff; color:#4f46e5; padding:1px 10px; border-radius:10px; font-weight:500;">0 records</span>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button id="expandAllHistoryFooter" style="background:#fff; border:1px solid #e5e7eb; padding:1px 10px; border-radius:4px; font-size:9px; cursor:pointer;">
+                                <i class="fa fa-expand"></i> Expand All
+                            </button>
+                            <button id="collapseAllHistoryFooter" style="background:#fff; border:1px solid #e5e7eb; padding:1px 10px; border-radius:4px; font-size:9px; cursor:pointer;">
+                                <i class="fa fa-compress"></i> Collapse All
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- History List -->
+                    <div id="footerHistoryList" style="max-height:220px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:4px; background:#fff;"></div>
+                    
+                    <!-- History Footer Actions -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px; border-top:1px solid #e5e7eb;">
+                        <div style="font-size:10px; color:#64748b;">
+                            <i class="fa fa-info-circle"></i> 
+                            <span id="footerSelectedInfo">Click Use button to auto-fill</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button id="clearAllFooter" style="background:#fff; border:1px solid #e5e7eb; padding:2px 12px; border-radius:4px; font-size:9px; cursor:pointer; color:#64748b;">
+                                <i class="fa fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -1007,13 +1240,13 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="ecoding_matter"><i class="fa fa-file-text" style="color:#f59e0b;"></i> Coding Matter</label>
-                                        <textarea class="form-control" name="coding_matter" rows="2" id="ecoding_matter" placeholder="Enter coding matter" style="min-height:45px;"></textarea>
+                                        <textarea class="form-control" name="coding_matter" rows="4" id="ecoding_matter" placeholder="Enter coding matter" style="min-height:60px; resize:vertical;"></textarea>
                                     </div>
                                 </div>
                                  <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="especial_req"><i class="fa fa-exclamation-circle" style="color:#f59e0b;"></i> Special Requirement</label>
-                                        <textarea class="form-control" name="special_req" rows="2" id="especial_req" placeholder="Enter special requirement" style="min-height:45px;"></textarea>
+                                        <textarea class="form-control" name="special_req" rows="4" id="especial_req" placeholder="Enter special requirement" style="min-height:60px; resize:vertical;"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -1021,7 +1254,7 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="eingredient"><i class="fa fa-flask" style="color:#f59e0b;"></i> Ingredients</label>
-                                        <textarea class="form-control" rows="2" name="ingredient" id="eingredient" placeholder="Enter ingredients" style="min-height:45px;"></textarea>
+                                        <textarea class="form-control" rows="4" name="ingredient" id="eingredient" placeholder="Enter ingredients" style="min-height:60px; resize:vertical;"></textarea>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -1044,210 +1277,6 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- ===== SPINNER CSS ===== -->
-<!-- ============================================================ -->
-<style>
-.spinner-container {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-}
-
-.spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 35px;
-    height: 35px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 3px solid #4f46e5;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* ===== AUTOCOMPLETE ===== */
-.autocomplete-results {
-    position: absolute;
-    z-index: 1000;
-    width: 100%;
-    max-height: 220px;
-    overflow-y: auto;
-    background: white;
-    border: 1.5px solid #4f46e5;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-top: 2px;
-}
-
-.autocomplete-item {
-    padding: 5px 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #f3f4f6;
-    font-size: 12px;
-    transition: all 0.15s ease;
-}
-
-.autocomplete-item:hover { background-color: #eef2ff; }
-.autocomplete-item.selected { background-color: #c7d2fe; }
-.autocomplete-item .item-code { font-weight: 600; color: #4f46e5; }
-.autocomplete-item .item-name { color: #374151; }
-
-/* ===== FILE UPLOAD ===== */
-.file-upload-container {
-    border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 20px 15px;
-    text-align: center;
-    margin: 8px 0;
-    transition: all 0.3s ease;
-    background-color: #f8fafc;
-}
-
-.file-upload-container:hover {
-    border-color: #4f46e5;
-    background-color: #eef2ff;
-}
-
-.file-input { display: none; }
-
-.file-label {
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.file-label i {
-    font-size: 35px;
-    color: #4f46e5;
-    margin-bottom: 5px;
-}
-
-.file-label h5 {
-    color: #374151;
-    margin-bottom: 2px;
-    font-weight: 500;
-    font-size: 12px;
-}
-
-.file-label p {
-    color: #6b7280;
-    margin-bottom: 0;
-    font-size: 10px;
-}
-
-.file-name {
-    margin-top: 8px;
-    font-weight: 500;
-    color: #4f46e5;
-    font-size: 11px;
-}
-
-/* ===== MULTISELECT ===== */
-.ms-options-wrap { width: 100% !important; }
-
-.ms-options-wrap > button {
-    border: 1.5px solid #d1d5db !important;
-    border-radius: 6px !important;
-    height: 30px !important;
-    font-size: 12px !important;
-    padding: 2px 10px !important;
-    background: white !important;
-    color: #374151 !important;
-}
-
-.ms-options-wrap > button:focus {
-    border-color: #4f46e5 !important;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
-}
-
-.ms-options-wrap .ms-options {
-    border: 1.5px solid #d1d5db !important;
-    border-radius: 6px !important;
-}
-
-.copy-modal-body { padding: 18px 20px; }
-.copy-modal-body .form-group { margin-bottom: 14px; }
-.copy-modal-body .form-group label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 3px;
-    display: block;
-}
-.copy-modal-body .form-group label i { margin-right: 5px; color: #4f46e5; }
-.copy-modal-body .help-text {
-    font-size: 11px;
-    color: #6b7280;
-    margin-top: 3px;
-}
-.copy-modal-body .help-text kbd {
-    background: #f1f5f9;
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-size: 10px;
-    border: 1px solid #d1d5db;
-}
-
-.modal-body .form-group {
-    margin-bottom: 8px;
-}
-
-.modal-body .form-group label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 2px;
-    display: block;
-}
-
-.modal-body .form-control {
-    border-radius: 6px;
-    box-shadow: none;
-    height: 28px;
-    font-size: 12px;
-    border: 1.5px solid #d1d5db;
-    transition: all 0.2s ease;
-    width: 100%;
-}
-
-.modal-body .form-control:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-    outline: none;
-}
-
-.modal-body textarea.form-control {
-    min-height: 45px;
-    height: auto;
-    resize: vertical;
-}
-
-.modal-body .btn-default {
-    background: #ffffff;
-    color: #374151;
-    border: 1.5px solid #d1d5db;
-}
-
-.modal-body .btn-default:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-}
-</style>
-
-<!-- ============================================================ -->
 <!-- ===== SCRIPTS ===== -->
 <!-- ============================================================ -->
 <script>document.title = 'Export | Party Items';</script>
@@ -1255,10 +1284,374 @@
 
 setTimeout(function() { $('.sr-only').click(); }, 0.0001);
 
-let itemSearchTimeout;
-let currentFocus = -1;
+var currentItemId = null;
+var itemSearchTimeout;
+var currentFocus = -1;
 
-// ===== AUTOCOMPLETE =====
+// ============================================================
+// HISTORY DEMO DATA
+// ============================================================
+function loadDemoHistory() {
+    var saved = localStorage.getItem('itemHistory');
+    if (saved) {
+        try {
+            JSON.parse(saved);
+            return;
+        } catch(e) {}
+    }
+    
+    var demoData = [
+        {
+            id: 1, ci_item_id: 101, item_code: 'MJ-250', item_name: 'Mango Juice 250ml',
+            desk_item_name: 'Mango Juice', party_name: 'ABC Trading',
+            acc_rate: '120.50', party_rate: '125.00', gross_weight: '12.50',
+            hs_code2: '2009.89', dunit_name: 'PCS', runit_name: 'CTN',
+            factory_name: 'Factory-A', shelf_life: '24 months',
+            coding_matter: 'MFG: 15 AUGUST 2018\nBEST BEFORE: 14 AUGUST 2020\nIMPORTER:\nAROMA INTERNATIONAL INC.\n1405 ALBERT STREET, REGINA, SK,\nS4R 2R8, CANADA.\nPHONE: 3065801020\nBATCH NO: 1808A03',
+            special_req: '1. Low cost recipe\n2. PLEASE FOLLOW BELOW MFG,EXP & BATCH NO.:\nMFG: 05-2012\nEXP: 05-2014\nBATCH NO-0512',
+            ingredient: 'Sugar, Water, Mango Concentrate\nPreservatives: Potassium Sorbate\nColor: Beta Carotene\nAcidity Regulator: Citric Acid',
+            timestamp: '18 Aug 2026, 10:30 AM'
+        },
+        {
+            id: 2, ci_item_id: 101, item_code: 'MJ-250', item_name: 'Mango Juice 250ml',
+            desk_item_name: 'Mango Juice', party_name: 'DEF Company',
+            acc_rate: '118.00', party_rate: '122.00', gross_weight: '12.80',
+            hs_code2: '2009.89', dunit_name: 'PCS', runit_name: 'BOX',
+            factory_name: 'Factory-B', shelf_life: '18 months',
+            coding_matter: 'MFG: 10 JANUARY 2019\nBEST BEFORE: 09 JANUARY 2021\nBATCH NO: 1901B05',
+            special_req: 'Keep in cool and dry place\nAvoid direct sunlight',
+            ingredient: 'Sugar, Water, Mango Concentrate\nPreservatives: Sodium Benzoate',
+            timestamp: '15 Aug 2026, 02:15 PM'
+        },
+        {
+            id: 3, ci_item_id: 101, item_code: 'MJ-250', item_name: 'Mango Juice 250ml',
+            desk_item_name: 'Mango Juice', party_name: 'GHI Ltd',
+            acc_rate: '125.00', party_rate: '130.00', gross_weight: '12.20',
+            hs_code2: '2009.89', dunit_name: 'PCS', runit_name: 'CTN',
+            factory_name: 'Factory-A', shelf_life: '24 months',
+            coding_matter: 'MFG: 20 MARCH 2020\nBEST BEFORE: 19 MARCH 2022\nBATCH NO: 2003C07',
+            special_req: 'Keep in freezer\nShelf life: 24 months from MFG',
+            ingredient: 'Sugar, Water, Mango Concentrate\nPreservatives: Potassium Sorbate\nColor: Beta Carotene',
+            timestamp: '10 Aug 2026, 09:00 AM'
+        },
+        {
+            id: 4, ci_item_id: 101, item_code: 'MJ-250', item_name: 'Mango Juice 250ml',
+            desk_item_name: 'Mango Juice', party_name: 'JKL Corporation',
+            acc_rate: '115.50', party_rate: '119.50', gross_weight: '12.60',
+            hs_code2: '2009.89', dunit_name: 'PCS', runit_name: 'CTN',
+            factory_name: 'Factory-C', shelf_life: '20 months',
+            coding_matter: 'MFG: 05 JUNE 2021\nBEST BEFORE: 04 JUNE 2023\nBATCH NO: 2106D09',
+            special_req: 'Keep in cool place\nUse within 20 months of MFG',
+            ingredient: 'Sugar, Water, Mango Concentrate\nCitric Acid\nNatural Flavor',
+            timestamp: '05 Aug 2026, 11:45 AM'
+        },
+        {
+            id: 5, ci_item_id: 101, item_code: 'MJ-250', item_name: 'Mango Juice 250ml',
+            desk_item_name: 'Mango Juice', party_name: 'MNO Traders',
+            acc_rate: '122.00', party_rate: '128.00', gross_weight: '12.40',
+            hs_code2: '2009.89', dunit_name: 'PCS', runit_name: 'CTN',
+            factory_name: 'Factory-A', shelf_life: '24 months',
+            coding_matter: 'MFG: 15 DECEMBER 2022\nBEST BEFORE: 14 DECEMBER 2024\nBATCH NO: 2212E11',
+            special_req: 'Keep in dry place\nAvoid moisture\nStore at room temperature',
+            ingredient: 'Sugar, Water, Mango Concentrate\nPreservatives: Potassium Sorbate\nColor: Beta Carotene\nAcidity Regulator: Citric Acid',
+            timestamp: '01 Aug 2026, 08:30 AM'
+        }
+    ];
+    
+    localStorage.setItem('itemHistory', JSON.stringify(demoData));
+}
+
+// ============================================================
+// GET ITEM HISTORY BY ITEM ID
+// ============================================================
+function getItemHistoryByItemId(itemId) {
+    var all = JSON.parse(localStorage.getItem('itemHistory') || '[]');
+    if (itemId) {
+        return all.filter(item => item.ci_item_id == itemId);
+    }
+    return all;
+}
+
+// ============================================================
+// RENDER FOOTER HISTORY (Horizontal Layout + Textarea)
+// ============================================================
+function renderFooterHistory(historyData) {
+    var container = $('#footerHistoryList');
+    container.empty();
+    
+    if (!historyData || historyData.length === 0) {
+        container.html(`
+            <div style="padding:15px; text-align:center; color:#94a3b8; font-size:11px;">
+                <i class="fa fa-inbox" style="font-size:18px; display:block; margin-bottom:4px;"></i>
+                No history available
+            </div>
+        `);
+        $('#historyCountBadge').text('0 records');
+        return;
+    }
+    
+    $('#historyCountBadge').text(historyData.length + ' records');
+    
+    var html = '';
+    historyData.forEach(function(item, index) {
+        html += `
+            <div class="footer-history-item">
+                <!-- Header -->
+                <div class="history-header">
+                    <div class="footer-expand-icon" data-index="${index}">
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-weight:600; font-size:10px; color:#1e293b;">${item.item_code || 'N/A'}</span>
+                            <span style="font-weight:500; font-size:9px; color:#475569;">${item.party_name || 'N/A'}</span>
+                        </div>
+                        <div style="font-size:8px; color:#94a3b8;">
+                            <i class="fa fa-clock-o"></i> ${item.timestamp || ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Details - Horizontal Layout + Textarea -->
+                <div class="footer-history-details" data-index="${index}">
+                    <!-- Row 1: Item Name (Vertical) -->
+                    <div class="detail-row">
+                        <input type="checkbox" class="history-checkbox" data-field="item_name" data-value="${item.item_name || 'N/A'}">
+                        <strong>Item Name:</strong> <span class="value">${item.item_name || 'N/A'}</span>
+                    </div>
+                    
+                    <!-- Row 2: Acc Rate, Party Rate, Gross Wt, Shelf Life (Horizontal) -->
+                    <div class="detail-row horizontal">
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="acc_rate" data-value="${item.acc_rate || '0'}">
+                            <strong>Acc Rate:</strong> <span class="value">${item.acc_rate || '0'}</span>
+                        </span>
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="party_rate" data-value="${item.party_rate || '0'}">
+                            <strong>Party Rate:</strong> <span class="value">${item.party_rate || '0'}</span>
+                        </span>
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="gross_weight" data-value="${item.gross_weight || '0'}">
+                            <strong>Gross Wt:</strong> <span class="value">${item.gross_weight || '0'}</span>
+                        </span>
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="shelf_life" data-value="${item.shelf_life || 'N/A'}">
+                            <strong>Shelf Life:</strong> <span class="value" style="color:#4f46e5; font-weight:600;">${item.shelf_life || 'N/A'}</span>
+                        </span>
+                    </div>
+                    
+                    <!-- Row 3: HS Code 2, DUnit, RUnit, Factory (Horizontal) -->
+                    <div class="detail-row horizontal">
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="hs_code2" data-value="${item.hs_code2 || 'N/A'}">
+                            <strong>HS Code 2:</strong> <span class="value">${item.hs_code2 || 'N/A'}</span>
+                        </span>
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="dunit_name" data-value="${item.dunit_name || 'N/A'}">
+                            <strong>DUnit:</strong> <span class="value">${item.dunit_name || 'N/A'}</span>
+                        </span>
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="runit_name" data-value="${item.runit_name || 'N/A'}">
+                            <strong>RUnit:</strong> <span class="value">${item.runit_name || 'N/A'}</span>
+                        </span>
+                        <span class="checkbox-group">
+                            <input type="checkbox" class="history-checkbox" data-field="factory_name" data-value="${item.factory_name || 'N/A'}">
+                            <strong>Factory:</strong> <span class="value">${item.factory_name || 'N/A'}</span>
+                        </span>
+                    </div>
+                    
+                    <!-- Row 4: CODING MATTER (Textarea Style) -->
+                    <div class="detail-row textarea-row">
+                        <div class="textarea-container">
+                            <input type="checkbox" class="history-checkbox" data-field="coding_matter" data-value="${item.coding_matter || 'N/A'}">
+                            <div class="textarea-wrapper">
+                                <strong>Coding Matter:</strong>
+                                <div class="textarea-value">${item.coding_matter || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 5: SPECIAL REQUIREMENT (Textarea Style) -->
+                    <div class="detail-row textarea-row">
+                        <div class="textarea-container">
+                            <input type="checkbox" class="history-checkbox" data-field="special_req" data-value="${item.special_req || 'N/A'}">
+                            <div class="textarea-wrapper">
+                                <strong>Special Requirement:</strong>
+                                <div class="textarea-value">${item.special_req || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 6: INGREDIENT (Textarea Style) -->
+                    <div class="detail-row textarea-row">
+                        <div class="textarea-container">
+                            <input type="checkbox" class="history-checkbox" data-field="ingredient" data-value="${item.ingredient || 'N/A'}">
+                            <div class="textarea-wrapper">
+                                <strong>Ingredient:</strong>
+                                <div class="textarea-value">${item.ingredient || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-row">
+                        <button class="footer-use-btn" data-index="${index}">
+                            <i class="fa fa-check-circle"></i> Use This
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.html(html);
+}
+
+// ============================================================
+// SHOW HISTORY IN FOOTER
+// ============================================================
+function showHistoryInFooter() {
+    var allHistory = JSON.parse(localStorage.getItem('itemHistory') || '[]');
+    var filteredHistory = allHistory;
+    if (currentItemId) {
+        filteredHistory = allHistory.filter(item => item.ci_item_id == currentItemId);
+    }
+    renderFooterHistory(filteredHistory);
+}
+
+// ============================================================
+// CHECKBOX LOGIC - LAST CHECK থাকবে (Auto Uncheck)
+// ============================================================
+$(document).on('change', '.history-checkbox', function() {
+    var field = $(this).data('field');
+    var currentDetails = $(this).closest('.footer-history-details');
+    var currentIndex = currentDetails.data('index');
+    
+    if ($(this).is(':checked')) {
+        $('.footer-history-details').each(function() {
+            var index = $(this).data('index');
+            if (index != currentIndex) {
+                $(this).find('.history-checkbox[data-field="' + field + '"]').prop('checked', false);
+            }
+        });
+    }
+});
+
+// ============================================================
+// USE THIS BUTTON - Checkbox অনুযায়ী Auto-fill (Format সহ)
+// ============================================================
+$(document).on('click', '.footer-use-btn', function(e) {
+    e.stopPropagation();
+    var index = $(this).data('index');
+    var history = getItemHistoryByItemId(currentItemId);
+    var item = history[index];
+    
+    if (!item) return;
+    
+    var detailsContainer = $(this).closest('.footer-history-details');
+    var checkedCount = 0;
+    
+    // Item Name
+    if (detailsContainer.find('.history-checkbox[data-field="item_name"]').is(':checked')) {
+        $('#ci_item_search').val((item.item_code || '') + ' - ' + (item.item_name || ''));
+        $('#ci_item_id').val(item.ci_item_id || '');
+        $('#desk_item_name').val(item.desk_item_name || '');
+        checkedCount++;
+    }
+    
+    // Acc Rate
+    if (detailsContainer.find('.history-checkbox[data-field="acc_rate"]').is(':checked')) {
+        $('#acc_rate').val(item.acc_rate || '');
+        checkedCount++;
+    }
+    
+    // Party Rate
+    if (detailsContainer.find('.history-checkbox[data-field="party_rate"]').is(':checked')) {
+        $('#party_rate').val(item.party_rate || '');
+        checkedCount++;
+    }
+    
+    // Gross Weight
+    if (detailsContainer.find('.history-checkbox[data-field="gross_weight"]').is(':checked')) {
+        $('#gross_weight').val(item.gross_weight || '');
+        checkedCount++;
+    }
+    
+    // Shelf Life
+    if (detailsContainer.find('.history-checkbox[data-field="shelf_life"]').is(':checked')) {
+        $('#shelf_life').val(item.shelf_life || '');
+        checkedCount++;
+    }
+    
+    // HS Code 2
+    if (detailsContainer.find('.history-checkbox[data-field="hs_code2"]').is(':checked')) {
+        $('#hs_code2').val(item.hs_code2 || '');
+        checkedCount++;
+    }
+    
+    // DUnit
+    if (detailsContainer.find('.history-checkbox[data-field="dunit_name"]').is(':checked')) {
+        if (item.dunit_id) {
+            $('#dunit_id').val(item.dunit_id).selectpicker('refresh');
+        }
+        checkedCount++;
+    }
+    
+    // RUnit
+    if (detailsContainer.find('.history-checkbox[data-field="runit_name"]').is(':checked')) {
+        if (item.runit_id) {
+            $('#runit_id').val(item.runit_id).selectpicker('refresh');
+        }
+        checkedCount++;
+    }
+    
+    // Factory
+    if (detailsContainer.find('.history-checkbox[data-field="factory_name"]').is(':checked')) {
+        if (item.factory_id) {
+            $('#factory_id').val(item.factory_id).selectpicker('refresh');
+        }
+        checkedCount++;
+    }
+    
+    // Coding Matter (Format সহ)
+    if (detailsContainer.find('.history-checkbox[data-field="coding_matter"]').is(':checked')) {
+        $('#coding_matter').val(item.coding_matter || '');
+        checkedCount++;
+    }
+    
+    // Special Requirement (Format সহ)
+    if (detailsContainer.find('.history-checkbox[data-field="special_req"]').is(':checked')) {
+        $('#special_requirment').val(item.special_req || '');
+        checkedCount++;
+    }
+    
+    // Ingredient (Format সহ)
+    if (detailsContainer.find('.history-checkbox[data-field="ingredient"]').is(':checked')) {
+        $('#ingredient').val(item.ingredient || '');
+        checkedCount++;
+    }
+    
+    if (checkedCount === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Selection',
+            text: 'Please select at least one field to auto-fill!'
+        });
+        return;
+    }
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Auto-filled!',
+        text: checkedCount + ' field(s) loaded from history',
+        timer: 1200,
+        showConfirmButton: false
+    });
+});
+
+// ============================================================
+// AUTOCOMPLETE
+// ============================================================
 $('#ci_item_search').on('input', function() {
     const searchTerm = $(this).val().trim();
     clearTimeout(itemSearchTimeout);
@@ -1292,12 +1685,43 @@ function displayResults(items) {
     resultsDiv.empty();
     
     items.forEach(item => {
+        var history = getItemHistoryByItemId(item.id);
+        var historyCount = history.length;
+        
         const itemDiv = $('<div>')
             .addClass('autocomplete-item')
             .attr('data-id', item.id)
             .attr('data-code', item.ci_item_code)
             .attr('data-name', item.ci_item_name)
-            .html(`<div><span class="item-code">${item.ci_item_code}</span> - <span class="item-name">${item.ci_item_name}</span></div>`);
+            .html(`
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="item-code">${item.ci_item_code}</span> - 
+                        <span class="item-name">${item.ci_item_name}</span>
+                    </div>
+                    ${historyCount > 0 ? `
+                        <span style="font-size:9px; background:#eef2ff; color:#4f46e5; padding:1px 10px; border-radius:10px; font-weight:500;">
+                            <i class="fa fa-history"></i> ${historyCount}
+                        </span>
+                    ` : `
+                        <span style="font-size:9px; color:#94a3b8; padding:1px 8px;">
+                            <i class="fa fa-info-circle"></i> New
+                        </span>
+                    `}
+                </div>
+                ${historyCount > 0 ? `
+                    <div style="font-size:9px; color:#6b7280; margin-top:2px; padding:2px 6px; background:#f8fafc; border-radius:4px; border-left:2px solid #4f46e5;">
+                        <i class="fa fa-clock-o"></i> 
+                        Last: ${history[0].party_name || 'N/A'} | 
+                        ৳${history[0].acc_rate || '0'} | 
+                        ${history[0].timestamp || 'N/A'}
+                    </div>
+                ` : `
+                    <div style="font-size:9px; color:#94a3b8; margin-top:2px; padding:2px 6px;">
+                        <i class="fa fa-info-circle"></i> No previous usage
+                    </div>
+                `}
+            `);
         
         itemDiv.on('click', function() { selectItem($(this)); });
         resultsDiv.append(itemDiv);
@@ -1316,10 +1740,15 @@ function selectItem(itemElement) {
     $('#ci_item_id').val(itemId);
     $('#desk_item_name').val(itemName);
     $('#item_results').hide().empty();
+    currentItemId = itemId;
+    
     getItemDetails(itemId);
+    showHistoryInFooter();
 }
 
-// Keyboard navigation
+// ============================================================
+// KEYBOARD NAVIGATION
+// ============================================================
 $('#ci_item_search').on('keydown', function(e) {
     const results = $('.autocomplete-item');
     if (results.length > 0) {
@@ -1363,9 +1792,65 @@ function getItemDetails(itemId) {
     });
 }
 
-// ===== CLEAR ADD MODAL FORM =====
+// ============================================================
+// FOOTER HISTORY EVENT HANDLERS
+// ============================================================
+
+$(document).on('click', '.footer-expand-icon', function(e) {
+    e.stopPropagation();
+    var details = $(this).closest('.footer-history-item').find('.footer-history-details');
+    var icon = $(this).find('i');
+    details.slideToggle(200);
+    icon.toggleClass('fa-chevron-right fa-chevron-down');
+});
+
+$(document).on('click', '.history-header', function(e) {
+    if ($(e.target).closest('.footer-use-btn').length) return;
+    var details = $(this).closest('.footer-history-item').find('.footer-history-details');
+    var icon = $(this).closest('.footer-history-item').find('.footer-expand-icon i');
+    details.slideToggle(200);
+    icon.toggleClass('fa-chevron-right fa-chevron-down');
+});
+
+$(document).on('click', '#expandAllHistoryFooter', function() {
+    $('.footer-history-details').slideDown(200);
+    $('.footer-expand-icon i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+});
+
+$(document).on('click', '#collapseAllHistoryFooter', function() {
+    $('.footer-history-details').slideUp(200);
+    $('.footer-expand-icon i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+});
+
+$(document).on('click', '#clearAllFooter', function() {
+    currentItemId = null;
+    $('#ci_item_search').val('');
+    $('#ci_item_id').val('');
+    $('#desk_item_name').val('');
+    $('#acc_rate').val('');
+    $('#party_rate').val('');
+    $('#cbm_per_ctn').val('');
+    $('#gross_weight').val('');
+    $('#hs_code2').val('');
+    $('#shelf_life').val('');
+    $('#coding_matter').val('');
+    $('#special_requirment').val('');
+    $('#ingredient').val('');
+    showHistoryInFooter();
+    
+    Swal.fire({
+        icon: 'info',
+        title: 'Cleared!',
+        text: 'All fields have been cleared',
+        timer: 1000,
+        showConfirmButton: false
+    });
+});
+
+// ============================================================
+// CLEAR ADD MODAL FORM
+// ============================================================
 function clearAddModalForm() {
-    // ===== এই ফিল্ডগুলো রিসেট হবে =====
     $('#ci_item_search').val('');
     $('#ci_item_id').val('');
     $('#desk_item_name').val('');
@@ -1375,21 +1860,14 @@ function clearAddModalForm() {
     $('#cbm_per_ctn').val('');
     $('#gross_weight').val('');
     $('#hs_code2').val('');
-    
-    // ===== এই ফিল্ডগুলো রিসেট হবে না (আগের ভ্যালু থাকবে) =====
-    // DUnit - রাখুন
-    // RUnit - রাখুন
-    // Coding Matter - রাখুন
-    // Special Requirement - রাখুন
-    // Factory - রাখুন
-    // Shelf Life - রাখুন
-    // Ingredient - রাখুন
-    
-    // ===== HIDDEN =====
+    $('#shelf_life').val('');
+    $('#coding_matter').val('');
+    $('#special_requirment').val('');
+    $('#ingredient').val('');
     $('#ci_item_id').val('');
-    
-    // ===== AUTOCOMPLETE =====
+    currentItemId = null;
     $('#item_results').hide().empty();
+    showHistoryInFooter();
 }
 
 // ============================================================
@@ -1397,14 +1875,14 @@ function clearAddModalForm() {
 // ============================================================
 $(document).ready(function() {
 
-    // ===== LOAD NOTIFY PARTIES =====
+    loadDemoHistory();
+
     function loadNotifyParties() {
         $.ajax({
             type: "GET",
             url: "{{ url('/json/get/notify_parties') }}",
             success: function(response) {
                 var options = '<option value="">— Select Party —</option>';
-                
                 $.each(response.data, function(index, party) {
                     var label = party.code + ' - ' + party.name;
                     if(party.ref_name) {
@@ -1420,7 +1898,6 @@ $(document).ready(function() {
                 $('#party_code').html(options);
                 $('#from_party_code, #to_party_code, #party_code').selectpicker('refresh');
                 
-                // Auto-select first party
                 if(response.data.length > 0) {
                     $('#party_id').val(response.data[0].code).selectpicker('refresh');
                     showPartyItems(response.data[0].code);
@@ -1438,7 +1915,6 @@ $(document).ready(function() {
 
     loadNotifyParties();
 
-    // ===== ADD ITEM BUTTON =====
     $('#add_item_btn_id').click(function(e) {   
         e.preventDefault();
         var selectedParty = $('#party_id').val();
@@ -1456,6 +1932,10 @@ $(document).ready(function() {
         $("#ItemAddedModal").modal("show");
     });
 
+    $('#ItemAddedModal').on('shown.bs.modal', function() {
+        showHistoryInFooter();
+    });
+
     $('#ItemAddedModal').on('hidden.bs.modal', function () {
         var currentParty = $('#party_code').val();
         clearAddModalForm();
@@ -1464,19 +1944,16 @@ $(document).ready(function() {
         }
     });
 
-    // ===== COPY MODAL =====
     $('#copy_item_btn_id').click(function(e) {   
         e.preventDefault();
         $("#copyModal").modal("show");
     });
 
-    // ===== EXCEL UPLOAD MODAL =====
     $('#upload_excel_btn_id').click(function(e) {   
         e.preventDefault();
         $("#excel_model").modal("show");
     });
 
-    // ===== ADD FORM SUBMIT =====
     $("#addSubmitFormId").submit(function (e) {
         e.preventDefault(); 
         $.ajax({
@@ -1496,13 +1973,12 @@ $(document).ready(function() {
                         timer: 1500
                     });
                     
-                    // ===== ফর্ম ক্লিয়ার করুন (শুধু প্রয়োজনীয় ফিল্ড) =====
                     clearAddModalForm();
-                    
                     var currentParty = $('#party_code').val();
                     if(currentParty && currentParty !== '') {
                         $('#party_code').val(currentParty).selectpicker('refresh');
                     }
+                    showHistoryInFooter();
                     
                     var table1 = $('#example1').DataTable();
                     table1.ajax.reload();
@@ -1518,7 +1994,6 @@ $(document).ready(function() {
         });
     });
 
-    // ===== COPY FORM SUBMIT =====
     $("#copySubmitFormId").submit(function (e) {
         e.preventDefault(); 
         var from_party_code = $('#from_party_code').val();
@@ -1562,7 +2037,6 @@ $(document).ready(function() {
         }
     });
 
-    // ===== UPDATE FORM SUBMIT =====
     $("#upateSubmitFormId").submit(function (e) {
         e.preventDefault(); 
         $.ajax({
@@ -1591,7 +2065,6 @@ $(document).ready(function() {
         });
     });
 
-    // ===== FROM PARTY CHANGE (Copy Modal) =====
     $("#from_party_code").change(function(){
         var from_party_code = $(this).val();
         if(from_party_code) {
@@ -1616,7 +2089,6 @@ $(document).ready(function() {
         }
     });
 
-    // ===== ACCOUNT RATE VALIDATION =====
     $('#eacc_rate').on('keyup', function() {
         const standard_value = parseFloat($('#acc_rate_id').html()) || 0;
         let account_rate = parseFloat($(this).val()) || 0;
@@ -1633,9 +2105,7 @@ $(document).ready(function() {
         }
     });
 
-    // ===== SHOW PARTY ITEMS =====
     function showPartyItems(party_code) {
-        $(".preload").show();
         if ($.fn.DataTable.isDataTable('#example1')) {
             $('#example1').DataTable().destroy();
         }
@@ -1707,15 +2177,11 @@ $(document).ready(function() {
                     $(row).addClass('row-status-active');
                 }
             },
-            drawCallback: function() {
-                $(".preload").hide();
-            },
             pageLength: 25,
             responsive: true
         });
     }
 
-    // ===== PARTY CHANGE =====
     $("#party_id").change(function(){
         var party_code = $(this).val();
         if(party_code) {
@@ -1728,7 +2194,6 @@ $(document).ready(function() {
         }
     });
 
-    // ===== EDIT BUTTON =====
     $('#example1 tbody').on('click', '.btn-edit', function (e) {
         var edit_id = $(this).data('id');
         document.getElementById("spinner-container").style.display = "block";
@@ -1764,7 +2229,6 @@ $(document).ready(function() {
                     $('#is_assign').prop('checked', false);
                 }
 
-                // Populate dropdowns
                 $.each(response.dunits, function(index, dunit) {
                     var selected = (dunit.id == updateDunitId) ? 'selected' : '';
                     $('#edunit_id').append('<option value="' + dunit.id + '" ' + selected + '>' + dunit.dunit_name + '</option>');
@@ -1820,7 +2284,6 @@ $(document).ready(function() {
         });
     });
 
-    // ===== DELETE BUTTON =====
     $('#example1 tbody').on('click', '.btn-delete', function (e) {
         var delete_id = $(this).data('id');
         Swal.fire({
@@ -1885,34 +2348,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fileNameDiv.textContent = '';
         }
     });
-
-    const fileLabel = document.querySelector('.file-label');
-    if (fileLabel) {
-        fileLabel.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.closest('.file-upload-container').style.borderColor = '#4f46e5';
-            this.closest('.file-upload-container').style.backgroundColor = '#eef2ff';
-        });
-        
-        fileLabel.addEventListener('dragleave', function() {
-            this.closest('.file-upload-container').style.borderColor = '#d1d5db';
-            this.closest('.file-upload-container').style.backgroundColor = '#f8fafc';
-        });
-        
-        fileLabel.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.closest('.file-upload-container').style.borderColor = '#d1d5db';
-            this.closest('.file-upload-container').style.backgroundColor = '#f8fafc';
-            if (e.dataTransfer.files.length) {
-                excelFileInput.files = e.dataTransfer.files;
-                const event = new Event('change');
-                excelFileInput.dispatchEvent(event);
-            }
-        });
-    }
 });
 
-// ===== EXCEL UPLOAD FORM SUBMIT =====
 $("#uploadExcelFormId").on("submit", function(e) {
     e.preventDefault();
     var fileInput = document.getElementById('excelFile');
@@ -1979,10 +2416,6 @@ $("#uploadExcelFormId").on("submit", function(e) {
         }
     });
 });
-
-function getPercenatage() {
-    // Your existing percentage calculation logic
-}
 
 </script>
 @endsection

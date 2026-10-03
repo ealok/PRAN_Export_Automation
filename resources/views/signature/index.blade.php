@@ -636,13 +636,13 @@
                 <div class="header-title">
                     <i class="fa fa-pencil-square-o"> Signature Management</i> 
                 </div>
-                <a id="openCreateModal" data-toggle="modal" href="#">
+                <a id="openCreateModal" data-toggle="modal">
                     <button type="button" class="btn btn-success btn-xs btn-flat">
                         <i class="fa fa-upload"></i> Upload
                     </button>
                 </a>
             </div>
-
+            
             <div class="panel-body table-responsive">
                 <table class="table table-bordered table-hover" id="example1">
                     <thead>

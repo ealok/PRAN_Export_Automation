@@ -12,6 +12,7 @@ use App\NotifyPartyItem;
 use App\SaleContractDetail;
 use Maatwebsite\Excel\Facades\Excel;
 use App\NotifyPartyUser;
+use DateTime;
 class ReportController extends Controller
 {
     public function __construct(){
@@ -376,6 +377,7 @@ class ReportController extends Controller
             return redirect()->back()->with('error', 'Export failed: ' . $e->getMessage());
         }
     }
+
     public function jsonGetJoReportData(Request $request)
     {
         try {
@@ -479,9 +481,198 @@ class ReportController extends Controller
     }
     
     public function freightReport(Request $request){
+  
+        return view('reports.freight_report');    
 
-        return view('reports.freight_report');
+    }
 
+    public function freightUtilizationReport(Request $request){
+
+        $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();    
+        return view('reports.freight_utilization_report')->with('regions',$regions);    
+
+    }
+
+    public function getFreightUtilizationReportData(Request $request)
+    {
+
+        try {
+
+            $region_id = $request->input('region_id', 1);
+            $countryList = $request->input('country_list');
+            $from_date = $request->input('fromDate') ? date("Y-m-d", strtotime($request->input('fromDate'))) : null;
+            $to_date = $request->input('toDate') ? date("Y-m-d", strtotime($request->input('toDate'))) : null;
+            $invoice_no = $request->input('invoice_search');
+            $countryNames = is_array($countryList) && count($countryList) > 0 ? implode(',', $countryList) : null;
+            $results = DB::select('CALL SP_Freight_utilization_report(?, ?, ?, ?)', [
+                $region_id,
+                $countryNames,
+                $from_date,
+                $to_date
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $results,
+                'message' => 'Data loaded successfully'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function SalesSummary(Request $request){
+
+       $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+       return view('reports.sales_summary')->with('regions',$regions);
+
+    }
+
+    public function SalesSummaryReportData(Request $request){
+
+        try {
+
+            $region_id = $request->input('region_id', 1);
+            $countryList = $request->input('country_list');
+            $from_date = $request->input('fromDate') ? date("Y-m-d", strtotime($request->input('fromDate'))) : null;
+            $to_date = $request->input('toDate') ? date("Y-m-d", strtotime($request->input('toDate'))) : null;
+            $countryNames = is_array($countryList) && count($countryList) > 0 ? implode(',', $countryList) : null;
+            $results = DB::select('CALL SP_Sales_Summary_Report(?, ?, ?, ?)', [
+                $region_id,
+                $countryNames,
+                $from_date,
+                $to_date
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $results,
+                'message' => 'Data loaded successfully'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+    }
+
+    public function itemOpeningReport(Request $request){
+
+       $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+       return view('reports.item_opening')->with('regions',$regions);
+
+    }
+
+    public function getItemOpeningReport(Request $request)
+    {
+        try {
+            $regionId = $request->input('region_id', 0);
+            $fromDate = $request->input('from_date');
+            $toDate = $request->input('to_date');
+            $results = DB::select("CALL SP_ItemOpeningReport(?, ?, ?)", [
+                $regionId, $fromDate, $toDate
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $results,
+                'total' => count($results)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+        
+    }
+
+    public function workingActivityReport(Request $request){
+
+       $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+       return view('reports.working_activity_report')->with('regions',$regions);
+
+    }
+    
+
+    public function getWorkingActivityReport(Request $request)
+    {
+        try {
+            $regionId = $request->input('region_id', 0);
+            $countryList = $request->input('country_list');
+            $fromDate = $request->input('from_date');
+            $toDate = $request->input('to_date');
+
+            if ($countryList === '') {
+                $countryList = null;
+            }
+
+            $results = DB::select("CALL SP_WorkingActivityReport(?, ?, ?, ?)", [
+                $regionId, 
+                $countryList, 
+                $fromDate, 
+                $toDate
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $results,
+                'total' => count($results)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function uniqueItemReport(Request $request){
+     
+       $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+       return view('reports.unique_item_report')->with('regions',$regions); 
+
+    }
+
+    public function uniqueItemReportData(Request $request)
+    {
+        try {
+            $region_id = $request->input('region_id');
+            $countryList = $request->input('country_list');
+            $from_date = $request->input('fromDate') ? date("Y-m-d", strtotime($request->input('fromDate'))) : null;
+            $to_date = $request->input('toDate') ? date("Y-m-d", strtotime($request->input('toDate'))) : null;
+            $countryNames = is_array($countryList) && count($countryList) > 0 ? implode(',', $countryList) : null;
+            
+            $results = DB::select('CALL GetUniqueItemReport(?, ?, ?, ?)', [
+                $region_id,
+                $countryNames,
+                $from_date,
+                $to_date
+            ]);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $results,
+                'total' => count($results)
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getFreightReportData(Request $request){
@@ -1127,6 +1318,8 @@ class ReportController extends Controller
         }
     } 
 
+
+
     public function scVsJoVsDoReport(Request $request){
        
        $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
@@ -1372,5 +1565,572 @@ class ReportController extends Controller
             ], 500);
         }
     }
+
+    public function itemOpeningPerformance(Request $request){
+
+        $regions = Area::whereNotIn('id', [3, 7, 17, 20])->get();
+        return view('reports.item_opening_performance')->with('regions',$regions);
+
+
+    }
+
+    public function getDashboardData(Request $request)
+    {
+        try {
+            // ===== GET DATE FILTERS =====
+            $fromDateInput = $request->input('fromDate');
+            $toDateInput = $request->input('toDate');
+            
+            // ===== CONVERT TO SQL DATE FORMAT =====
+            $fromDateSQL = date('Y-m-d', strtotime($fromDateInput));
+            $toDateSQL = date('Y-m-d', strtotime($toDateInput));
+            
+            // ===== CALCULATE DAYS COUNT =====
+            $fromDate = new DateTime($fromDateSQL);
+            $toDate = new DateTime($toDateSQL);
+            $daysCount = $fromDate->diff($toDate)->days;
+            
+            // ===== ADD TIME FOR PROPER COMPARISON =====
+            $fromDateTime = $fromDateSQL . ' 00:00:00';
+            $toDateTime = $toDateSQL . ' 23:59:59';
+            
+            // ===== TOTAL REQUESTED (ALL ITEMS) =====
+            $totalRequested = DB::table('requisition_items')
+                ->whereBetween('created_at', array($fromDateTime, $toDateTime))
+                ->count();
+            
+            // ===== ITEMS WITH ITEM CODE =====
+            $results = DB::table('requisition_items as ri')
+                ->leftJoin('job_order_details as jod', 'jod.item_id', '=', 'ri.item_id')
+                ->leftJoin('job_order_masters as jm', 'jod.master_id', '=', 'jm.id')
+                ->whereBetween('ri.created_at', array($fromDateTime, $toDateTime))
+                ->whereNotNull('ri.item_code')
+                ->select(array(
+                    'ri.id',
+                    'ri.item_code',
+                    'ri.item_name',
+                    'ri.requisition_number',
+                    'ri.created_at as requisition_date',
+                    'ri.pd_user',
+                    'ri.pd_name',
+                    'ri.pd_date',
+                    'ri.op_user',
+                    'ri.op_name',
+                    'ri.op_date',
+                    'ri.admin_user',
+                    'ri.admin_name',
+                    'ri.admin_date',
+                    'ri.region_name',
+                    DB::raw('MIN(jm.job_order_number) as jo_number'),
+                    DB::raw('MIN(jm.created_at) as jo_create_date'),
+                    DB::raw('TIMESTAMPDIFF(HOUR, ri.created_at, ri.pd_date) as pd_hours'),
+                    DB::raw('TIMESTAMPDIFF(HOUR, ri.pd_date, ri.op_date) as op_hours'),
+                    DB::raw('TIMESTAMPDIFF(HOUR, ri.op_date, ri.admin_date) as admin_hours'),
+                    DB::raw('TIMESTAMPDIFF(HOUR, ri.admin_date, MIN(jm.created_at)) as admin_to_jo_hours'),
+                    DB::raw('TIMESTAMPDIFF(HOUR, ri.created_at, COALESCE(ri.admin_date, ri.op_date, ri.pd_date, NOW())) as total_hours'),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.created_at, ri.pd_date) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.created_at, ri.pd_date), 24), 'h'
+                    ) as requisition_to_pd_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.pd_date, ri.op_date) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.pd_date, ri.op_date), 24), 'h'
+                    ) as pd_to_op_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.op_date, ri.admin_date) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.op_date, ri.admin_date), 24), 'h'
+                    ) as op_to_admin_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.admin_date, MIN(jm.created_at)) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.admin_date, MIN(jm.created_at)), 24), 'h'
+                    ) as admin_to_jo_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.created_at, COALESCE(ri.admin_date, ri.op_date, ri.pd_date, NOW())) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.created_at, COALESCE(ri.admin_date, ri.op_date, ri.pd_date, NOW())), 24), 'h'
+                    ) as total_time")
+                ))
+                ->groupBy(
+                    'ri.id',
+                    'ri.item_code',
+                    'ri.item_name',
+                    'ri.requisition_number',
+                    'ri.created_at',
+                    'ri.pd_user',
+                    'ri.pd_name',
+                    'ri.pd_date',
+                    'ri.op_user',
+                    'ri.op_name',
+                    'ri.op_date',
+                    'ri.admin_user',
+                    'ri.admin_name',
+                    'ri.admin_date',
+                    'ri.region_name'
+                )
+                ->orderBy('ri.created_at', 'desc')
+                ->get();
+            
+            // ===== PROCESS DASHBOARD DATA =====
+            $dashboardData = $this->processDashboardData($results);
+            $dashboardData['kpi']['requested'] = $totalRequested;
+            
+            // ===== RETURN RESPONSE =====
+            return response()->json(array(
+                'status' => 'success',
+                'data' => $results,
+                'dashboard' => $dashboardData,
+                'total' => $results->count(),
+                'filters' => array(
+                    'fromDate' => $fromDateInput,
+                    'toDate' => $toDateInput,
+                    'days' => $daysCount
+                )
+            ));
+            
+        } catch (\Exception $e) {
+            return response()->json(array(
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ), 500);
+        }
+    }
+
+    private function processDashboardData($data)
+    {
+        if ($data->isEmpty()) {
+            return array(
+                'kpi' => array(
+                    'requested' => 0,
+                    'opened' => 0,
+                    'avgOpenDays' => 0,
+                    'avgOpenHours' => 0,
+                    'openedNoJo' => 0
+                ),
+                'departments' => array(
+                    'labels' => array("PD", "Operation", "Item Admin"),
+                    'avgHours' => array(0, 0, 0),
+                    'colors' => array("#0E7C7B", "#D4552B", "#7B8894")
+                ),
+                'topSlowItems' => array(),
+                'regionsNoJo' => array(
+                    'labels' => array(),
+                    'counts' => array()
+                )
+            );
+        }
+
+        $totalOpened = 0;
+        $openedNoJo = 0;
+        $totalHours = 0;
+        $countWithAdmin = 0;
+        
+        $pdTotal = 0;
+        $opTotal = 0;
+        $adminTotal = 0;
+        $pdCount = 0;
+        $opCount = 0;
+        $adminCount = 0;
+        
+        $slowItems = array();
+        $regionData = array();
+        
+        foreach ($data as $row) {
+            // ===== OPENED ITEMS =====
+            if (!is_null($row->admin_date)) {
+                $totalOpened++;
+                
+                // ===== NO JOB ORDER =====
+                if (is_null($row->jo_number)) {
+                    $openedNoJo++;
+                    $regionName = isset($row->region_name) ? $row->region_name : 'Unknown';
+                    if (!isset($regionData[$regionName])) {
+                        $regionData[$regionName] = 0;
+                    }
+                    $regionData[$regionName]++;
+                }
+                
+                // ===== AVERAGE OPENING TIME =====
+                $hours = isset($row->total_hours) ? $row->total_hours : 0;
+                $totalHours += $hours;
+                $countWithAdmin++;
+                
+                // ===== SLOW ITEMS =====
+                $pd = isset($row->pd_hours) ? $row->pd_hours : 0;
+                $op = isset($row->op_hours) ? $row->op_hours : 0;
+                $admin = isset($row->admin_hours) ? $row->admin_hours : 0;
+                
+                $slowItems[] = array(
+                    'name' => isset($row->item_name) ? $row->item_name : 'Unknown',
+                    'pd' => round($pd / 24, 1),
+                    'op' => round($op / 24, 1),
+                    'admin' => round($admin / 24, 1)
+                );
+            }
+            
+            // ===== DEPARTMENT TAT =====
+            if (!is_null($row->pd_date)) {
+                $pdTotal += isset($row->pd_hours) ? $row->pd_hours : 0;
+                $pdCount++;
+            }
+            if (!is_null($row->pd_date) && !is_null($row->op_date)) {
+                $opTotal += isset($row->op_hours) ? $row->op_hours : 0;
+                $opCount++;
+            }
+            if (!is_null($row->op_date) && !is_null($row->admin_date)) {
+                $adminTotal += isset($row->admin_hours) ? $row->admin_hours : 0;
+                $adminCount++;
+            }
+        }
+
+        // ===== SORT SLOW ITEMS =====
+        usort($slowItems, function($a, $b) {
+            $totalA = $a['pd'] + $a['op'] + $a['admin'];
+            $totalB = $b['pd'] + $b['op'] + $b['admin'];
+            if ($totalA == $totalB) return 0;
+            return ($totalA < $totalB) ? 1 : -1;
+        });
+        
+        $slowItems = array_slice($slowItems, 0, 10);
+        arsort($regionData);
+        $regionData = array_slice($regionData, 0, 12);
+
+        return array(
+            'kpi' => array(
+                'requested' => 0, // Will be overridden
+                'opened' => $totalOpened,
+                'avgOpenDays' => $countWithAdmin > 0 ? round(($totalHours / $countWithAdmin) / 24, 1) : 0,
+                'avgOpenHours' => $countWithAdmin > 0 ? round($totalHours / $countWithAdmin, 1) : 0,
+                'openedNoJo' => $openedNoJo
+            ),
+            'departments' => array(
+                'labels' => array("PD", "Operation", "Item Admin"),
+                'avgHours' => array(
+                    $pdCount > 0 ? round($pdTotal / $pdCount, 1) : 0,
+                    $opCount > 0 ? round($opTotal / $opCount, 1) : 0,
+                    $adminCount > 0 ? round($adminTotal / $adminCount, 1) : 0
+                ),
+                'colors' => array("#0E7C7B", "#D4552B", "#7B8894")
+            ),
+            'topSlowItems' => array_values($slowItems),
+            'regionsNoJo' => array(
+                'labels' => array_keys($regionData),
+                'counts' => array_values($regionData)
+            )
+        );
+    }
+
+    
+        /**
+     * Export Report Data - Raw Data Format
+     */
+    public function exportReportData(Request $request)
+    {
+        try {
+            // ===== GET DATE FILTERS FROM REQUEST =====
+            $fromDateInput = $request->input('fromDate');
+            $toDateInput = $request->input('toDate');
+            
+            // ===== VALIDATION =====
+            if (!$fromDateInput || !$toDateInput) {
+                return response()->json(array(
+                    'status' => 'error',
+                    'message' => 'From Date and To Date are required'
+                ), 400);
+            }
+            
+            // Convert to SQL date format
+            $fromDateSQL = date('Y-m-d', strtotime($fromDateInput));
+            $toDateSQL = date('Y-m-d', strtotime($toDateInput));
+            
+            // Add time for proper comparison
+            $fromDateTime = $fromDateSQL . ' 00:00:00';
+            $toDateTime = $toDateSQL . ' 23:59:59';
+            
+            // ===== GET DATA =====
+            $results = DB::table('requisition_items as ri')
+                ->leftJoin('job_order_details as jod', 'jod.item_id', '=', 'ri.item_id')
+                ->leftJoin('job_order_masters as jm', 'jod.master_id', '=', 'jm.id')
+                ->whereBetween('ri.created_at', array($fromDateTime, $toDateTime))
+                ->whereNotNull('ri.item_code')
+                ->select(array(
+                    'ri.item_code',
+                    'ri.item_name',
+                    'ri.requisition_number',
+                    'ri.created_at as requisition_date',
+                    'ri.pd_user',
+                    'ri.pd_name',
+                    'ri.pd_date',
+                    'ri.op_user',
+                    'ri.op_name',
+                    'ri.op_date',
+                    'ri.admin_user',
+                    'ri.admin_name',
+                    'ri.admin_date',
+                    'ri.region_name',
+                    DB::raw('MIN(jm.job_order_number) as jo_number'),
+                    DB::raw('MIN(jm.created_at) as jo_create_date'),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.created_at, ri.pd_date) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.created_at, ri.pd_date), 24), 'h'
+                    ) as requisition_to_pd_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.pd_date, ri.op_date) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.pd_date, ri.op_date), 24), 'h'
+                    ) as pd_to_op_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.op_date, ri.admin_date) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.op_date, ri.admin_date), 24), 'h'
+                    ) as op_to_admin_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.admin_date, MIN(jm.created_at)) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.admin_date, MIN(jm.created_at)), 24), 'h'
+                    ) as admin_to_jo_time"),
+                    DB::raw("CONCAT(
+                        FLOOR(TIMESTAMPDIFF(HOUR, ri.created_at, COALESCE(ri.admin_date, ri.op_date, ri.pd_date, NOW())) / 24), 'd ',
+                        MOD(TIMESTAMPDIFF(HOUR, ri.created_at, COALESCE(ri.admin_date, ri.op_date, ri.pd_date, NOW())), 24), 'h'
+                    ) as total_time")
+                ))
+                ->groupBy(
+                    'ri.item_code',
+                    'ri.item_name',
+                    'ri.requisition_number',
+                    'ri.created_at',
+                    'ri.pd_user',
+                    'ri.pd_name',
+                    'ri.pd_date',
+                    'ri.op_user',
+                    'ri.op_name',
+                    'ri.op_date',
+                    'ri.admin_user',
+                    'ri.admin_name',
+                    'ri.admin_date',
+                    'ri.region_name'
+                )
+                ->orderBy('ri.created_at', 'desc')
+                ->get();
+
+            // ===== CHECK IF DATA EXISTS =====
+            if ($results->isEmpty()) {
+                return response()->json(array(
+                    'status' => 'error',
+                    'message' => 'No data found to export'
+                ), 404);
+            }
+
+            // ===== GENERATE EXCEL FILE (RAW DATA) =====
+            $objPHPExcel = new \PHPExcel();
+            $objPHPExcel->getProperties()
+                ->setCreator("PRAN Group")
+                ->setTitle("Item Opening Report");
+
+            $sheet = $objPHPExcel->getActiveSheet();
+            $sheet->setTitle('Item Opening Report');
+
+            // ===== HEADERS (RAW DATA FORMAT) =====
+            $headers = array(
+                'SL', 
+                'Item Code', 
+                'Item Name', 
+                'Requisition No', 
+                'Requisition Date',
+                'PD User', 
+                'PD Name', 
+                'PD Date',
+                'OP User', 
+                'OP Name', 
+                'OP Date',
+                'Admin User',
+                'Admin Name', 
+                'Admin Date',
+                'Region',
+                'JO Number',
+                'JO Date',
+                'Req to PD Time',
+                'PD to OP Time',
+                'OP to Admin Time',
+                'Admin to JO Time',
+                'Total Time'
+            );
+
+            // ===== HEADER STYLE =====
+            $headerStyle = array(
+                'font' => array(
+                    'bold' => true,
+                    'size' => 10,
+                    'color' => array('rgb' => 'FFFFFF')
+                ),
+                'alignment' => array(
+                    'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+                ),
+                'fill' => array(
+                    'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                    'color' => array('rgb' => '1a3c5e')
+                ),
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => \PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
+
+            // ===== DATA STYLES =====
+            $leftStyle = array(
+                'alignment' => array(
+                    'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_LEFT
+                ),
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => \PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
+
+            $centerStyle = array(
+                'alignment' => array(
+                    'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+                ),
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => \PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
+
+            $rightStyle = array(
+                'alignment' => array(
+                    'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+                ),
+                'borders' => array(
+                    'allborders' => array(
+                        'style' => \PHPExcel_Style_Border::BORDER_THIN
+                    )
+                )
+            );
+
+            // ===== SET HEADERS =====
+            foreach ($headers as $col => $header) {
+                $sheet->setCellValueByColumnAndRow($col, 1, $header);
+                $sheet->getStyleByColumnAndRow($col, 1)->applyFromArray($headerStyle);
+                $sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+            }
+
+            // ===== SET DATA ROWS =====
+            $row = 2;
+            $sl = 1;
+
+            foreach ($results as $data) {
+                // SL
+                $sheet->setCellValueByColumnAndRow(0, $row, $sl++);
+                $sheet->getStyleByColumnAndRow(0, $row)->applyFromArray($centerStyle);
+
+                // Item Code
+                $sheet->setCellValueByColumnAndRow(1, $row, isset($data->item_code) ? $data->item_code : '');
+                $sheet->getStyleByColumnAndRow(1, $row)->applyFromArray($centerStyle);
+
+                // Item Name
+                $sheet->setCellValueByColumnAndRow(2, $row, isset($data->item_name) ? $data->item_name : '');
+                $sheet->getStyleByColumnAndRow(2, $row)->applyFromArray($leftStyle);
+
+                // Requisition No
+                $sheet->setCellValueByColumnAndRow(3, $row, isset($data->requisition_number) ? $data->requisition_number : '');
+                $sheet->getStyleByColumnAndRow(3, $row)->applyFromArray($leftStyle);
+
+                // Requisition Date
+                $sheet->setCellValueByColumnAndRow(4, $row, isset($data->requisition_date) ? $data->requisition_date : '');
+                $sheet->getStyleByColumnAndRow(4, $row)->applyFromArray($centerStyle);
+
+                // PD User
+                $sheet->setCellValueByColumnAndRow(5, $row, isset($data->pd_user) ? $data->pd_user : '');
+                $sheet->getStyleByColumnAndRow(5, $row)->applyFromArray($centerStyle);
+
+                // PD Name
+                $sheet->setCellValueByColumnAndRow(6, $row, isset($data->pd_name) ? $data->pd_name : '');
+                $sheet->getStyleByColumnAndRow(6, $row)->applyFromArray($leftStyle);
+
+                // PD Date
+                $sheet->setCellValueByColumnAndRow(7, $row, isset($data->pd_date) ? $data->pd_date : '');
+                $sheet->getStyleByColumnAndRow(7, $row)->applyFromArray($centerStyle);
+
+                // OP User
+                $sheet->setCellValueByColumnAndRow(8, $row, isset($data->op_user) ? $data->op_user : '');
+                $sheet->getStyleByColumnAndRow(8, $row)->applyFromArray($centerStyle);
+
+                // OP Name
+                $sheet->setCellValueByColumnAndRow(9, $row, isset($data->op_name) ? $data->op_name : '');
+                $sheet->getStyleByColumnAndRow(9, $row)->applyFromArray($leftStyle);
+
+                // OP Date
+                $sheet->setCellValueByColumnAndRow(10, $row, isset($data->op_date) ? $data->op_date : '');
+                $sheet->getStyleByColumnAndRow(10, $row)->applyFromArray($centerStyle);
+
+                // Admin User
+                $sheet->setCellValueByColumnAndRow(11, $row, isset($data->admin_user) ? $data->admin_user : '');
+                $sheet->getStyleByColumnAndRow(11, $row)->applyFromArray($centerStyle);
+
+                // Admin Name
+                $sheet->setCellValueByColumnAndRow(12, $row, isset($data->admin_name) ? $data->admin_name : '');
+                $sheet->getStyleByColumnAndRow(12, $row)->applyFromArray($leftStyle);
+
+                // Admin Date
+                $sheet->setCellValueByColumnAndRow(13, $row, isset($data->admin_date) ? $data->admin_date : '');
+                $sheet->getStyleByColumnAndRow(13, $row)->applyFromArray($centerStyle);
+
+                // Region
+                $sheet->setCellValueByColumnAndRow(14, $row, isset($data->region_name) ? $data->region_name : '');
+                $sheet->getStyleByColumnAndRow(14, $row)->applyFromArray($centerStyle);
+
+                // JO Number
+                $sheet->setCellValueByColumnAndRow(15, $row, isset($data->jo_number) ? $data->jo_number : '');
+                $sheet->getStyleByColumnAndRow(15, $row)->applyFromArray($leftStyle);
+
+                // JO Date
+                $sheet->setCellValueByColumnAndRow(16, $row, isset($data->jo_create_date) ? $data->jo_create_date : '');
+                $sheet->getStyleByColumnAndRow(16, $row)->applyFromArray($centerStyle);
+
+                // Req to PD Time
+                $sheet->setCellValueByColumnAndRow(17, $row, isset($data->requisition_to_pd_time) ? $data->requisition_to_pd_time : '');
+                $sheet->getStyleByColumnAndRow(17, $row)->applyFromArray($leftStyle);
+
+                // PD to OP Time
+                $sheet->setCellValueByColumnAndRow(18, $row, isset($data->pd_to_op_time) ? $data->pd_to_op_time : '');
+                $sheet->getStyleByColumnAndRow(18, $row)->applyFromArray($leftStyle);
+
+                // OP to Admin Time
+                $sheet->setCellValueByColumnAndRow(19, $row, isset($data->op_to_admin_time) ? $data->op_to_admin_time : '');
+                $sheet->getStyleByColumnAndRow(19, $row)->applyFromArray($leftStyle);
+
+                // Admin to JO Time
+                $sheet->setCellValueByColumnAndRow(20, $row, isset($data->admin_to_jo_time) ? $data->admin_to_jo_time : '');
+                $sheet->getStyleByColumnAndRow(20, $row)->applyFromArray($leftStyle);
+
+                // Total Time
+                $sheet->setCellValueByColumnAndRow(21, $row, isset($data->total_time) ? $data->total_time : '');
+                $sheet->getStyleByColumnAndRow(21, $row)->applyFromArray($leftStyle);
+
+                $row++;
+            }
+
+            // ===== FREEZE PANE =====
+            $sheet->freezePane('A2');
+
+            // ===== GENERATE FILE NAME =====
+            $filename = 'Item_Opening_Report_' . date('d-m-Y') . '.xlsx';
+            
+            // ===== DOWNLOAD =====
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            
+            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+            $objWriter->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return response()->json(array(
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ), 500);
+        }
+    }
+
     
 }

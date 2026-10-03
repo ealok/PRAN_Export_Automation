@@ -41,7 +41,7 @@ table, th, td {
         <table id="inv" border="1" class="table table-bordered table-responsive table-condensed" style="margin:0 auto; width:100%;">
             <tbody>
                   <tr>
-                     <td colspan="12" class="text-center" style="text-align:center; margin-bottom:0px;  "><strong style="font-size:15px;">PACKING & WEIGHT LIST</strong></td>                  
+                     <td colspan="13" class="text-center" style="text-align:center; margin-bottom:0px;  "><strong style="font-size:15px;">PACKING & WEIGHT LIST</strong></td>                  
                   </tr>
                   <tr>
                      <td colspan="5">
@@ -54,7 +54,7 @@ table, th, td {
                          @if($sale_contract->is_proforma_invoice == 1){{"PROFORMA INVOICE"}}@else {{"SALES CONTRACT"}} @endif NO:{{$sale_contract->sales_contract_no}}</strong><br>
                          <strong>DATE:{{date("d-m-Y",strtotime( $sale_contract->dated))}}</strong>
                      </td> 
-                     <td colspan="4">
+                     <td colspan="5">
                         <strong>COUNTRY OF ORIGIN: {{strtoupper($sale_contract->country->name)}}</strong><br>
                         <strong>SALES TERM: {{$sale_contract->sales_term->name}}</strong>
                      </td>                  
@@ -67,7 +67,7 @@ table, th, td {
                      <td colspan="3">
                          <strong>EXP DATE:</strong>@if($sale_contract->export_date){{date("d-m-Y",strtotime( $sale_contract->export_date))}}@endif
                      </td> 
-                     <td colspan="4">
+                     <td colspan="5">
                          {{$sale_contract->ci_note}}
                      </td>                
                   </tr>
@@ -99,7 +99,7 @@ DHAKA-1212. BANGLADESH
                         @endif
                      </td> 
                      @endif
-                     <td colspan="@if($sale_contract->importer_id == 1){{'6'}}@else{{'4'}}@endif">
+                     <td colspan="@if($sale_contract->importer_id == 1){{'6'}}@else{{'5'}}@endif">
                         <strong>
                             @if($sale_contract->importer_id == 1)
 
@@ -123,7 +123,6 @@ DHAKA-1212. BANGLADESH
                      </td>                  
                   </tr>
 
-               
                   <tr>
                      <td colspan="@if($sale_contract->bank_importer_id == 1){{'5'}}@else{{'5'}}@endif">@if($sale_contract->is_bank)<strong>BENEFICIARY'S BANK:</strong>@endif
                         @if($sale_contract->is_bank) <pre style="margin-top:0px;  border:0px;">{{$sale_contract->bank->name}}<br>BRANCH: {{$sale_contract->bank->branch}}<br>ADDRESS:{{$sale_contract->bank->address}}<br>SWIFT CODE: {{$sale_contract->bank->swift_code}}<br>ACCOUNT NO: {{$sale_contract->account_number}}</pre>@endif
@@ -137,11 +136,23 @@ DHAKA-1212. BANGLADESH
                            <pre style="margin-top:0px;  border:0px;">{{$sale_contract->third_notify_party}}</pre>
                         </td>   
                      @endif
-                     <td colspan="@if($sale_contract->bank_importer_id == 1){{'7'}}@else{{'4'}}@endif">
+                     <td colspan="@if($sale_contract->bank_importer_id == 1){{'8'}}@else{{'4'}}@endif">
                         <pre style="margin-top:0px;  border:0px;"><strong><br>MODE OF CARRYING:</strong> {{$sale_contract->carrying_mode->name}}<br><strong>LOADING PLACE:</strong> {{$sale_contract->loading_place->name}} <br><strong>DISCHARGE  PORT:</strong>  {{$sale_contract->discharge_port}}<br><strong>FINAL DESTINATION:</strong>  {{$sale_contract->final_destination}}
                         </pre>
                      </td>                                       
                   </tr>      
+
+                  <!-- ===== TABLE HEADER WITH BEST BEFORE ===== -->
+                  <!-- Check if any best_before value exists using ternary operator -->
+                  @php
+                      $hasBestBefore = false;
+                      foreach($sale_contract_details as $detail) {
+                          if(!empty($detail->exp)) {
+                              $hasBestBefore = true;
+                              break;
+                          }
+                      }                    
+                  @endphp
 
                   <tr style="text-align:center;">
                      <td colspan="1" style="width:60px;"><strong>MARKS&nbsp;&<br>&nbsp;NOS</strong></td> 
@@ -155,9 +166,14 @@ DHAKA-1212. BANGLADESH
                      <td colspan="1"><strong>TOTAL<br>CBM</strong></td> 
                      <td colspan="1"><strong>NET<br>WEIGHT<br>KG/LTR</strong></td> 
                      <td colspan="1"><strong>GROSS<br>WEIGHT<br>KG/LTR</strong></td>
+                     
+                     <!-- Best Before Column Header - Show only if exists -->
+                     @if($hasBestBefore == true)
+                        <td colspan="1"><strong>BEST<br>BEFORE</strong></td>
+                     @endif
                   </tr>
 
-         
+                  <!-- ===== TABLE DATA ROWS ===== -->
                   <?php $i=0;?>
                   <?php $sale_contract_details = $sale_contract_details  ; $key=0; $total_pcs_in_ctn = 0; $total_ctn = 0; $total_amount = 0; $net_weight_kg_total = 0; $gross_weight_kg_total = 0; $total_cbm=0?>
                   @foreach ($sale_contract_details as $sale_contract_detail) 
@@ -173,8 +189,21 @@ DHAKA-1212. BANGLADESH
                         <td colspan="1">{{$sale_contract_detail->total_cbm}}<?php $total_cbm +=$sale_contract_detail->cbm_per_ctn*$sale_contract_detail->ctn?></td>
                         <td colspan="1">{{number_format($sale_contract_detail->net_weight_kg,2)}} <?php $net_weight_kg_total+=$sale_contract_detail->net_weight_kg ;?></td>
                         <td colspan="1">{{number_format($sale_contract_detail->gross_weight_kg,2)}} <?php $gross_weight_kg_total+=$sale_contract_detail->gross_weight_kg ;?></td>
+                        @if($hasBestBefore == true)
+                           <td colspan="1" style="text-align: center;">
+                                 <?php 
+                                 if(!empty($sale_contract_detail->exp)) {
+                                    echo date("d-m-Y", strtotime($sale_contract_detail->exp));
+                                 } else {
+                                    echo '';
+                                 }
+                                 ?>
+                           </td>
+                        @endif
                   </tr>
                   @endforeach
+
+                  <!-- ===== TOTAL ROW ===== -->
                   <tr style="text-align:right;">
                      <td colspan="1" style="text-align:left; width:10px;">TOTAL</td>
                      <td colspan="2"><strong></strong></td>    
@@ -187,10 +216,16 @@ DHAKA-1212. BANGLADESH
                      <td colspan="1"><strong>{{number_format($total_cbm,3)}}</strong></td>
                      <td colspan="1"><strong>{{ number_format($net_weight_kg_total,2)}}</strong></td> 
                      <td colspan="1"><strong>{{ number_format($gross_weight_kg_total,2)}}</strong></td>
+                     
+                     <!-- Best Before Total Column - Empty (only if exists) -->
+                     @if($hasBestBefore == true)
+                        <td colspan="1"><strong></strong></td>
+                     @endif
                   </tr> 
+
                   @if($sale_contract->container_1 || $sale_contract->container_2 || $sale_contract->container_3)
                   <tr style="text-align:right;">
-                     <td colspan="12" style="text-align:left;text-align: left;border-right: 1px solid"><strong>CONTAINER:</strong>
+                     <td colspan="<?php echo ($hasBestBefore == true) ? '13' : '12'; ?>" style="text-align:left;text-align: left;border-right: 1px solid"><strong>CONTAINER:</strong>
                            {{$sale_contract->container_1}}
                            @if($sale_contract->container_1)
                              {{","}}
@@ -203,8 +238,9 @@ DHAKA-1212. BANGLADESH
                      </td> 
                   </tr>
                   @endif  
+
                   <tr>
-                     <td colspan="12"><strong>TERMS AND CONDITIONS:</strong><br>
+                     <td colspan="<?php echo ($hasBestBefore == true) ? '13' : '12'; ?>"><strong>TERMS AND CONDITIONS:</strong><br>
                      <p style="margin-top:0px;">1. QUANTITY, QUALITY, RATE AND ALL OTHER DETAILS OF GOODS ARE IN THE ACCORDANCE WITH<br> 
 @if($sale_contract->is_revised == 1){{"REVISED "}}@endif @if($sale_contract->is_proforma_invoice == 1){{"PROFORMA INVOICE "}}@else {{"SALES CONTRACT "}}@endif NO :{{$sale_contract->sales_contract_no}} , DATE: {{date("d-m-Y",strtotime( $sale_contract->dated))}}<br>
 {{$sale_contract->terms_and_condition_desk_inv}}
@@ -232,8 +268,3 @@ function exportF(elem) {
   return false;
 }
 </script>
-
-
-
-
-

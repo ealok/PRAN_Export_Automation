@@ -465,7 +465,7 @@ class CaseInsentiveController extends Controller
                             item_groups.item_group_name as Item,
                             com_inv_masters.invoice_no as Invoice,
                             notify_parties.region as region,
-                            CONCAT('$',FORMAT(com_inv_masters.invoice_value,2)) as Invoice_Amount,
+                            CONCAT('$',FORMAT(com_inv_master_details.total_amount,2)) as Invoice_Amount,
                             FORMAT(SUM(com_inv_master_details.claim_bdt),2) as total_amout,
                             SUM(com_inv_master_details.30_percent_insentive_amount) as 30_percent,
                             com_inv_masters.30_percent_insentive_date as 30_percent_date,
@@ -497,7 +497,7 @@ class CaseInsentiveController extends Controller
                             item_groups.item_group_name as Item,
                             com_inv_masters.invoice_no as Invoice,
                             notify_parties.region as region,
-                            CONCAT('$',FORMAT(com_inv_masters.invoice_value,2)) as Invoice_Amount,
+                            CONCAT('$',FORMAT(com_inv_master_details.total_amount,2)) as Invoice_Amount,
                             FORMAT(SUM(com_inv_master_details.claim_bdt),2) as total_amout,
                             0 as 30_percent,
                             '' as 30_percent_date,
@@ -529,7 +529,7 @@ class CaseInsentiveController extends Controller
                             item_groups.item_group_name as Item,
                             com_inv_masters.invoice_no as Invoice,
                             notify_parties.region as region,
-                            CONCAT('$',FORMAT(com_inv_masters.invoice_value,2)) as Invoice_Amount,
+                            CONCAT('$',FORMAT(com_inv_master_details.total_amount,2)) as Invoice_Amount,
                             FORMAT(SUM(com_inv_master_details.claim_bdt),2) as total_amout,
                             0 as 30_percent,
                             '' as 30_percent_date,
@@ -561,7 +561,7 @@ class CaseInsentiveController extends Controller
                         item_groups.item_group_name as Item,
                         com_inv_masters.invoice_no as Invoice,
                         notify_parties.region as region,
-                        CONCAT('$',FORMAT(com_inv_masters.invoice_value,2)) as Invoice_Amount,
+                        CONCAT('$',FORMAT(com_inv_master_details.total_amount,2)) as Invoice_Amount,
                         FORMAT(SUM(com_inv_master_details.claim_bdt),2) as total_amout,
                         SUM(com_inv_master_details.30_percent_insentive_amount) as 30_percent,
                         com_inv_masters.30_percent_insentive_date as 30_percent_date,
@@ -592,7 +592,7 @@ class CaseInsentiveController extends Controller
                         item_groups.item_group_name as Item,
                         com_inv_masters.invoice_no as Invoice,
                         notify_parties.region as region,
-                        CONCAT('$',FORMAT(com_inv_masters.invoice_value,2)) as Invoice_Amount,
+                        CONCAT('$',FORMAT(com_inv_master_details.total_amount,2)) as Invoice_Amount,
                         FORMAT(SUM(com_inv_master_details.claim_bdt),2) as total_amout,
                         0 as 30_percent,
                         '' as 30_percent_date,
@@ -623,7 +623,7 @@ class CaseInsentiveController extends Controller
                         item_groups.item_group_name as Item,
                         com_inv_masters.invoice_no as Invoice,
                         notify_parties.region as region,
-                        CONCAT('$',FORMAT(com_inv_masters.invoice_value,2)) as Invoice_Amount,
+                        CONCAT('$',FORMAT(com_inv_master_details.total_amount,2)) as Invoice_Amount,
                         FORMAT(SUM(com_inv_master_details.claim_bdt),2) as total_amout,
                         0 as 30_percent,
                         '' as 30_percent_date,
@@ -647,8 +647,6 @@ class CaseInsentiveController extends Controller
                  
 
             }
-
-            
 
         if(count($results) > 0) {
 

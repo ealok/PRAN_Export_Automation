@@ -19,7 +19,7 @@ class CompanyBankController extends Controller{
 
     public function index(){
 
-        $company_banks = CompanyBank::orderBy('id','Desc')->paginate(20);
+        $company_banks = CompanyBank::orderBy('id','Desc')->get();
         return view("company_bank.company_bank_list",compact("company_banks"));
         
     }

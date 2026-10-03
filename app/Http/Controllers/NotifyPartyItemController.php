@@ -198,6 +198,7 @@ class NotifyPartyItemController extends Controller{
             $notify_party_item->runit=$request->runit_id;
             $notify_party_item->factory_id=$request->factory_id;
             $notify_party_item->hs_code2=$request->hs_code2;
+            $notify_party_item->uid=Auth::user()->id;
             $notify_party_item ->save();
             return response()->json([
                 'msg'=>'Data inserted successfully',
@@ -529,6 +530,7 @@ class NotifyPartyItemController extends Controller{
         $notify_party_item->factory_id=$request->factory_id;
         $notify_party_item->hs_code2=$request->hs_code2;
         $notify_party_item->is_assign=$request->is_assign ? $request->is_assign : 0;
+        $notify_party_item->eid=Auth::user()->id;
         $notify_party_item ->save();
         return response()->json([
             'msg'=>'Updated successfully done',
